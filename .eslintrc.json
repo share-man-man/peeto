@@ -1,0 +1,28 @@
+{
+  "env": {
+    "browser": true,
+    "es2021": true
+  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:react/recommended",
+    // If you are using the new JSX transform from React 17, extend react/jsx-runtime in your eslint config
+    "plugin:react/jsx-runtime",
+    // react-hooks
+    "plugin:react-hooks/recommended",
+    "plugin:markdown/recommended",
+    "prettier"
+  ],
+  "overrides": [],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": "latest",
+    "sourceType": "module"
+  },
+  "plugins": ["html", "react", "react-refresh", "@typescript-eslint"],
+  "rules": {
+    "no-console": "warn",
+    "no-shadow": "error"
+  }
+}
