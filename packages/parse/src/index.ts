@@ -1,2 +1,2 @@
 export { render as AsyncRender } from './AsyncRender';
-export type { SchemaObj, AnyType } from './AsyncRender/type';
+export type { SchemaCompTree, AnyType } from './AsyncRender/type';

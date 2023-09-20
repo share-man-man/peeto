@@ -18,41 +18,58 @@ export type JSONValue =
   // 数组节点
   | JSONArray
   // 空节点
-  | null;
+  | null
+  | undefined;
 
 /**
  * 对象节点
  */
-type JSONObject = {
+export type JSONObject = {
   [k: string]: JSONValue;
 };
 
 /**
  * 数组节点
  */
-type JSONArray = Array<JSONValue>;
+export type JSONArray = Array<JSONValue>;
 
 /**
  * 对象节点->表达式节点
  */
-type JSExpressionType = {
+export type JSExpressionType = {
   type: 'JSExpression';
-  value: string;
+  /**
+   * js表达式，和依赖状态名互斥
+   */
+  value?: string;
+  /**
+   * 依赖状态名，和表达式互斥
+   */
+  state?: string;
 };
 /**
  * 对象节点->函数节点
  */
-type JSFunctionType = {
+export type JSFunctionType = {
   type: 'JSFunction';
+  /**
+   * 函数参数
+   */
   params: string[];
-  // 返回schema节点的函数
   value?: string;
-  children?: SchemaObj | SchemaObj[];
+  /**
+   * 函数返回组件
+   */
+  children?: SchemaCompTree | SchemaCompTree[];
+  /**
+   * 受影响的状态，函数内部调用this.onChangeState
+   */
+  effects?: string[];
 };
 /**
- * schema组件的类型
+ * schema组件数
  */
-export interface SchemaObj extends JSONObject {
+export interface SchemaCompTree extends JSONObject {
   id: string;
   /**
    * 组件名，支持子组件链式调用，比如antd的：Collapse.Panel、Typography.Text等
@@ -65,76 +82,41 @@ export interface SchemaObj extends JSONObject {
   /**
    * 组件参数
    */
-  props: Record<string, JSONValue | JSExpressionType | JSFunctionType>;
-  children: SchemaObj | SchemaObj[];
+  props:
+    | Record<string, JSONValue | JSExpressionType | JSFunctionType>
+    | undefined;
+  children?: SchemaCompTree | SchemaCompTree[] | undefined;
 }
 
-// TODO 校验参数、状态、函数名不可重复
-export interface ComponentSchemaObj {
-  // 参数
-  props: {
-    name: string;
-    // TODO 定义参数类型
-    type: '';
-  }[];
-  // 状态
-  states: {
-    name: string;
-    default: AnyType;
-  }[];
-  // 方法
-  methods: {
-    name: string;
-    desc?: string;
-    value: string;
-    effects: string[];
-    otherMethods: string[];
-  }[];
-  // 状态依赖
-  effets: {
-    name: string;
-    dependence: string[];
-    computed: string;
-    desc?: string;
-  }[];
-  schema: SchemaObj;
+export interface RenderProps<VNodeType> {
+  /**
+   * 获取状态
+   * @param stateNameList 状态名
+   * @returns
+   */
+  getState?: (stateNameList: string[]) => AnyType[];
+  /**
+   * 设置状态
+   * @param fieldList 状态列表
+   * @returns
+   */
+  setState?: (fieldList: { name: string; value: AnyType }[]) => void;
+  /**
+   * schema对象
+   */
+  schemaCompTree: SchemaCompTree;
+  /**
+   * 创建节点（虚拟dom）
+   * @param comp 组件渲染函数
+   * @param props 组件参数
+   * @param children 组件children
+   * @returns 节点对象（虚拟dom）
+   */
+  onCreateNode: (comp: AnyType, props: AnyType, children: AnyType) => VNodeType;
+  /**
+   * 异步加载组件
+   * @param obj schema节点对象
+   * @returns 组件渲染函数
+   */
+  asyncLoadComp: (obj: SchemaCompTree) => Promise<AnyType>;
 }
-
-/**
- * 是否为基础节点
- * @param obj
- * @returns
- */
-export const isBasicType = (obj: AnyType): boolean => {
-  return [
-    '[object String]',
-    '[object Number]',
-    '[object Boolean]',
-    '[object Undefined]',
-    null,
-  ].includes(Object.prototype.toString.call(obj));
-};
-/**
- * 是否为schema节点
- * @param obj
- * @returns
- */
-export const isSchemaObj = (obj: AnyType): obj is SchemaObj => {
-  return !!obj?.componentName && !!obj?.packageName;
-};
-/**
- * 是否为表达式节点
- * @param obj
- * @returns
- */
-export const isExpression = (obj: AnyType): obj is JSExpressionType => {
-  return obj.type === 'JSExpression';
-};
-/**
- * 是否为函数节点
- * @param obj
- * @returns
- */
-export const isFunction = (obj: AnyType): obj is JSFunctionType => {
-  return obj.type === 'JSFunction';
-};
