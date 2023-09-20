@@ -1,4 +1,4 @@
-import type { AnyType, SchemaObj } from '@peeto/parse';
+import type { AnyType, SchemaCompTree } from '@peeto/parse';
 
 import { h } from 'vue';
 import type { Slot } from 'vue';
@@ -17,8 +17,8 @@ export interface VueRenderProps {
 }
 
 export interface VueRenderSlots {
-  noMatchComp: Slot<SchemaObj>;
-  noMatchPackage: Slot<SchemaObj>;
+  noMatchComp: Slot<SchemaCompTree>;
+  noMatchPackage: Slot<SchemaCompTree>;
 }
 
 export const SlotPrefix = '_vue_slots';
@@ -81,7 +81,7 @@ export const asyncLoadCompInPackages = async ({
   packageList,
   noMatchComp = defaultNoMatchCompRender,
   noMatchPackage = defaultNoMatchPackageRender,
-}: { obj: SchemaObj } & Pick<VueRenderProps, 'packageList'> &
+}: { obj: SchemaCompTree } & Pick<VueRenderProps, 'packageList'> &
   VueRenderSlots) => {
   const { packageName, componentName } = obj;
   const matchPackage = packageList.find((p) => p.name === packageName)?.load;

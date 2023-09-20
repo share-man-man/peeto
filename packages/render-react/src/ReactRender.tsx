@@ -1,6 +1,6 @@
 import { ReactNode, createElement, useState, useEffect, useRef } from 'react';
 
-import { AsyncRender } from '@peeto/parse';
+import { AnyType, AsyncRender } from '@peeto/parse';
 import { ReactRenderProps, asyncLoadCompInPackages } from './utils';
 
 const ReactRender = ({
@@ -15,6 +15,11 @@ const ReactRender = ({
   noMatchCompRenderRef.current = noMatchCompRender;
   const noMatchPackageRenderRef = useRef(noMatchPackageRender);
   noMatchPackageRenderRef.current = noMatchPackageRender;
+
+  // TODO 解析state
+  const [stateMap, setStateMap] = useState<Record<string, AnyType>>({
+    title: '123123',
+  });
 
   // 监听包是否有变更，直接监听packageList，很有肯能会多次渲染
   useEffect(() => {
@@ -33,7 +38,16 @@ const ReactRender = ({
       return;
     }
     AsyncRender<ReactNode>({
-      shcemaObj: JSON.parse(schemaStr),
+      schemaCompTree: JSON.parse(schemaStr),
+      getState: (stateNameList) => {
+        return stateNameList.map((name) => stateMap?.[name]);
+      },
+      setState(li) {
+        setStateMap({
+          ...stateMap,
+          ...Object.fromEntries(li.map((i) => [i.name, i.value])),
+        });
+      },
       onCreateNode: (comp, props, children) => {
         return createElement(comp, props, children);
       },
@@ -47,7 +61,7 @@ const ReactRender = ({
     }).then((res) => {
       setDom(res);
     });
-  }, [schemaStr, packageListState]);
+  }, [schemaStr, packageListState, stateMap]);
   return <>{dom}</>;
 };
 export default ReactRender;

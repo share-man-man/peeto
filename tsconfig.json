@@ -18,7 +18,14 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+
+    "baseUrl": ".",
+    "paths": {
+      "@peeto/parse": ["packages/parse/src"],
+      "@peeto/render-react": ["packages/render-react/src"],
+      "@peeto/render-vue": ["packages/render-vue/src"]
+    }
   },
   "include": ["packages/*/src"],
   "references": [

@@ -1,2 +1,2 @@
 export { default as ReactRender } from './ReactRender';
-export type { SchemaObj } from '@peeto/parse';
+export type { SchemaCompTree } from '@peeto/parse';

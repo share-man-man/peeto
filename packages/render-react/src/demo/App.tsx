@@ -1,9 +1,9 @@
-import { SchemaObj } from '@peeto/parse';
+import { SchemaCompTree } from '@peeto/parse';
 import ReactRender from '../ReactRender';
 
 import { v4 as id } from 'uuid';
 
-const testObj: Partial<SchemaObj> = {
+const testObj: Partial<SchemaCompTree> = {
   id: id(),
   packageName: '@ant-design/pro-components',
   componentName: 'PageContainer',
@@ -13,6 +13,38 @@ const testObj: Partial<SchemaObj> = {
     },
   },
   children: [
+    {
+      id: id(),
+      packageName: 'antd',
+      componentName: 'Typography.Title',
+      props: {},
+      children: [
+        {
+          id: id(),
+          packageName: 'my-custom',
+          componentName: 'Text',
+          props: {
+            text: {
+              type: 'JSExpression',
+              state: 'title',
+            },
+          },
+        },
+      ],
+    },
+    {
+      id: id(),
+      packageName: 'antd',
+      componentName: 'Input',
+      props: {
+        onChange: {
+          type: 'JSFunction',
+          params: ['v'],
+          value: `this.onChangeState([v.target.value])`,
+          effects: ['title'],
+        },
+      },
+    },
     {
       id: id(),
       packageName: '@ant-design/pro-components',
@@ -88,11 +120,6 @@ const testObj: Partial<SchemaObj> = {
                   packageName: 'antd',
                   componentName: 'Card',
                   props: {
-                    onClick: {
-                      type: 'JSFunction',
-                      params: ['e'],
-                      value: 'this.context?.onClickCard?.(e)',
-                    },
                     title: {
                       type: 'JSExpression',
                       value: 'this.scope?.text',
@@ -181,10 +208,12 @@ function App() {
             load: async () => import('@ant-design/pro-components'),
           },
           {
-            name: `a${Math.ceil(Math.random() * 100)}`,
+            name: `my-custom`,
             load: async () => {
               return {
-                default: '123',
+                Text: ({ text }: { text: string }) => {
+                  return <span>{text}</span>;
+                },
               };
             },
           },

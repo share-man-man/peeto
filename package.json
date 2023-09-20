@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "create-changelog": "npx lerna version --conventional-commits --no-push --yes",
-    "cz": "git cz && pnpm create-changelog"
+    "cz": "lint-staged && git cz"
   },
   "devDependencies": {
     "@types/node": "^20.6.0",

@@ -1,5 +1,5 @@
 import { AsyncRender } from '@peeto/parse';
-import type { SchemaObj } from '@peeto/parse';
+import type { SchemaCompTree } from '@peeto/parse';
 
 import { h, ref, defineComponent, watch, isVNode } from 'vue';
 import type { PropType, SlotsType, VNode } from 'vue';
@@ -17,8 +17,8 @@ export default defineComponent({
     },
   },
   slots: Object as SlotsType<{
-    noMatchComp: SchemaObj;
-    noMatchPackage: SchemaObj;
+    noMatchComp: SchemaCompTree;
+    noMatchPackage: SchemaCompTree;
   }>,
   setup({ schemaStr, packageList }, { slots }) {
     const dom = ref();
@@ -32,7 +32,7 @@ export default defineComponent({
           return;
         }
         AsyncRender<VNode>({
-          shcemaObj: JSON.parse(s),
+          schemaCompTree: JSON.parse(s),
           onCreateNode(comp, originProps = {}, children) {
             const { [SlotPrefix]: compSlots = {}, ...props } =
               originProps || {};

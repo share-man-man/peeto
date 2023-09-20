@@ -1,3 +1,3 @@
 export { default as VueRender } from './VueRender';
-export type { SchemaObj } from '@peeto/parse';
+export type { SchemaCompTree } from '@peeto/parse';
 export * from './utils';

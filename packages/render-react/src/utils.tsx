@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 
-import { SchemaObj, AnyType } from '@peeto/parse';
+import { SchemaCompTree, AnyType } from '@peeto/parse';
 
 export interface ReactRenderProps {
   /**
@@ -18,13 +18,13 @@ export interface ReactRenderProps {
    * @param obj
    * @returns
    */
-  noMatchCompRender?: (obj: SchemaObj) => ReactNode;
+  noMatchCompRender?: (obj: SchemaCompTree) => ReactNode;
   /**
    * 没有找到包
    * @param obj
    * @returns
    */
-  noMatchPackageRender?: (obj: SchemaObj) => ReactNode;
+  noMatchPackageRender?: (obj: SchemaCompTree) => ReactNode;
 }
 
 export const defaultNoMatchPackageRender: ReactRenderProps['noMatchPackageRender'] =
@@ -70,7 +70,7 @@ export const asyncLoadCompInPackages = async ({
   packageList,
   noMatchCompRender = defaultNoMatchCompRender,
   noMatchPackageRender = defaultNoMatchPackageRender,
-}: { obj: SchemaObj } & Pick<
+}: { obj: SchemaCompTree } & Pick<
   ReactRenderProps,
   'packageList' | 'noMatchCompRender' | 'noMatchPackageRender'
 >) => {
