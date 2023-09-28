@@ -1,6 +1,7 @@
 export { ParseComponent } from './ParseComponent';
 export { render as ParseRender } from './ParseRender';
 export type { SchemaStateItem } from './ParseState/type';
+export type { RenderProps } from './ParseRender/type';
 export type {
   AnyType,
   CompMapType,

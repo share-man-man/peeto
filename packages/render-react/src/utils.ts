@@ -1,7 +1,10 @@
 import { ReactNode, createElement } from 'react';
 
-import type { SchemaCompTree, PackageListType } from '@peeto/parse';
-import { RenderProps } from 'packages/parse/src/ParseRender/type';
+import type {
+  SchemaCompTree,
+  PackageListType,
+  RenderProps,
+} from '@peeto/parse';
 
 export interface ReactRenderProps {
   /**
