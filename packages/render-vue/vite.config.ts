@@ -10,9 +10,15 @@ export default defineConfig({
       entry: resolve(__dirname, 'src/index.ts'),
       name: 'PeetoRenderVue',
       fileName: 'index',
+      formats: ['es', 'umd', 'cjs', 'iife'],
     },
     rollupOptions: {
       external: ['vue'],
+      output: {
+        globals: {
+          vue: 'vue',
+        },
+      },
     },
   },
   plugins: [dts({ entryRoot: './src' }), vue()],

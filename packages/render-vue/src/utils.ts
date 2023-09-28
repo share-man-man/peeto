@@ -69,37 +69,3 @@ export const defaultNoMatchCompRender: VueRenderSlots['noMatchPackage'] = ({
     ),
   ];
 };
-
-/**
- * 从packageList里异步加载组件
- * @param obj schema节点对象
- * @param packageList 包列表
- * @returns 组件函数
- */
-export const asyncLoadCompInPackages = async ({
-  obj,
-  packageList,
-  noMatchComp = defaultNoMatchCompRender,
-  noMatchPackage = defaultNoMatchPackageRender,
-}: { obj: SchemaCompTree } & Pick<VueRenderProps, 'packageList'> &
-  VueRenderSlots) => {
-  const { packageName, componentName } = obj;
-  const matchPackage = packageList.find((p) => p.name === packageName)?.load;
-  if (!matchPackage) {
-    const NoMatchComp = () => noMatchPackage(obj);
-    return NoMatchComp;
-  }
-
-  // 组件可能包含子组件
-  const compPath = componentName.split('.');
-  let matchComp = await matchPackage();
-  compPath.forEach((name) => {
-    matchComp = (matchComp || {})[name];
-  });
-  if (!matchComp) {
-    const NoMatchComp = () => noMatchComp(obj);
-    return NoMatchComp;
-  }
-
-  return matchComp;
-};

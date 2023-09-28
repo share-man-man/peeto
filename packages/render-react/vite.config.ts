@@ -10,9 +10,15 @@ export default defineConfig({
       entry: resolve(__dirname, 'src/index.ts'),
       name: 'PeetoRenderReact',
       fileName: 'index',
+      formats: ['es', 'umd', 'cjs', 'iife'],
     },
     rollupOptions: {
       external: ['react'],
+      output: {
+        globals: {
+          react: 'react',
+        },
+      },
     },
   },
   plugins: [dts({ entryRoot: './src' }), react()],

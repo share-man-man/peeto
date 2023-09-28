@@ -1,3 +1,5 @@
+import { JSONValue } from '../type';
+
 /**
  * 状态数组
  */
@@ -9,15 +11,19 @@ export interface SchemaStateItem {
   /**
    * 状态外显名称
    */
-  desc: string;
+  desc?: string;
+  /**
+   * 初始值
+   */
+  initialValue?: JSONValue;
   /**
    * 依赖副作用
    */
-  dependences: {
+  dependences?: {
     /**
-     * 其他状态
+     * 依赖的其他状态
      */
-    values: string[];
+    states: string[];
     /**
      * 副作用函数
      */

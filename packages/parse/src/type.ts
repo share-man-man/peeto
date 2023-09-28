@@ -1,3 +1,5 @@
+import type { SchemaStateItem } from './ParseState/type';
+
 /**
  * any类型逃生舱
  */
@@ -42,13 +44,9 @@ export type JSExpressionType = {
    * js表达式，和依赖状态名互斥
    */
   value?: string;
-  /**
-   * 依赖状态名，和表达式互斥
-   */
-  state?: string;
 };
 /**
- * 对象节点->函数节点
+ * 对象节点-> 普通函数节点
  */
 export type JSFunctionType = {
   type: 'JSFunction';
@@ -56,18 +54,45 @@ export type JSFunctionType = {
    * 函数参数
    */
   params: string[];
+  /**
+   * 函数方法体
+   */
   value?: string;
+  /**
+   * 函数内注入的状态
+   */
+  states?: string[];
+};
+/**
+ * 对象节点-> 渲染函数
+ */
+export type JSFunctionRenderType = JSFunctionType & {
   /**
    * 函数返回组件
    */
   children?: SchemaCompTree | SchemaCompTree[];
-  /**
-   * 受影响的状态，函数内部调用this.onChangeState
-   */
-  effects?: string[];
 };
 /**
- * schema组件数
+ * 对象节点->状态节点
+ */
+export type JSStateType = Omit<JSExpressionType, 'value'> & {
+  /**
+   * 依赖状态名，和表达式互斥
+   */
+  state: string;
+};
+/**
+ * 对象节点->修改状态节点
+ */
+export type JSStateEffectType = Omit<JSFunctionType, 'children'> & {
+  /**
+   * 受影响的状态
+   */
+  effects: string[];
+};
+
+/**
+ * schema组件
  */
 export interface SchemaCompTree extends JSONObject {
   id: string;
@@ -88,35 +113,36 @@ export interface SchemaCompTree extends JSONObject {
   children?: SchemaCompTree | SchemaCompTree[] | undefined;
 }
 
-export interface RenderProps<VNodeType> {
+/**
+ * schema根对象
+ */
+export interface SchemaRootObj {
   /**
-   * 获取状态
-   * @param stateNameList 状态名
-   * @returns
+   * 状态集合
    */
-  getState?: (stateNameList: string[]) => AnyType[];
+  states?: SchemaStateItem[];
   /**
-   * 设置状态
-   * @param fieldList 状态列表
-   * @returns
+   * 组件树
    */
-  setState?: (fieldList: { name: string; value: AnyType }[]) => void;
-  /**
-   * schema对象
-   */
-  schemaCompTree: SchemaCompTree;
-  /**
-   * 创建节点（虚拟dom）
-   * @param comp 组件渲染函数
-   * @param props 组件参数
-   * @param children 组件children
-   * @returns 节点对象（虚拟dom）
-   */
-  onCreateNode: (comp: AnyType, props: AnyType, children: AnyType) => VNodeType;
-  /**
-   * 异步加载组件
-   * @param obj schema节点对象
-   * @returns 组件渲染函数
-   */
-  asyncLoadComp: (obj: SchemaCompTree) => Promise<AnyType>;
+  compTree: SchemaCompTree[];
 }
+
+/**
+ * 组件库集合
+ */
+export type PackageListType = {
+  /**
+   * 组件库名称
+   */
+  name: string;
+  /**
+   * 加载方法
+   * @returns
+   */
+  load: () => Promise<AnyType>;
+}[];
+
+/**
+ * 组件集合
+ */
+export type CompMapType = Map<string, AnyType>;

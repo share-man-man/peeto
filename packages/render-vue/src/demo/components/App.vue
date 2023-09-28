@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { v4 as id } from 'uuid';
+import { SchemaRootObj } from '@peeto/parse';
 import { ref } from 'vue';
 import { VueRender, SlotPrefix } from '../../index';
 import Test from './MyTest.vue';
@@ -10,106 +12,164 @@ const packageList = ref([
     load: async () => import('element-plus'),
   },
   {
-    name: '@ant-design/pro-components',
-    load: async () => ({
-      PageContainer: () => '1231123',
-    }),
-  },
-  {
     name: 'test',
     load: async () => ({
       Test,
       Button,
+      Text: ({ text }: { text: string }) => {
+        return text;
+      },
     }),
   },
 ]);
 
-const schemaStr = ref(
-  JSON.stringify({
-    id: 'el-config-provider-1',
-    packageName: 'element-plus',
-    componentName: 'ElConfigProvider',
-    props: {},
-    children: [
-      {
-        id: 'element-plus-button',
-        packageName: 'element-plus',
-        componentName: 'ElButton',
-        props: {
-          type: 'primary',
-          loading: true,
-          [SlotPrefix]: {
-            loading: {
-              type: 'JSFunction',
-              params: [],
-              children: [
-                {
-                  id: 'loading',
-                  packageName: 'element-plus',
-                  componentName: 'ElTag',
-                  props: {
-                    type: 'success',
-                  },
-                  children: ['加载插槽'],
+const testObj: SchemaRootObj = {
+  states: [
+    {
+      name: 'title',
+      initialValue: '111',
+    },
+  ],
+  compTree: [
+    {
+      id: id(),
+      packageName: 'element-plus',
+      componentName: 'ElConfigProvider',
+      props: {},
+      children: [
+        {
+          id: id(),
+          packageName: 'element-plus',
+          componentName: 'ElText',
+          props: {},
+          children: [
+            {
+              id: id(),
+              packageName: 'test',
+              componentName: 'Text',
+              props: {
+                text: {
+                  type: 'JSExpression',
+                  state: 'title',
                 },
-              ],
+              },
+            },
+          ],
+        },
+        {
+          id: id(),
+          packageName: 'element-plus',
+          componentName: 'ElInput',
+          props: {
+            modelValue: {
+              type: 'JSExpression',
+              state: 'title',
+            },
+            onInput: {
+              type: 'JSFunction',
+              params: ['v'],
+              value: `console.log(v);this.onChangeState([['title',v]])`,
+              effects: ['title'],
             },
           },
         },
-        children: ['asdsa'],
-      },
-      {
-        id: 'Test',
-        packageName: 'test',
-        componentName: 'Button',
-        props: {
-          [SlotPrefix]: {
-            default: {
-              type: 'JSFunction',
-              params: [],
-              children: [
-                {
-                  id: 'element-plus-button',
-                  packageName: 'element-plus',
-                  componentName: 'ElButton',
-                  children: ['default插槽'],
-                },
-              ],
-            },
-            test: {
-              type: 'JSFunction',
-              params: ['value'],
-              children: [
-                {
-                  id: 'element-plus-button',
-                  packageName: 'element-plus',
-                  componentName: 'ElButton',
-                  props: {
-                    type: 'primary',
-                  },
-                  children: [
-                    {
-                      type: 'JSExpression',
-                      paramns: [],
-                      value:
-                        '`test插槽-${JSON.stringify(this.scope.value.list)}`',
+        {
+          id: id(),
+          packageName: 'element-plus',
+          componentName: 'ElButton',
+          props: {
+            type: 'primary',
+            loading: true,
+            [SlotPrefix]: {
+              loading: {
+                type: 'JSFunction',
+                params: [],
+                children: [
+                  {
+                    id: id(),
+                    packageName: 'element-plus',
+                    componentName: 'ElTag',
+                    props: {
+                      type: 'success',
                     },
-                  ],
-                },
-              ],
+                    children: ['加载插槽'],
+                  },
+                ],
+              },
+            },
+          },
+          children: [
+            {
+              id: id(),
+              packageName: 'test',
+              componentName: 'Text',
+              props: {
+                text: '哈哈哈哈',
+              },
+            },
+          ],
+        },
+        {
+          id: id(),
+          packageName: 'test',
+          componentName: 'Button',
+          props: {
+            [SlotPrefix]: {
+              default: {
+                type: 'JSFunction',
+                params: [],
+                children: [
+                  {
+                    id: id(),
+                    packageName: 'element-plus',
+                    componentName: 'ElButton',
+                    children: ['default插槽'],
+                  },
+                ],
+              },
+              test: {
+                type: 'JSFunction',
+                params: ['value'],
+                children: [
+                  {
+                    id: id(),
+                    packageName: 'element-plus',
+                    componentName: 'ElButton',
+                    props: {
+                      type: 'primary',
+                    },
+                    children: [
+                      {
+                        type: 'JSExpression',
+                        paramns: [],
+                        value:
+                          '`test插槽-${JSON.stringify(this.scope.value.list)}`',
+                      },
+                    ],
+                  },
+                ],
+              },
             },
           },
         },
-      },
-    ],
-  })
-);
+      ],
+    },
+  ],
+};
+
+const schemaStr = ref(JSON.stringify(testObj));
 </script>
 
 <template>
   <div>页面首页</div>
-  <!-- <Test /> -->
-  <VueRender :schema-str="schemaStr" :package-list="packageList" />
+  <VueRender :schema-str="schemaStr" :package-list="packageList">
+    <!-- <template #noMatchPackage="{ packageName }">
+      <div>木有包{{ packageName }}</div>
+    </template>
+    <template #noMatchComp="{ componentName }">
+      <div>木有组件{{ componentName }}</div>
+    </template> -->
+  </VueRender>
 </template>
 
 <style scoped></style>
