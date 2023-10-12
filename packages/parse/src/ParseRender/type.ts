@@ -1,4 +1,4 @@
-import { AnyType, CompMapType, SchemaRootObj } from '../type';
+import type { AnyType, CompMapType, SchemaRootObj } from '../type';
 
 /**
  * 解析渲染函数
@@ -32,4 +32,8 @@ export interface RenderProps<VNodeType> {
    * 组件集合
    */
   compMap: CompMapType;
+  /**
+   * 全局变量
+   */
+  globalStore?: Record<string, AnyType>;
 }

@@ -1,7 +1,7 @@
-import {
+import type { SchemaCompTree } from './type';
+import type {
   SchemaRootObj,
   PackageListType,
-  SchemaCompTree,
   CompMapType,
   JSONValue,
 } from '../type';

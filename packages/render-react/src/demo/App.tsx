@@ -2,6 +2,8 @@ import { SchemaRootObj } from '@peeto/parse';
 import ReactRender from '../ReactRender';
 
 import { v4 as id } from 'uuid';
+import { useState } from 'react';
+import { Radio, Row } from 'antd';
 
 const testObj: SchemaRootObj = {
   states: [
@@ -206,15 +208,145 @@ const testObj: SchemaRootObj = {
   ],
 };
 
+const modalForm: SchemaRootObj = {
+  states: [
+    {
+      name: 'visible',
+      desc: '弹框可见',
+      initialValue: true,
+    },
+    {
+      name: 'loading',
+      desc: '加载中状态',
+      initialValue: false,
+    },
+    {
+      name: 'form',
+      desc: '表单ref',
+      initialValue: {
+        type: 'JSExpression',
+        packages: ['antd'],
+        value: `(function(){
+          return this.antd.Form.useForm()[0]
+        }).call(this)`,
+      },
+    },
+    // {
+    //   name: 'visibleText',
+    //   desc: '弹框可见文字',
+    //   initialValue: '',
+    //   dependences: { states: ['visible'], effect: '' },
+    // },
+  ],
+  effects: [],
+  compTree: [
+    {
+      id: id(),
+      packageName: 'antd',
+      componentName: 'Modal',
+      props: {
+        title: '测试表单',
+        open: {
+          type: 'JSExpression',
+          state: 'visible',
+        },
+        onCancel: {
+          type: 'JSFunction',
+          effects: ['visible'],
+          value: `this.onChangeState([['visible',false]])`,
+        },
+        confirmLoading: {
+          type: 'JSExpression',
+          state: 'loading',
+        },
+        maskClosable: false,
+        destroyOnClose: true,
+        bodyStyle: { display: 'flex', justifyContent: 'center' },
+      },
+      children: [
+        {
+          id: id(),
+          packageName: 'antd',
+          componentName: 'Form',
+          props: {
+            form: {
+              type: 'JSExpression',
+              state: 'form',
+            },
+          },
+          children: [
+            {
+              id: id(),
+              packageName: 'antd',
+              componentName: 'Form.Item',
+              props: { name: 'aa', label: '姓名' },
+              children: [
+                {
+                  id: id(),
+                  packageName: 'antd',
+                  componentName: 'Input',
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+    {
+      id: id(),
+      packageName: 'antd',
+      componentName: 'Button',
+      props: {
+        type: 'primary',
+        onClick: {
+          type: 'JSFunction',
+          effects: ['visible'],
+          value: `this.onChangeState([['visible',true]])`,
+        },
+      },
+      children: [
+        {
+          id: id(),
+          packageName: 'my-custom',
+          componentName: 'Text',
+          props: {
+            text: '打开表单',
+          },
+        },
+      ],
+    },
+  ],
+};
+
 function App() {
+  const [str, setStr] = useState(JSON.stringify(modalForm));
+
   return (
     <div>
+      <Row>
+        <Radio.Group
+          onChange={(v) => {
+            setStr(v.target.value);
+          }}
+          options={[
+            {
+              label: '测试1',
+              value: JSON.stringify(testObj),
+            },
+            {
+              label: '表单弹框',
+              value: JSON.stringify(modalForm),
+            },
+          ]}
+        />
+      </Row>
       <ReactRender
         onCreateNode={(Comp, props, children) => {
           // 编译工具根据react版本，决定使用createElement或jsx-runtime
           return <Comp {...props}>{children}</Comp>;
         }}
-        schemaStr={JSON.stringify(testObj)}
+        // schemaStr={JSON.stringify(testObj)}
+        schemaStr={str}
         // 有些打包器（如vite），默认不能通过import($param)动态加载包名，需要提前写好放到异步函数里去
         packageList={[
           {

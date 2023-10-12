@@ -1,11 +1,11 @@
-import {
+import type { SchemaCompTree } from '../ParseComponent/type';
+import type {
   AnyType,
   JSExpressionType,
   JSFunctionRenderType,
   JSFunctionType,
   JSStateEffectType,
   JSStateType,
-  SchemaCompTree,
 } from '../type';
 
 /**

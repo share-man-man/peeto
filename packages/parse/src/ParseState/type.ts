@@ -1,4 +1,8 @@
-import { JSONValue } from '../type';
+import type { JSExpressionType, JSONValue } from '../type';
+
+export interface StateJSExpressionType extends JSExpressionType {
+  packages: string[];
+}
 
 /**
  * 状态数组
@@ -15,9 +19,9 @@ export interface SchemaStateItem {
   /**
    * 初始值
    */
-  initialValue?: JSONValue;
+  initialValue?: StateJSExpressionType | JSONValue;
   /**
-   * 依赖副作用
+   * TODO 依赖副作用
    */
   dependences?: {
     /**

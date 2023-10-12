@@ -8,8 +8,8 @@ import {
   isState,
   isStateEffect,
 } from '../utils';
-import { AnyType, JSONValue } from '../type';
-import { RenderProps } from './type';
+import type { AnyType, JSONValue } from '../type';
+import type { RenderProps } from './type';
 
 /**
  * 解析schema，返回节点
@@ -22,6 +22,7 @@ export const render = <VNodeType>({
   schemaCompTree,
   onCreateNode,
   compMap,
+  globalStore = {},
 }: RenderProps<VNodeType>) => {
   /**
    * 递归解析schema
@@ -118,7 +119,7 @@ export const render = <VNodeType>({
       if (isStateEffect(obj)) {
         funcBind.onChangeState = (changeObj) => {
           setState?.(
-            (changeObj || {})
+            (changeObj || [])
               .filter(([name]) => (obj.effects || []).some((e) => e === name))
               .map(([name, value]) => ({
                 name,
@@ -140,5 +141,5 @@ export const render = <VNodeType>({
   };
 
   // 解析渲染组件
-  return deepRecursionParse(schemaCompTree, {});
+  return deepRecursionParse(schemaCompTree, globalStore);
 };

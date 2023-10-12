@@ -1,3 +1,5 @@
+import type { SchemaCompTree } from './ParseComponent/type';
+import type { SchemaEffectItem } from './ParseEffect/type';
 import type { SchemaStateItem } from './ParseState/type';
 
 /**
@@ -94,24 +96,6 @@ export type JSStateEffectType = Omit<JSFunctionType, 'children'> & {
 /**
  * schema组件
  */
-export interface SchemaCompTree extends JSONObject {
-  id: string;
-  /**
-   * 组件名，支持子组件链式调用，比如antd的：Collapse.Panel、Typography.Text等
-   */
-  componentName: string;
-  /**
-   * 组件所属包名
-   */
-  packageName: string;
-  /**
-   * 组件参数
-   */
-  props:
-    | Record<string, JSONValue | JSExpressionType | JSFunctionType>
-    | undefined;
-  children?: SchemaCompTree | SchemaCompTree[] | undefined;
-}
 
 /**
  * schema根对象
@@ -121,6 +105,10 @@ export interface SchemaRootObj {
    * 状态集合
    */
   states?: SchemaStateItem[];
+  /**
+   * 事件集合
+   */
+  effects?: SchemaEffectItem[];
   /**
    * 组件树
    */
@@ -143,6 +131,16 @@ export type PackageListType = {
 }[];
 
 /**
+ * 包集合
+ */
+export type PackageMapType = Map<string, AnyType>;
+
+// /**
+//  * 状态集合
+//  */
+// export type StateMapType = PackageMapType;
+
+/**
  * 组件集合
  */
-export type CompMapType = Map<string, AnyType>;
+export type CompMapType = PackageMapType;

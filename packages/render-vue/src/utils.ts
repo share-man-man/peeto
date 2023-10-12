@@ -1,7 +1,7 @@
 import type { AnyType, SchemaCompTree } from '@peeto/parse';
 
 import { h } from 'vue';
-import type { Slot } from 'vue';
+import type { PropType, Slot, SlotsType } from 'vue';
 
 export interface VueRenderProps {
   /**
@@ -20,6 +20,23 @@ export interface VueRenderSlots {
   noMatchComp: Slot<SchemaCompTree>;
   noMatchPackage: Slot<SchemaCompTree>;
 }
+
+export const defaultProps = {
+  props: {
+    schemaStr: {
+      type: String as PropType<VueRenderProps['schemaStr']>,
+      default: '',
+    },
+    packageList: {
+      type: Array as PropType<VueRenderProps['packageList']>,
+      default: () => [],
+    },
+  },
+  slots: Object as SlotsType<{
+    noMatchComp: SchemaCompTree;
+    noMatchPackage: SchemaCompTree;
+  }>,
+};
 
 export const SlotPrefix = '_vue_slots';
 
