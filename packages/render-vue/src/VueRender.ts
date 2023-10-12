@@ -1,5 +1,5 @@
 import { h, defineComponent, watchEffect, shallowRef } from 'vue';
-import { defaultProps } from './utils';
+import { defaultLoading, defaultProps } from './utils';
 import vueUsePackageMap from './hooks/usePackageMap';
 import RenderByPackage from './components/RenderByPackage';
 
@@ -21,7 +21,7 @@ const VueRender = defineComponent({
     return () => {
       // schema变化，重置渲染节点，避免状态管理出现混乱的问题
       if (packageMap.value === null || schemaStr.value !== props?.schemaStr) {
-        return;
+        return h(ctx?.slots?.loading || defaultLoading);
       }
 
       return h(

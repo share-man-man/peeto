@@ -161,14 +161,14 @@ const schemaStr = ref(JSON.stringify(testObj));
 </script>
 
 <template>
-  <div>页面首页</div>
   <VueRender :schema-str="schemaStr" :package-list="packageList">
-    <!-- <template #noMatchPackage="{ packageName }">
+    <template #loading><div>vue-loading</div></template>
+    <template #noMatchPackage="{ packageName }">
       <div>木有包{{ packageName }}</div>
     </template>
     <template #noMatchComp="{ componentName }">
       <div>木有组件{{ componentName }}</div>
-    </template> -->
+    </template>
   </VueRender>
 </template>
 

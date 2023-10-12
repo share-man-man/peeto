@@ -231,12 +231,6 @@ const modalForm: SchemaRootObj = {
         }).call(this)`,
       },
     },
-    // {
-    //   name: 'visibleText',
-    //   desc: '弹框可见文字',
-    //   initialValue: '',
-    //   dependences: { states: ['visible'], effect: '' },
-    // },
   ],
   effects: [],
   compTree: [
@@ -273,18 +267,105 @@ const modalForm: SchemaRootObj = {
               type: 'JSExpression',
               state: 'form',
             },
+            name: 'basic',
+            labelCol: { span: 8 },
+            wrapperCol: { span: 16 },
+            style: { maxWidth: 600 },
+            initialValues: { remember: true },
+            autoComplete: 'off',
           },
           children: [
             {
               id: id(),
               packageName: 'antd',
               componentName: 'Form.Item',
-              props: { name: 'aa', label: '姓名' },
+              props: {
+                label: 'Username',
+                name: 'username',
+                rules: [
+                  { required: true, message: 'Please input your username!' },
+                ],
+              },
               children: [
                 {
                   id: id(),
                   packageName: 'antd',
                   componentName: 'Input',
+                },
+              ],
+            },
+            {
+              id: id(),
+              packageName: 'antd',
+              componentName: 'Form.Item',
+              props: {
+                label: 'Password',
+                name: 'password',
+                rules: [
+                  { required: true, message: 'Please input your password!' },
+                ],
+              },
+              children: [
+                {
+                  id: id(),
+                  packageName: 'antd',
+                  componentName: 'Input.Password',
+                },
+              ],
+            },
+            {
+              id: id(),
+              packageName: 'antd',
+              componentName: 'Form.Item',
+              props: {
+                name: 'remember',
+                valuePropName: 'checked',
+                wrapperCol: { offset: 8, span: 16 },
+              },
+              children: [
+                {
+                  id: id(),
+                  packageName: 'antd',
+                  componentName: 'Checkbox',
+                  children: [
+                    {
+                      id: id(),
+                      packageName: 'my-custom',
+                      componentName: 'Text',
+                      props: {
+                        text: 'Remember me',
+                      },
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              id: id(),
+              packageName: 'antd',
+              componentName: 'Form.Item',
+              props: {
+                wrapperCol: { offset: 8, span: 16 },
+              },
+              children: [
+                {
+                  id: id(),
+                  packageName: 'antd',
+                  componentName: 'Button',
+                  props: {
+                    type: 'primary',
+                    htmlType: 'submit',
+                  },
+                  children: [
+                    {
+                      id: id(),
+                      packageName: 'my-custom',
+                      componentName: 'Text',
+                      props: {
+                        text: 'Submit',
+                      },
+                    },
+                  ],
                 },
               ],
             },
@@ -341,11 +422,13 @@ function App() {
         />
       </Row>
       <ReactRender
+        loadingRender={() => {
+          return <div>react-loading</div>;
+        }}
         onCreateNode={(Comp, props, children) => {
           // 编译工具根据react版本，决定使用createElement或jsx-runtime
           return <Comp {...props}>{children}</Comp>;
         }}
-        // schemaStr={JSON.stringify(testObj)}
         schemaStr={str}
         // 有些打包器（如vite），默认不能通过import($param)动态加载包名，需要提前写好放到异步函数里去
         packageList={[

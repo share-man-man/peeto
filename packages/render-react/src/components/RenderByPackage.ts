@@ -19,6 +19,7 @@ import {
 } from 'react';
 import {
   ReactRenderProps,
+  defaultLoading,
   defaultNoMatchCompRender,
   defaultNoMatchPackageRender,
 } from '../utils';
@@ -33,6 +34,7 @@ const RenderByPackage = ({
   noMatchCompRender,
   noMatchPackageRender,
   onCreateNode,
+  loadingRender,
 }: { packageMap: PackageMapType } & ReactRenderProps) => {
   // 初始化标识
   const [initFalg, setInitFalg] = useState(false);
@@ -56,6 +58,8 @@ const RenderByPackage = ({
   noMatchCompRenderRef.current = noMatchCompRender;
   const noMatchPackageRenderRef = useRef(noMatchPackageRender);
   noMatchPackageRenderRef.current = noMatchPackageRender;
+  const loadingRenderRef = useRef(loadingRender);
+  loadingRenderRef.current = loadingRender;
 
   // 使用包自带的状态管理
   const schemaObjStates = (JSON.parse(schemaStr) as SchemaRootObj).states;
@@ -101,7 +105,7 @@ const RenderByPackage = ({
 
   const dom = useMemo(() => {
     if (!initFalg) {
-      return;
+      return createElement(loadingRenderRef.current || defaultLoading);
     }
 
     const schemaObj = JSON.parse(schemaStr) as SchemaRootObj;

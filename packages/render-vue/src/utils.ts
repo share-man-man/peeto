@@ -35,7 +35,16 @@ export const defaultProps = {
   slots: Object as SlotsType<{
     noMatchComp: SchemaCompTree;
     noMatchPackage: SchemaCompTree;
+    loading: undefined;
   }>,
+};
+
+/**
+ * 默认的加载中
+ * @returns
+ */
+export const defaultLoading = () => {
+  return h('div', 'loading');
 };
 
 export const SlotPrefix = '_vue_slots';

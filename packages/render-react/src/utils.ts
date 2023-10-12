@@ -1,4 +1,4 @@
-import { ReactNode, createElement } from 'react';
+import { FunctionComponent, ReactNode, createElement } from 'react';
 
 import type {
   SchemaCompTree,
@@ -35,7 +35,19 @@ export interface ReactRenderProps {
    * @returns
    */
   noMatchPackageRender?: (obj: SchemaCompTree) => ReactNode;
+  /**
+   * 加载中
+   */
+  loadingRender?: FunctionComponent;
 }
+
+/**
+ * 默认的加载中
+ * @returns
+ */
+export const defaultLoading = () => {
+  return createElement('div', undefined, 'loading');
+};
 
 export const defaultNoMatchPackageRender: Required<ReactRenderProps>['noMatchPackageRender'] =
   ({ id: componentId, packageName }) =>

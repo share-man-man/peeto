@@ -23,6 +23,7 @@ import {
   defaultNoMatchCompRender,
   defaultNoMatchPackageRender,
   SlotPrefix,
+  defaultLoading,
 } from '../utils';
 
 const newProps = {
@@ -103,7 +104,7 @@ const RenderByPackage = defineComponent({
 
     const dom = computed(() => {
       if (!initFalg.value) {
-        return;
+        return h(slots.loading || defaultLoading);
       }
       const schemaObj = JSON.parse(schemaStr) as SchemaRootObj;
       // 异步解析后加载dom

@@ -1,6 +1,6 @@
 import { createElement, useState, useEffect } from 'react';
 
-import { ReactRenderProps } from './utils';
+import { ReactRenderProps, defaultLoading } from './utils';
 import usePackageMap from './hooks/usePackageMap';
 import RenderByPackage from './components/RenderByPackage';
 
@@ -19,7 +19,7 @@ const ReactRender = (props: ReactRenderProps) => {
 
   // schema变化，重置渲染节点，避免状态管理出现混乱的问题
   if (packageMap === null || schemaStr !== props?.schemaStr) {
-    return;
+    return createElement(props?.loadingRender || defaultLoading);
   }
 
   return createElement(RenderByPackage, { packageMap, ...props });
