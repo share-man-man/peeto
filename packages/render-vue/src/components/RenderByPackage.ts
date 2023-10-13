@@ -1,7 +1,6 @@
 import {
   CompMapType,
   SchemaRootObj,
-  ParseComponent,
   ParseRender,
   AnyType,
   parseState,
@@ -9,22 +8,14 @@ import {
 } from '@peeto/parse';
 import {
   defineComponent,
-  ref,
   shallowRef,
-  watchEffect,
   computed,
   VNode,
   h,
   isVNode,
   PropType,
 } from 'vue';
-import {
-  defaultProps,
-  defaultNoMatchCompRender,
-  defaultNoMatchPackageRender,
-  SlotPrefix,
-  defaultLoading,
-} from '../utils';
+import { defaultProps, SlotPrefix } from '../utils';
 
 const newProps = {
   ...defaultProps,
@@ -35,17 +26,17 @@ const newProps = {
       default: () => new Map(),
       required: true,
     },
+    compMap: {
+      type: Object as PropType<CompMapType>,
+      default: () => new Map(),
+      required: true,
+    },
   },
 };
 
 const RenderByPackage = defineComponent({
   ...newProps,
-  setup({ packageMap, schemaStr, packageList }, { slots }) {
-    // 初始化标识
-    const initFalg = ref(false);
-
-    // 组件集合
-    const compMap = shallowRef<CompMapType | null>(null);
+  setup({ packageMap, compMap, schemaStr }) {
     // 状态集合
     const stateMap = shallowRef<
       Map<
@@ -75,42 +66,12 @@ const RenderByPackage = defineComponent({
       });
     });
 
-    // 初始化组件集合
-    watchEffect(() => {
-      if (compMap.value === null) {
-        const schemaObj = JSON.parse(schemaStr) as SchemaRootObj;
-        ParseComponent({
-          schemaCompTree: schemaObj?.compTree,
-          packageList,
-          noMatchCompRender: slots.noMatchComp || defaultNoMatchCompRender,
-          noMatchPackageRender:
-            slots.noMatchPackage || defaultNoMatchPackageRender,
-        }).then((res) => {
-          compMap.value = res;
-        });
-      }
-    });
-
-    // 组件集合、状态加载完成后。初始化完成
-    watchEffect(() => {
-      if (!schemaStr || !packageList) {
-        return;
-      }
-      // 组件集合、状态加载完成后。初始化完成
-      if (compMap.value !== null && stateMap.value !== null) {
-        initFalg.value = true;
-      }
-    });
-
     const dom = computed(() => {
-      if (!initFalg.value) {
-        return h(slots.loading || defaultLoading);
-      }
       const schemaObj = JSON.parse(schemaStr) as SchemaRootObj;
       // 异步解析后加载dom
       return ParseRender<VNode>({
         schemaCompTree: schemaObj?.compTree,
-        compMap: compMap.value as CompMapType,
+        compMap,
         getState: (stateNameList) => {
           return stateNameList.map(
             (name) => stateMap.value.get(name)?.stateValue.value
@@ -121,10 +82,7 @@ const RenderByPackage = defineComponent({
           const changeList = li.filter((l) =>
             Array(stateMap.value.keys()).some((s) => l.name === s.next().value)
           );
-
-          // 避免多次调用setState，导致之前set的状态被覆盖
           changeList.forEach(({ name, value }) => {
-            // stateMapRef?.set(name, value);
             stateMap.value.get(name)?.setStateValue(value);
           });
           stateMap.value = new Map(stateMap.value);

@@ -213,7 +213,7 @@ const modalForm: SchemaRootObj = {
     {
       name: 'visible',
       desc: '弹框可见',
-      initialValue: true,
+      initialValue: false,
     },
     {
       name: 'loading',

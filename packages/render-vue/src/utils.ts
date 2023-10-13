@@ -1,25 +1,6 @@
-import type { AnyType, SchemaCompTree } from '@peeto/parse';
-
 import { h } from 'vue';
-import type { PropType, Slot, SlotsType } from 'vue';
-
-export interface VueRenderProps {
-  /**
-   * schema字符串
-   * @description 之所以是字符串，是因为useEffect相比监听对象，字符串可减少函数调用次数
-   */
-  schemaStr: string;
-  /**
-   * 包列表
-   * @description
-   */
-  packageList: { name: string; load: () => Promise<AnyType> }[];
-}
-
-export interface VueRenderSlots {
-  noMatchComp: Slot<SchemaCompTree>;
-  noMatchPackage: Slot<SchemaCompTree>;
-}
+import type { PropType, SlotsType } from 'vue';
+import { VueRenderProps, VueRenderSlots } from './type';
 
 export const defaultProps = {
   props: {
@@ -29,14 +10,14 @@ export const defaultProps = {
     },
     packageList: {
       type: Array as PropType<VueRenderProps['packageList']>,
-      default: () => [],
+      default: [],
+    },
+    onCreateNode: {
+      type: Function as PropType<VueRenderProps['onCreateNode']>,
+      default: h,
     },
   },
-  slots: Object as SlotsType<{
-    noMatchComp: SchemaCompTree;
-    noMatchPackage: SchemaCompTree;
-    loading: undefined;
-  }>,
+  slots: Object as SlotsType<VueRenderSlots>,
 };
 
 /**

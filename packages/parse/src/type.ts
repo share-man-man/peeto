@@ -8,6 +8,13 @@ import type { SchemaStateItem } from './ParseState/type';
 export type AnyType = ReturnType<typeof JSON.parse>;
 
 /**
+ * 将某些字段置为required
+ */
+export type PickRequired<T, K extends keyof T> = Omit<T, K> & {
+  [P in K]-?: T[P];
+};
+
+/**
  * JSON节点类型
  */
 export type JSONValue =
@@ -134,11 +141,6 @@ export type PackageListType = {
  * 包集合
  */
 export type PackageMapType = Map<string, AnyType>;
-
-// /**
-//  * 状态集合
-//  */
-// export type StateMapType = PackageMapType;
 
 /**
  * 组件集合

@@ -3,6 +3,8 @@ import type {
   JSFunctionType,
   JSONObject,
   JSONValue,
+  PackageMapType,
+  SchemaRootObj,
 } from '../type';
 
 export interface SchemaCompTree extends JSONObject {
@@ -22,4 +24,27 @@ export interface SchemaCompTree extends JSONObject {
     | Record<string, JSONValue | JSExpressionType | JSFunctionType>
     | undefined;
   children?: SchemaCompTree | SchemaCompTree[] | undefined;
+}
+
+export interface ParseComponentProps<VNodeType> {
+  /**
+   * 组件树
+   */
+  schemaCompTree: SchemaRootObj['compTree'];
+  /**
+   * 依赖包集合
+   */
+  packageMap: PackageMapType;
+  /**
+   * 没有找到组件
+   * @param obj
+   * @returns
+   */
+  noMatchCompRender: (obj: SchemaCompTree) => VNodeType;
+  /**
+   * 没有找到包
+   * @param obj
+   * @returns
+   */
+  noMatchPackageRender: (obj: SchemaCompTree) => VNodeType;
 }

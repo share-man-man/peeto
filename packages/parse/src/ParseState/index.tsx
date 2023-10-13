@@ -1,16 +1,21 @@
-import type { AnyType, PackageMapType } from '../type';
+import type { AnyType, PackageMapType, SchemaRootObj } from '../type';
 import type { SchemaStateItem, StateJSExpressionType } from './type';
 
+/**
+ * 是否为表达式状态
+ * @param obj
+ * @returns
+ */
 const isStateFunction = (obj: AnyType): obj is StateJSExpressionType => {
   return obj?.type === 'JSExpression';
 };
 
 /**
- *
+ * 获取状态集依赖的包名
  * @param stateList
  * @returns
  */
-export const getStatePakcageNames = (stateList?: SchemaStateItem[]) => {
+export const getStatePakcageNames = (stateList?: SchemaRootObj['states']) => {
   const nameSet = new Set<string>();
   (stateList || []).forEach((state) => {
     const initialValue = state.initialValue;
