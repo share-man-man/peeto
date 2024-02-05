@@ -3,9 +3,9 @@ import {
   CompMapType,
   AnyType,
   SchemaRootObj,
-  parseState,
-  ParseRender,
   PickRequired,
+  parseState,
+  parseRender,
 } from '@peeto/parse';
 import {
   useState,
@@ -65,7 +65,7 @@ const RenderByPackage = ({
   const dom = useMemo(() => {
     const schemaObj = JSON.parse(schemaStr) as SchemaRootObj;
     // 异步解析后加载dom
-    return ParseRender<ReactNode>({
+    return parseRender<ReactNode>({
       schemaCompTree: schemaObj?.compTree,
       compMap,
       getState: (stateNameList) => {

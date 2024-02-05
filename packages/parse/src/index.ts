@@ -15,4 +15,4 @@ export type {
 export { parsePackage } from './ParsePackage';
 export { parseState } from './ParseState';
 export { parseComponent } from './ParseComponent';
-export { render as ParseRender } from './ParseRender';
+export { render as parseRender } from './ParseRender';

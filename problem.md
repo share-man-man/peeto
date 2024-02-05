@@ -26,7 +26,7 @@
      ```jsx
      const [dom, setDom] = useState();
      useEffect(() => {
-       setDom(ParseRender());
+       setDom(parseRender());
      }, []);
      return dom;
      ```
@@ -35,7 +35,7 @@
 
      ```jsx
      const dom = useMeno(() => {
-       return ParseRender();
+       return parseRender();
      }, []);
      return dom;
      ```

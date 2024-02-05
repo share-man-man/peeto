@@ -1,7 +1,7 @@
 import {
   CompMapType,
   SchemaRootObj,
-  ParseRender,
+  parseRender,
   AnyType,
   parseState,
   PackageMapType,
@@ -69,7 +69,7 @@ const RenderByPackage = defineComponent({
     const dom = computed(() => {
       const schemaObj = JSON.parse(schemaStr) as SchemaRootObj;
       // 异步解析后加载dom
-      return ParseRender<VNode>({
+      return parseRender<VNode>({
         schemaCompTree: schemaObj?.compTree,
         compMap,
         getState: (stateNameList) => {
