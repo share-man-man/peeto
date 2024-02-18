@@ -36,7 +36,7 @@ const VueRender = defineComponent({
           // 加载组件
           const compRes = parseComponent({
             schemaCompTree: schemaObj?.compTree,
-            packageMap: packageMap.value,
+            packageMap: res,
             noMatchCompRender: slots.noMatchComp || defaultNoMatchCompRender,
             noMatchPackageRender:
               slots.noMatchPackage || defaultNoMatchPackageRender,

@@ -8,6 +8,7 @@ import {
   parseRender,
 } from '@peeto/parse';
 import {
+  useEffect,
   useState,
   Dispatch,
   SetStateAction,
@@ -17,8 +18,9 @@ import {
 } from 'react';
 import { ReactRenderProps } from '../type';
 
-// 避免lint检测到条件判断里的useState
+// 避免lint检测到条件判断里的useState、useEffect等
 const createState = useState;
+const createEffect = useEffect;
 
 const RenderByPackage = ({
   packageMap,
@@ -44,8 +46,10 @@ const RenderByPackage = ({
   const onCreateNodeRef = useRef(onCreateNode);
   onCreateNodeRef.current = onCreateNode;
 
+  const schemaRootObj = JSON.parse(schemaStr) as SchemaRootObj;
+
   // 使用包自带的状态管理
-  const schemaObjStates = (JSON.parse(schemaStr) as SchemaRootObj).states;
+  const schemaObjStates = schemaRootObj.states;
   schemaObjStates?.forEach((s) => {
     const [stateValue, setStateValue] = createState(
       parseState({
@@ -57,6 +61,31 @@ const RenderByPackage = ({
       stateValue,
       setStateValue,
     });
+  });
+
+  // 使用自带的依赖管理函数
+  schemaRootObj.effects?.forEach((e) => {
+    createEffect(
+      () => {
+        e.effectStates.forEach(({ name: effectName, value: funcBody }) => {
+          if (funcBody) {
+            stateMap.get(effectName)?.setStateValue(
+              new Function(funcBody).call(
+                // 将dependences的state绑定到this里去
+                Object.fromEntries(
+                  e.dependences.map((depName) => [
+                    depName,
+                    stateMap.get(depName)?.stateValue,
+                  ])
+                )
+              )
+            );
+          }
+        });
+        setStateMap(new Map(stateMap));
+      },
+      e.dependences.map((d) => stateMap.get(d)?.stateValue)
+    );
   });
 
   const dom = useMemo(() => {
@@ -76,6 +105,7 @@ const RenderByPackage = ({
         changeList.forEach(({ name, value }) => {
           stateMap.get(name)?.setStateValue(value);
         });
+        // state改变后，通知react重新渲染state
         setStateMap(new Map(stateMap));
       },
       onCreateNode: (comp, props, children) => {

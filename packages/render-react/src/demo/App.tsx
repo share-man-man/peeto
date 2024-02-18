@@ -8,8 +8,25 @@ import { Radio, Row } from 'antd';
 const testObj: SchemaRootObj = {
   states: [
     {
+      desc: '响应式状态',
       name: 'title',
       initialValue: '111',
+    },
+    {
+      desc: '状态依赖展示字符串',
+      name: 'titleLengthDesc',
+    },
+  ],
+  effects: [
+    {
+      desc: 'title和titleLengthDesc的状态依赖',
+      dependences: ['title'],
+      effectStates: [
+        {
+          name: 'titleLengthDesc',
+          value: 'return `字符串长度为：${this.title.length || 0}`',
+        },
+      ],
     },
   ],
   compTree: [
@@ -37,6 +54,25 @@ const testObj: SchemaRootObj = {
                 text: {
                   type: 'JSExpression',
                   state: 'title',
+                },
+              },
+            },
+          ],
+        },
+        {
+          id: id(),
+          packageName: 'antd',
+          componentName: 'Typography.Title',
+          props: {},
+          children: [
+            {
+              id: id(),
+              packageName: 'my-custom',
+              componentName: 'Text',
+              props: {
+                text: {
+                  type: 'JSExpression',
+                  state: 'titleLengthDesc',
                 },
               },
             },
@@ -400,7 +436,7 @@ const modalForm: SchemaRootObj = {
 };
 
 function App() {
-  const [str, setStr] = useState(JSON.stringify(modalForm));
+  const [str, setStr] = useState(JSON.stringify(testObj));
 
   return (
     <div>

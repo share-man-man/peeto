@@ -41,3 +41,13 @@
      ```
 
 2. 不能使用 jsx、tsx 文件，会导致打的包包含 jsx-runtime 的代码，导致体积大了 20 多 kb
+
+## react-editor
+
+### 编辑器校验（schema 的校验函数）
+
+- states 里 name 不能重复
+- effects 里 dependences 必须从 states 里选择
+- effects 里 parseEffects 长度必须等于 effects
+- effects 里，effects 数组长度设为 1
+- JSFunction 里，函数渲染的 params 在生成作用域时，需要校验 params 是否和上级重名

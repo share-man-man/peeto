@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { v4 as id } from 'uuid';
 import { SchemaRootObj } from '@peeto/parse';
-import { ref } from 'vue';
+import { h, ref } from 'vue';
 import { VueRender, SlotPrefix } from '../../index';
 import Test from './MyTest.vue';
 import Button from './MyButton.vue';
@@ -17,7 +17,7 @@ const packageList = ref([
       Test,
       Button,
       Text: ({ text }: { text: string }) => {
-        return text;
+        return h('div', text);
       },
     }),
   },
@@ -26,8 +26,25 @@ const packageList = ref([
 const testObj: SchemaRootObj = {
   states: [
     {
+      desc: '响应式状态',
       name: 'title',
       initialValue: '111',
+    },
+    {
+      desc: '状态依赖展示字符串',
+      name: 'titleLengthDesc',
+    },
+  ],
+  effects: [
+    {
+      desc: 'title和titleLengthDesc的状态依赖',
+      dependences: ['title'],
+      effectStates: [
+        {
+          name: 'titleLengthDesc',
+          value: 'return `字符串长度为：${this.title.length || 0}`',
+        },
+      ],
     },
   ],
   compTree: [
@@ -59,6 +76,25 @@ const testObj: SchemaRootObj = {
         {
           id: id(),
           packageName: 'element-plus',
+          componentName: 'ElText',
+          props: {},
+          children: [
+            {
+              id: id(),
+              packageName: 'test',
+              componentName: 'Text',
+              props: {
+                text: {
+                  type: 'JSExpression',
+                  state: 'titleLengthDesc',
+                },
+              },
+            },
+          ],
+        },
+        {
+          id: id(),
+          packageName: 'element-plus',
           componentName: 'ElInput',
           props: {
             modelValue: {
@@ -68,7 +104,7 @@ const testObj: SchemaRootObj = {
             onInput: {
               type: 'JSFunction',
               params: ['v'],
-              value: `console.log(v);this.onChangeState([['title',v]])`,
+              value: `this.onChangeState([['title',v]])`,
               effects: ['title'],
             },
           },

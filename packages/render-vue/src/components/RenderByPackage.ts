@@ -14,6 +14,7 @@ import {
   h,
   isVNode,
   PropType,
+  watch,
 } from 'vue';
 import { defaultProps, SlotPrefix } from '../utils';
 
@@ -48,8 +49,10 @@ const RenderByPackage = defineComponent({
       >
     >(new Map());
 
+    const schemaRootObj = JSON.parse(schemaStr) as SchemaRootObj;
+
     // 使用包自带的状态管理
-    const schemaObjStates = (JSON.parse(schemaStr) as SchemaRootObj).states;
+    const schemaObjStates = schemaRootObj.states;
     schemaObjStates?.forEach((s) => {
       const stateValue = shallowRef<AnyType>(
         parseState({
@@ -64,6 +67,33 @@ const RenderByPackage = defineComponent({
         stateValue,
         setStateValue,
       });
+    });
+
+    // 使用自带的依赖管理函数
+    schemaRootObj.effects?.forEach((e) => {
+      watch(
+        e.dependences.map((d) => stateMap.value.get(d)?.stateValue),
+        () => {
+          e.effectStates.forEach(({ name: effectName, value: funcBody }) => {
+            if (funcBody) {
+              stateMap.value.get(effectName)?.setStateValue(
+                new Function(funcBody).call(
+                  // 将dependences的state绑定到this里去
+                  Object.fromEntries(
+                    e.dependences.map((depName) => [
+                      depName,
+                      stateMap.value.get(depName)?.stateValue.value,
+                    ])
+                  )
+                )
+              );
+            }
+          });
+        },
+        {
+          immediate: true,
+        }
+      );
     });
 
     const dom = computed(() => {

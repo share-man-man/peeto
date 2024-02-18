@@ -111,7 +111,9 @@ export interface SchemaRootObj {
    * 状态集合
    */
   states?: SchemaStateItem[];
-  // TODO 副作用，需要提前知道依赖的状态、会改变的状态
+  /**
+   * 状态依赖
+   */
   effects?: SchemaEffectItem[];
   /**
    * 组件树
