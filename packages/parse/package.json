@@ -6,8 +6,11 @@
   "files": [
     "dist"
   ],
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./src/index.ts",
+  "publishConfig": {
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts"
+  },
   "scripts": {
     "dev": "vite build -w",
     "build": "vite build",

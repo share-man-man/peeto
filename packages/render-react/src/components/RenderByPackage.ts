@@ -25,7 +25,6 @@ const RenderByPackage = ({
   compMap,
   schemaStr,
   onCreateNode,
-  loadingRender,
 }: {
   packageMap: PackageMapType;
   compMap: CompMapType;
@@ -44,8 +43,6 @@ const RenderByPackage = ({
   // 避免react多次渲染
   const onCreateNodeRef = useRef(onCreateNode);
   onCreateNodeRef.current = onCreateNode;
-  const loadingRenderRef = useRef(loadingRender);
-  loadingRenderRef.current = loadingRender;
 
   // 使用包自带的状态管理
   const schemaObjStates = (JSON.parse(schemaStr) as SchemaRootObj).states;

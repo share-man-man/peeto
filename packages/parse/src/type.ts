@@ -10,9 +10,8 @@ export type AnyType = ReturnType<typeof JSON.parse>;
 /**
  * 将某些字段置为required
  */
-export type PickRequired<T, K extends keyof T> = Omit<T, K> & {
-  [P in K]-?: T[P];
-};
+export type PickRequired<T, K extends keyof T> = Omit<T, K> &
+  Required<Pick<T, K>>;
 
 /**
  * JSON节点类型
@@ -112,9 +111,7 @@ export interface SchemaRootObj {
    * 状态集合
    */
   states?: SchemaStateItem[];
-  /**
-   * 事件集合
-   */
+  // TODO 副作用，需要提前知道依赖的状态、会改变的状态
   effects?: SchemaEffectItem[];
   /**
    * 组件树
