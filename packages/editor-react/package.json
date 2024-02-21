@@ -1,6 +1,6 @@
 {
-  "name": "@peeto/render-react",
-  "private": false,
+  "name": "@peeto/editor-react",
+  "private": true,
   "version": "0.0.0",
   "type": "module",
   "files": [
@@ -14,9 +14,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@peeto/parse": "workspace:*"
+    "@peeto/parse": "workspace:*",
+    "@peeto/render-react": "workspace:*"
   },
   "peerDependencies": {
-    "react": "^18.2.0"
-  }
+    "react": "^18.2.0",
+    "antd": "^5.14.1"
+  },
+  "devDependencies": {}
 }
