@@ -13,13 +13,14 @@
     "build": "vite build",
     "preview": "vite preview"
   },
-  "dependencies": {
-    "@peeto/parse": "workspace:*",
-    "@peeto/render-react": "workspace:*"
-  },
+  "dependencies": {},
   "peerDependencies": {
+    "@peeto/parse": "workspace:*",
+    "@peeto/render-react": "workspace:*",
+    "@peeto/render-vue": "workspace:*",
+    "antd": "^5.14.1",
     "react": "^18.2.0",
-    "antd": "^5.14.1"
+    "vue": "^3.3.4"
   },
   "devDependencies": {}
 }

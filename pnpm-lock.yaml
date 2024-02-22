@@ -103,12 +103,18 @@ importers:
       '@peeto/render-react':
         specifier: workspace:*
         version: link:../render-react
+      '@peeto/render-vue':
+        specifier: workspace:*
+        version: link:../render-vue
       antd:
         specifier: ^5.14.1
         version: 5.14.1(react-dom@18.2.0)(react@18.2.0)
       react:
         specifier: ^18.2.0
         version: 18.2.0
+      vue:
+        specifier: ^3.3.4
+        version: 3.3.4
 
   packages/parse: {}
 
