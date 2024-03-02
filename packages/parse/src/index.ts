@@ -14,5 +14,5 @@ export type {
 } from './type';
 export { parsePackage } from './ParsePackage';
 export { parseState } from './ParseState';
-export { parseComponent } from './ParseComponent';
+export { parseComponent, deepRecursionCompTree } from './ParseComponent';
 export { render as parseRender } from './ParseRender';

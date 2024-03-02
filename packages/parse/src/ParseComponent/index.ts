@@ -7,7 +7,7 @@ import { isSchemaCompTree, getCompId } from '../utils';
  * @param param0
  * @returns
  */
-const deepRecursionCompTree = ({
+export const deepRecursionCompTree = ({
   obj,
   compCallback,
 }: {
