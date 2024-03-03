@@ -2,8 +2,11 @@ import type {
   PackageListType,
   RenderProps,
   ParseComponentProps,
+  PackageMapType,
+  CompMapType,
+  PickRequired,
 } from '@peeto/parse';
-import { FunctionComponent, ReactNode } from 'react';
+import type { FunctionComponent, ReactNode } from 'react';
 import type { createElement } from 'react';
 
 export interface ReactRenderProps
@@ -36,4 +39,15 @@ export interface ReactRenderProps
    * 加载中
    */
   loadingRender?: FunctionComponent;
+  /**
+   * 创建节点树之后的钩子函数
+   * @param node
+   * @returns
+   */
+  onNodeChange?: (node: ReactNode) => void;
 }
+
+export type RenderByPackageProps = {
+  packageMap: PackageMapType;
+  compMap: CompMapType;
+} & PickRequired<ReactRenderProps, 'onCreateNode'>;

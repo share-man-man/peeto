@@ -1,12 +1,4 @@
-import {
-  PackageMapType,
-  CompMapType,
-  AnyType,
-  SchemaRootObj,
-  PickRequired,
-  parseState,
-  parseRender,
-} from '@peeto/parse';
+import { AnyType, SchemaRootObj, parseState, parseRender } from '@peeto/parse';
 import {
   useEffect,
   useState,
@@ -15,8 +7,9 @@ import {
   useRef,
   useMemo,
   ReactNode,
+  useLayoutEffect,
 } from 'react';
-import { ReactRenderProps } from '../type';
+import { RenderByPackageProps } from '../type';
 
 // 避免lint检测到条件判断里的useState、useEffect等
 const createState = useState;
@@ -27,10 +20,8 @@ const RenderByPackage = ({
   compMap,
   schemaStr,
   onCreateNode,
-}: {
-  packageMap: PackageMapType;
-  compMap: CompMapType;
-} & PickRequired<ReactRenderProps, 'onCreateNode'>) => {
+  onNodeChange,
+}: RenderByPackageProps) => {
   // 状态集合
   const [stateMap, setStateMap] = useState<
     Map<
@@ -113,6 +104,13 @@ const RenderByPackage = ({
       },
     });
   }, [compMap, schemaStr, stateMap]);
+  const onNodeChangeRef = useRef(onNodeChange);
+  onNodeChangeRef.current = onNodeChange;
+
+  useLayoutEffect(() => {
+    onNodeChangeRef.current?.(dom);
+  }, [dom]);
+
   return dom;
 };
 

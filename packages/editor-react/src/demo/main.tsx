@@ -6,8 +6,12 @@ const dom = document.getElementById('root');
 
 if (dom) {
   ReactDOM.createRoot(dom).render(
-    <React.StrictMode>
+    import.meta.env.MODE === 'development' ? (
       <App />
-    </React.StrictMode>
+    ) : (
+      <React.StrictMode>
+        <App />
+      </React.StrictMode>
+    )
   );
 }

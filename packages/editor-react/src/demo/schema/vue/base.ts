@@ -1,29 +1,8 @@
-<script setup lang="ts">
-import { v4 as id } from 'uuid';
 import { SchemaRootObj } from '@peeto/parse';
-import { h, ref } from 'vue';
-import { SlotPrefix, VueRender } from '@peeto/render-vue';
-import Test from './MyTest.vue';
-import Button from './MyButton.vue';
+import { SlotPrefix } from '@peeto/render-vue';
+import { v4 as id } from 'uuid';
 
-const packageList = ref([
-  {
-    name: 'element-plus',
-    load: async () => import('element-plus'),
-  },
-  {
-    name: 'test',
-    load: async () => ({
-      Test,
-      Button,
-      Text: ({ text }: { text: string }) => {
-        return h('div', text);
-      },
-    }),
-  },
-]);
-
-const testObj: SchemaRootObj = {
+export const schema: SchemaRootObj = {
   states: [
     {
       desc: '响应式状态',
@@ -49,19 +28,19 @@ const testObj: SchemaRootObj = {
   ],
   compTree: [
     {
-      id: id(),
+      id: `${id()}`,
       packageName: 'element-plus',
       componentName: 'ElConfigProvider',
       props: {},
       children: [
         {
-          id: id(),
+          id: `${id()}`,
           packageName: 'element-plus',
           componentName: 'ElText',
           props: {},
           children: [
             {
-              id: id(),
+              id: `${id()}`,
               packageName: 'test',
               componentName: 'Text',
               props: {
@@ -74,13 +53,13 @@ const testObj: SchemaRootObj = {
           ],
         },
         {
-          id: id(),
+          id: `${id()}`,
           packageName: 'element-plus',
           componentName: 'ElText',
           props: {},
           children: [
             {
-              id: id(),
+              id: `${id()}`,
               packageName: 'test',
               componentName: 'Text',
               props: {
@@ -93,7 +72,7 @@ const testObj: SchemaRootObj = {
           ],
         },
         {
-          id: id(),
+          id: `${id()}`,
           packageName: 'element-plus',
           componentName: 'ElInput',
           props: {
@@ -110,7 +89,7 @@ const testObj: SchemaRootObj = {
           },
         },
         {
-          id: id(),
+          id: `${id()}`,
           packageName: 'element-plus',
           componentName: 'ElButton',
           props: {
@@ -122,7 +101,7 @@ const testObj: SchemaRootObj = {
                 params: [],
                 children: [
                   {
-                    id: id(),
+                    id: `${id()}`,
                     packageName: 'element-plus',
                     componentName: 'ElTag',
                     props: {
@@ -136,7 +115,7 @@ const testObj: SchemaRootObj = {
           },
           children: [
             {
-              id: id(),
+              id: `${id()}`,
               packageName: 'test',
               componentName: 'Text',
               props: {
@@ -146,7 +125,7 @@ const testObj: SchemaRootObj = {
           ],
         },
         {
-          id: id(),
+          id: `${id()}`,
           packageName: 'test',
           componentName: 'Button',
           props: {
@@ -156,7 +135,7 @@ const testObj: SchemaRootObj = {
                 params: [],
                 children: [
                   {
-                    id: id(),
+                    id: `${id()}`,
                     packageName: 'element-plus',
                     componentName: 'ElButton',
                     children: ['default插槽'],
@@ -168,7 +147,7 @@ const testObj: SchemaRootObj = {
                 params: ['value'],
                 children: [
                   {
-                    id: id(),
+                    id: `${id()}`,
                     packageName: 'element-plus',
                     componentName: 'ElButton',
                     props: {
@@ -192,18 +171,3 @@ const testObj: SchemaRootObj = {
     },
   ],
 };
-
-const schemaStr = ref(JSON.stringify(testObj));
-</script>
-
-<template>
-  <VueRender :schema-str="schemaStr" :package-list="packageList">
-    <template #loading><div>vue-loading</div></template>
-    <template #noMatchPackage="{ packageName }">
-      <div>木有包{{ packageName }}</div>
-    </template>
-    <template #noMatchComp="{ componentName }">
-      <div>木有组件{{ componentName }}</div>
-    </template>
-  </VueRender>
-</template>

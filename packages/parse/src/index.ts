@@ -11,6 +11,7 @@ export type {
   PackageMapType,
   PackageListType,
   SchemaRootObj,
+  JSONValue,
 } from './type';
 export { parsePackage } from './ParsePackage';
 export { parseState } from './ParseState';
