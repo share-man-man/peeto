@@ -7,4 +7,5 @@ export interface FiberNode {
   return?: FiberNode;
   sibling?: FiberNode;
   stateNode?: AnyType;
+  pendingProps?: AnyType;
 }

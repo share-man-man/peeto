@@ -48,7 +48,7 @@ export const schema: SchemaRootObj = {
         },
         maskClosable: false,
         destroyOnClose: true,
-        bodyStyle: { display: 'flex', justifyContent: 'center' },
+        style: { display: 'flex', justifyContent: 'center' },
       },
       children: [
         {

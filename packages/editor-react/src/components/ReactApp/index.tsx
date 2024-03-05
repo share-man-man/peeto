@@ -1,53 +1,102 @@
 import type { AnyType, JSONValue } from '@peeto/parse';
 import { SchemaCompTree, deepRecursionCompTree } from '@peeto/parse';
 import { ReactRender } from '@peeto/render-react';
-
-import { ReactNode, useLayoutEffect, useRef, useState } from 'react';
-import { deepRecursionFiberNode } from './utils/fiber';
-import type { FiberNode } from './utils/fiber';
-import WrapComp, { getWrapCompKey } from './components/WrapComp';
+import { ReactNode, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import type { FiberNode } from './type';
 
 import {
   SIMILATOR_MAP_EVENT_KEY,
-  SIMILATOR_SCHEMA_KEY,
+  SIMILATOR_CONFIG_SET_EVENT_KEY,
+  SIMILATOR_REQUEST_EVENT_KEY,
 } from '../EditorWorkbench/util';
+import { WorkBenchProps } from '../EditorWorkbench/type';
+
+/**
+ * 获取模拟器容器dom
+ * @param dom
+ * @returns
+ */
+const getSimilatorContainerDom = (dom: HTMLDivElement | null) =>
+  dom?.parentElement?.parentElement;
+
+/**
+ * 遍历fiber树
+ * @param param0
+ * @returns
+ */
+export const deepRecursionFiberNode = ({
+  fiberNode,
+  callBack,
+}: {
+  fiberNode?: FiberNode;
+  callBack: (n: FiberNode) => void;
+}): undefined => {
+  if (!fiberNode) {
+    return;
+  }
+  callBack(fiberNode);
+  deepRecursionFiberNode({
+    fiberNode: fiberNode?.child,
+    callBack,
+  });
+
+  deepRecursionFiberNode({
+    fiberNode: fiberNode?.sibling,
+    callBack,
+  });
+};
 
 const App = () => {
-  const [schemaStr, setSchemaStr] = useState<string>();
+  const [delay, setDelay] = useState<WorkBenchProps['delay']>();
+  const [schemaStr, setSchemaStr] = useState<WorkBenchProps['schemaStr']>();
+  const [packageList, setPackageList] =
+    useState<WorkBenchProps['packageList']>();
   const renderContainerRef = useRef<HTMLDivElement>(null);
   const renderNodeRef = useRef<ReactNode | ReactNode[] | null>(null);
   const domMapRef = useRef<Map<SchemaCompTree['id'], HTMLElement[]>>(new Map());
 
-  // 获取schema
+  const peetoPrivateKey = useMemo(() => `__peeto_${new Date().getTime()}`, []);
+
+  // 获取初始化配置
   useLayoutEffect(() => {
-    const similatorDom =
-      renderContainerRef.current?.parentElement?.parentElement;
-    const onSimilatorChange = () => {
-      const domStr = similatorDom?.getAttribute(SIMILATOR_SCHEMA_KEY);
-      setSchemaStr(domStr || undefined);
-    };
-    onSimilatorChange();
-    const observer = new MutationObserver(onSimilatorChange);
-
-    if (similatorDom) {
-      observer.observe(similatorDom, {
-        childList: false,
-        attributes: true,
-        subtree: false,
-      });
-    }
-
-    return () => observer.disconnect();
+    const similatorContainerDom = getSimilatorContainerDom(
+      renderContainerRef.current
+    );
+    similatorContainerDom?.dispatchEvent(
+      new CustomEvent(SIMILATOR_REQUEST_EVENT_KEY, {
+        detail: {
+          getConfig: (config: WorkBenchProps) => {
+            setSchemaStr(config.schemaStr);
+            setPackageList(config.packageList);
+            setDelay(config.delay);
+          },
+        },
+      })
+    );
   }, []);
 
-  // 真实 dom 修改后，通过虚拟 dom 创建映射关系
+  // 监听配置修改
   useLayoutEffect(() => {
-    if (!schemaStr) {
+    const similatorContainerDom = getSimilatorContainerDom(
+      renderContainerRef.current
+    );
+    similatorContainerDom?.addEventListener(
+      SIMILATOR_CONFIG_SET_EVENT_KEY,
+      (e) => {
+        const config = (e as CustomEvent).detail as WorkBenchProps;
+        setSchemaStr(config.schemaStr);
+        setPackageList(config.packageList);
+      }
+    );
+  }, []);
+
+  // 监听dom变化：真实 dom 修改后，通过虚拟 dom 创建映射关系
+  useLayoutEffect(() => {
+    if (!schemaStr || !packageList) {
       return;
     }
 
-    const observer = new MutationObserver(() => {
-      // TODO 可增加节流
+    const run = () => {
       // 获取组件包含的dom（不包含子组件的dom）
       const node = renderNodeRef.current;
       domMapRef.current.clear();
@@ -61,33 +110,46 @@ const App = () => {
           domMapRef.current.set(obj.id, []);
         },
       });
+
       deepRecursionFiberNode({
         fiberNode: rootFiberNode,
         callBack: (n) => {
           if (n?.stateNode instanceof HTMLElement) {
             let curNode: FiberNode | undefined = n;
-            while (curNode && !domMapRef.current.has(curNode.key || '')) {
+            let privateKey = curNode?.pendingProps?.[peetoPrivateKey];
+            while (curNode && !domMapRef.current.has(privateKey || '')) {
               curNode = curNode?.return;
+              privateKey = curNode?.pendingProps?.[peetoPrivateKey];
             }
             if (!curNode) {
               throw new Error('找不到对应的fiberNode');
             } else {
-              domMapRef.current
-                .get(curNode.key as SchemaCompTree['id'])
-                ?.push(n.stateNode);
+              domMapRef.current.get(privateKey)?.push(n.stateNode);
             }
           }
         },
       });
 
-      // 上抛映射关系
-      renderContainerRef.current?.parentElement?.parentElement?.dispatchEvent(
+      // 触发回调，传入映射关系
+      const similatorContainerDom = getSimilatorContainerDom(
+        renderContainerRef.current
+      );
+      similatorContainerDom?.dispatchEvent(
         new CustomEvent(SIMILATOR_MAP_EVENT_KEY, {
           detail: new Map(domMapRef.current),
         })
       );
+    };
+    let runTimeout: NodeJS.Timeout | null;
+    const observer = new MutationObserver(() => {
+      if (runTimeout) {
+        clearTimeout(runTimeout);
+        runTimeout = null;
+      }
+      runTimeout = setTimeout(run, delay);
     });
 
+    // TODO 监测不到renderContainer以外的的dom，比如@antd.Modal
     if (renderContainerRef.current) {
       observer.observe(renderContainerRef.current, {
         childList: true,
@@ -96,12 +158,17 @@ const App = () => {
       });
     }
 
-    return () => observer.disconnect();
-  }, [schemaStr]);
+    return () => {
+      observer.disconnect();
+      if (runTimeout) {
+        clearTimeout(runTimeout);
+      }
+    };
+  }, [delay, packageList, peetoPrivateKey, schemaStr]);
 
   return (
     <div ref={renderContainerRef}>
-      {schemaStr && (
+      {schemaStr && packageList && (
         <ReactRender
           onNodeChange={(node) => {
             // 存储虚拟dom
@@ -110,42 +177,23 @@ const App = () => {
           loadingRender={() => {
             return <div>react-loading</div>;
           }}
-          onCreateNode={(Comp, props, children) => {
-            return (
-              <WrapComp // TODO 包装一层组件后，input光标会跳出来，@antd4的collapse获取不到collapse.item
+          onCreateNode={(Comp, p, children) => {
+            const res = (
+              <Comp
                 {...{
-                  ...props,
-                  key: getWrapCompKey(),
+                  ...p,
+                  // 传入私有参数原因：@antd.Button会重新定义子组件的key，导致无法在fiber节点通过key获取组件配置
+                  [peetoPrivateKey]: p?.key,
                 }}
               >
-                <Comp {...props}>{children}</Comp>
-              </WrapComp>
+                {children}
+              </Comp>
             );
+
+            return res;
           }}
           schemaStr={schemaStr}
-          packageList={
-            // TODO 从外部获取
-            [
-              {
-                name: 'antd',
-                load: async () => import('antd'),
-              },
-              {
-                name: '@ant-design/pro-components',
-                load: async () => import('@ant-design/pro-components'),
-              },
-              {
-                name: `my-custom`,
-                load: async () => {
-                  return {
-                    Text: ({ text }: { text: string }) => {
-                      return <span>{text}</span>;
-                    },
-                  };
-                },
-              },
-            ]
-          }
+          packageList={packageList}
           noMatchPackageRender={({ id: componentId, packageName }) => (
             <div
               key={`nomatch-package-${componentId}`}

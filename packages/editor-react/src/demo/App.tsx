@@ -88,14 +88,11 @@ function Index() {
     EDITOR_LIB_TYPE.REACT
   );
   const [schemaKey, setSchemaKey] = useState<string>(
-    schemaConfig[libType]?.[0]?.key
+    schemaConfig[libType]?.[1]?.key
   );
 
-  const schemaStr = useMemo(() => {
-    if (!libType || !schemaKey) {
-      return '';
-    }
-    return schemaConfig[libType].find((i) => i.key === schemaKey)?.schema;
+  const curConfig = useMemo(() => {
+    return schemaConfig[libType]?.find((i) => i.key === schemaKey);
   }, [libType, schemaKey]);
 
   return (
@@ -145,7 +142,14 @@ function Index() {
         ]}
       />
       <Typography.Title level={3}>渲染效果</Typography.Title>
-      {schemaStr && <EditorWorkbench type={libType} schemaStr={schemaStr} />}
+      {libType && curConfig?.schema && curConfig.packageList && (
+        <EditorWorkbench
+          type={libType}
+          schemaStr={curConfig.schema}
+          packageList={curConfig.packageList}
+          delay={500}
+        />
+      )}
     </div>
   );
 }

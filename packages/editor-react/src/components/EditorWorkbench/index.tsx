@@ -1,86 +1,74 @@
 import 'element-plus/dist/index.css';
 
-import { createRoot } from 'react-dom/client';
-import { ReactNode, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useLayoutEffect, useRef } from 'react';
 
-import { createApp } from 'vue';
 import { WorkBenchProps } from './type';
-import { EDITOR_LIB_TYPE } from '../../type';
-import ReactApp from '../ReactApp';
-import VueApp from '../VueApp/App.vue';
+
 import {
-  VUE_APP_ID,
-  REACT_APP_ID,
-  SIMILATOR_SCHEMA_KEY,
   SIMILATOR_MAP_EVENT_KEY,
+  SIMILATOR_CONFIG_SET_EVENT_KEY,
+  SIMILATOR_REQUEST_EVENT_KEY,
 } from './util';
+import EditorSimilator from '../EditorSimilator';
 
-const Index = ({ type, schemaStr }: WorkBenchProps) => {
+const Index = (props: WorkBenchProps) => {
+  const propsRef = useRef(props);
+  propsRef.current = props;
   const similatorRef = useRef<HTMLDivElement>(null);
-  const [child, setChild] = useState<ReactNode>(<div>当前版本:{type}</div>);
-  useEffect(() => {
-    if (type === EDITOR_LIB_TYPE.VUE) {
-      setChild(<div id={VUE_APP_ID}>vue</div>);
-    }
-    if (type === EDITOR_LIB_TYPE.REACT) {
-      setChild(<div id={REACT_APP_ID}>react</div>);
-    }
-  }, [type]);
+
+  // 通知模拟器，配置更新了
+  useLayoutEffect(() => {
+    const similatorContainerDom = similatorRef.current;
+    similatorContainerDom?.dispatchEvent(
+      new CustomEvent(SIMILATOR_CONFIG_SET_EVENT_KEY, {
+        detail: props,
+      })
+    );
+  }, [props]);
 
   useLayoutEffect(() => {
-    if (!child || !similatorRef.current) {
-      return;
-    }
-
-    if (type === EDITOR_LIB_TYPE.VUE) {
-      const dom = document.getElementById(VUE_APP_ID);
-      if (dom) {
-        const app = createApp(VueApp);
-        app.mount(dom);
-      }
-    }
-
-    if (type === EDITOR_LIB_TYPE.REACT) {
-      const dom = document.getElementById(REACT_APP_ID);
-      if (dom) {
-        const app = createRoot(dom);
-        app.render(<ReactApp />);
-      }
-    }
-
-    return () => {
-      // TODO 研究是否需要unmount
-      // if (VUE_APP_OBJ) {
-      //   VUE_APP_OBJ.unmount();
-      //   VUE_APP_OBJ = null;
-      // }
-      // if (REACT_APP_OBJ) {
-      //   REACT_APP_OBJ.unmount();
-      //   REACT_APP_OBJ = null;
-      // }
-    };
-  }, [child, type]);
-
-  useLayoutEffect(() => {
-    const similatorDom = similatorRef.current;
-    // 设置schema，供画布子组件渲染
-    similatorDom?.setAttribute(SIMILATOR_SCHEMA_KEY, schemaStr);
-    // 监听特定事件，获取组件和真实dom的映射关系
-    const callBack = (e: Event) => {
+    const similatorContainerDom = similatorRef.current;
+    // 组件和真实dom的映射关系改变
+    const onDomMapChange = (e: Event) => {
       console.log('映射关系', (e as CustomEvent)?.detail);
     };
-    similatorDom?.addEventListener(SIMILATOR_MAP_EVENT_KEY, callBack);
+    // 模拟器请求事件
+    const onSimilatorRequest = (e: Event) => {
+      (
+        (e as CustomEvent).detail as {
+          // 模拟器获取配置
+          getConfig?: (c: WorkBenchProps) => void;
+        }
+      )?.getConfig?.(propsRef.current);
+    };
+    similatorContainerDom?.addEventListener(
+      SIMILATOR_MAP_EVENT_KEY,
+      onDomMapChange
+    );
+    similatorContainerDom?.addEventListener(
+      SIMILATOR_REQUEST_EVENT_KEY,
+      onSimilatorRequest
+    );
 
     return () => {
-      similatorDom?.removeEventListener(SIMILATOR_MAP_EVENT_KEY, callBack);
+      similatorContainerDom?.removeEventListener(
+        SIMILATOR_MAP_EVENT_KEY,
+        onDomMapChange
+      );
+      similatorContainerDom?.removeEventListener(
+        SIMILATOR_REQUEST_EVENT_KEY,
+        onSimilatorRequest
+      );
     };
-  }, [schemaStr]);
+  }, []);
 
   return (
     <div>
       <div>工具栏</div>
       {/* 模拟器 */}
-      <div ref={similatorRef}>{child}</div>
+      <div ref={similatorRef}>
+        <EditorSimilator type={props.type} />
+      </div>
       <div>配置器</div>
     </div>
   );
