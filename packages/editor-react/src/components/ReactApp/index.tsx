@@ -1,15 +1,25 @@
 import type { AnyType, JSONValue } from '@peeto/parse';
 import { SchemaCompTree, deepRecursionCompTree } from '@peeto/parse';
 import { ReactRender } from '@peeto/render-react';
-import { ReactNode, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import {
+  ReactNode,
+  useCallback,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import type { FiberNode } from './type';
 
 import {
   SIMILATOR_MAP_EVENT_KEY,
-  SIMILATOR_CONFIG_SET_EVENT_KEY,
+  SIMILATOR_DISPATCH_EVENT_KEY,
   SIMILATOR_REQUEST_EVENT_KEY,
 } from '../EditorWorkbench/util';
-import { WorkBenchProps } from '../EditorWorkbench/type';
+import {
+  EditorSimilatorDispatchProps,
+  EditorSimilatorProps,
+} from '../EditorSimilator/type';
 
 /**
  * 获取模拟器容器dom
@@ -46,15 +56,60 @@ export const deepRecursionFiberNode = ({
   });
 };
 
-const App = () => {
-  const [delay, setDelay] = useState<WorkBenchProps['delay']>();
-  const [schemaStr, setSchemaStr] = useState<WorkBenchProps['schemaStr']>();
-  const [packageList, setPackageList] =
-    useState<WorkBenchProps['packageList']>();
-  const renderContainerRef = useRef<HTMLDivElement>(null);
-  const renderNodeRef = useRef<ReactNode | ReactNode[] | null>(null);
-  const domMapRef = useRef<Map<SchemaCompTree['id'], HTMLElement[]>>(new Map());
+/**
+ * 返回映射关系
+ * @param param0
+ * @returns
+ */
+const getCompDomMap = ({
+  node,
+  schemaStr,
+  peetoPrivateKey,
+}: {
+  node: ReactNode | ReactNode[] | null;
+  schemaStr: string;
+  peetoPrivateKey: string;
+}): Map<SchemaCompTree['id'], HTMLElement[]> => {
+  const map = new Map<SchemaCompTree['id'], HTMLElement[]>();
+  const schemaObj = JSON.parse(schemaStr) as JSONValue;
+  // 初始化map
+  deepRecursionCompTree({
+    obj: schemaObj,
+    compCallback: (obj) => {
+      map.set(obj.id, []);
+    },
+  });
+  // 遍历fiber节点，
+  const rootFiberNode = ((Array.isArray(node) ? node?.[0] : node) as AnyType)
+    ?._owner as FiberNode;
+  deepRecursionFiberNode({
+    fiberNode: rootFiberNode,
+    callBack: (n) => {
+      if (n?.stateNode instanceof HTMLElement) {
+        let curNode: FiberNode | undefined = n;
+        let privateKey = curNode?.pendingProps?.[peetoPrivateKey];
+        while (curNode && !map.has(privateKey || '')) {
+          curNode = curNode?.return;
+          privateKey = curNode?.pendingProps?.[peetoPrivateKey];
+        }
+        if (!curNode) {
+          throw new Error('找不到对应的fiberNode');
+        } else {
+          map.get(privateKey)?.push(n.stateNode);
+        }
+      }
+    },
+  });
+  return map;
+};
 
+const App = () => {
+  const [delay, setDelay] = useState<EditorSimilatorProps['delay']>();
+  const [schemaStr, setSchemaStr] =
+    useState<EditorSimilatorProps['schemaStr']>();
+  const [packageList, setPackageList] =
+    useState<EditorSimilatorProps['packageList']>();
+  const renderContainerRef = useRef<HTMLDivElement>(null);
   const peetoPrivateKey = useMemo(() => `__peeto_${new Date().getTime()}`, []);
 
   // 获取初始化配置
@@ -65,7 +120,7 @@ const App = () => {
     similatorContainerDom?.dispatchEvent(
       new CustomEvent(SIMILATOR_REQUEST_EVENT_KEY, {
         detail: {
-          getConfig: (config: WorkBenchProps) => {
+          getConfig: (config: EditorSimilatorProps) => {
             setSchemaStr(config.schemaStr);
             setPackageList(config.packageList);
             setDelay(config.delay);
@@ -75,78 +130,62 @@ const App = () => {
     );
   }, []);
 
-  // 监听配置修改
+  const renderNodeRef = useRef<ReactNode | ReactNode[] | null>(null);
+  // 上抛映射关系
+  const dispatch = useCallback(() => {
+    // 获取组件包含的dom（不包含子组件的dom）
+    const node = renderNodeRef.current;
+    if (!schemaStr || !packageList) {
+      return new Map();
+    }
+    const map = getCompDomMap({
+      node,
+      schemaStr,
+      peetoPrivateKey,
+    });
+    // 触发回调，传入映射关系
+    const similatorContainerDom = getSimilatorContainerDom(
+      renderContainerRef.current
+    );
+    similatorContainerDom?.dispatchEvent(
+      new CustomEvent(SIMILATOR_MAP_EVENT_KEY, {
+        detail: map,
+      })
+    );
+  }, [packageList, peetoPrivateKey, schemaStr]);
+
+  const dispatchRef = useRef(dispatch);
+  dispatchRef.current = dispatch;
+  // 监听上级下发事件
   useLayoutEffect(() => {
     const similatorContainerDom = getSimilatorContainerDom(
       renderContainerRef.current
     );
     similatorContainerDom?.addEventListener(
-      SIMILATOR_CONFIG_SET_EVENT_KEY,
+      SIMILATOR_DISPATCH_EVENT_KEY,
       (e) => {
-        const config = (e as CustomEvent).detail as WorkBenchProps;
-        setSchemaStr(config.schemaStr);
-        setPackageList(config.packageList);
+        const config = (e as CustomEvent<EditorSimilatorDispatchProps>).detail;
+        if (config.type === 'config') {
+          setSchemaStr(config.paylod.schemaStr);
+          setPackageList(config.paylod.packageList);
+        } else if (config.type === 'comp-dom-map') {
+          dispatchRef.current();
+        }
       }
     );
   }, []);
 
-  // 监听dom变化：真实 dom 修改后，通过虚拟 dom 创建映射关系
+  // 监听dom变化：创建映射关系F
+  const timeOutRunRef = useRef<NodeJS.Timeout | null>(null);
+  const delayRef = useRef(delay);
+  delayRef.current = delay;
   useLayoutEffect(() => {
-    if (!schemaStr || !packageList) {
-      return;
-    }
-
-    const run = () => {
-      // 获取组件包含的dom（不包含子组件的dom）
-      const node = renderNodeRef.current;
-      domMapRef.current.clear();
-      const rootFiberNode = (
-        (Array.isArray(node) ? node?.[0] : node) as AnyType
-      )?._owner as FiberNode;
-      const schemaObj = JSON.parse(schemaStr) as JSONValue;
-      deepRecursionCompTree({
-        obj: schemaObj,
-        compCallback: (obj) => {
-          domMapRef.current.set(obj.id, []);
-        },
-      });
-
-      deepRecursionFiberNode({
-        fiberNode: rootFiberNode,
-        callBack: (n) => {
-          if (n?.stateNode instanceof HTMLElement) {
-            let curNode: FiberNode | undefined = n;
-            let privateKey = curNode?.pendingProps?.[peetoPrivateKey];
-            while (curNode && !domMapRef.current.has(privateKey || '')) {
-              curNode = curNode?.return;
-              privateKey = curNode?.pendingProps?.[peetoPrivateKey];
-            }
-            if (!curNode) {
-              throw new Error('找不到对应的fiberNode');
-            } else {
-              domMapRef.current.get(privateKey)?.push(n.stateNode);
-            }
-          }
-        },
-      });
-
-      // 触发回调，传入映射关系
-      const similatorContainerDom = getSimilatorContainerDom(
-        renderContainerRef.current
-      );
-      similatorContainerDom?.dispatchEvent(
-        new CustomEvent(SIMILATOR_MAP_EVENT_KEY, {
-          detail: new Map(domMapRef.current),
-        })
-      );
-    };
-    let runTimeout: NodeJS.Timeout | null;
     const observer = new MutationObserver(() => {
-      if (runTimeout) {
-        clearTimeout(runTimeout);
-        runTimeout = null;
+      if (timeOutRunRef.current) {
+        clearTimeout(timeOutRunRef.current);
+        timeOutRunRef.current = null;
       }
-      runTimeout = setTimeout(run, delay);
+      timeOutRunRef.current = setTimeout(dispatchRef.current, delayRef.current);
     });
 
     // TODO 监测不到renderContainer以外的的dom，比如@antd.Modal
@@ -159,12 +198,30 @@ const App = () => {
     }
 
     return () => {
-      observer.disconnect();
-      if (runTimeout) {
-        clearTimeout(runTimeout);
+      observer?.disconnect();
+      if (timeOutRunRef.current) {
+        clearTimeout(timeOutRunRef.current);
+        timeOutRunRef.current = null;
       }
     };
-  }, [delay, packageList, peetoPrivateKey, schemaStr]);
+  }, []);
+
+  // // 循环计时，创建映射关系F
+  // TODO 循环执行函数，影响系统流畅性
+  // const intervalRunRef = useRef<NodeJS.Timeout | null>(null);
+  // useLayoutEffect(() => {
+  //   if (intervalRunRef.current) {
+  //     clearInterval(intervalRunRef.current);
+  //     intervalRunRef.current = null;
+  //   }
+  //   intervalRunRef.current = setInterval(dispatch, delay);
+  //   return () => {
+  //     if (intervalRunRef.current) {
+  //       clearInterval(intervalRunRef.current);
+  //       intervalRunRef.current = null;
+  //     }
+  //   };
+  // }, [delay, dispatch]);
 
   return (
     <div ref={renderContainerRef}>

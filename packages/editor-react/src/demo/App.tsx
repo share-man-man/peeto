@@ -4,7 +4,6 @@ import { Descriptions, Radio, Typography } from 'antd';
 import { h } from 'vue';
 import { v4 as id } from 'uuid';
 import { EDITOR_LIB_TYPE } from '../type';
-import { EditorWorkbench } from '../index';
 
 import { schema as baseReact } from './schema/react/base';
 import { schema as modalForm } from './schema/react/modal-form';
@@ -12,6 +11,7 @@ import { schema as vueBase } from './schema/vue/base';
 
 import VueTest from './components/MyTest.vue';
 import MyButton from './components/MyButton.vue';
+import EditorSimilator from '../components/EditorSimilator';
 
 const reactPackage: PackageListType = [
   {
@@ -143,11 +143,11 @@ function Index() {
       />
       <Typography.Title level={3}>渲染效果</Typography.Title>
       {libType && curConfig?.schema && curConfig.packageList && (
-        <EditorWorkbench
+        <EditorSimilator
           type={libType}
           schemaStr={curConfig.schema}
           packageList={curConfig.packageList}
-          delay={500}
+          // delay={500}
         />
       )}
     </div>

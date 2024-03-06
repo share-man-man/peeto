@@ -12,13 +12,76 @@ import { WorkBenchProps } from '../EditorWorkbench/type';
 import { EDITOR_LIB_TYPE } from '../../type';
 import ReactApp from '../ReactApp';
 import VueApp from '../VueApp/App.vue';
+import {
+  SIMILATOR_DISPATCH_EVENT_KEY,
+  SIMILATOR_MAP_EVENT_KEY,
+  SIMILATOR_REQUEST_EVENT_KEY,
+} from '../EditorWorkbench/util';
+import { EditorSimilatorDispatchProps, EditorSimilatorProps } from './type';
 
-const Index = ({ type }: Pick<WorkBenchProps, 'type'>) => {
+const Index = (originProps: EditorSimilatorProps) => {
+  const { type } = originProps;
+  const props = useMemo(() => ({ delay: 1000, ...originProps }), [originProps]);
+  const propsRef = useRef(props);
+  propsRef.current = props;
+  const similatorRef = useRef<HTMLDivElement>(null);
   const vueAppDomRef = useRef<HTMLDivElement>(null);
   const vueAppRef = useRef<App>();
   const reactAppDomRef = useRef<HTMLDivElement>(null);
   const reactAppRef = useRef<Root>();
   const [child, setChild] = useState<ReactNode>(<div>当前版本:{type}</div>);
+
+  // 通知模拟器，配置更新了
+  useLayoutEffect(() => {
+    const similatorContainerDom = similatorRef.current;
+    similatorContainerDom?.dispatchEvent(
+      new CustomEvent<EditorSimilatorDispatchProps>(
+        SIMILATOR_DISPATCH_EVENT_KEY,
+        {
+          detail: {
+            type: 'config',
+            paylod: props,
+          },
+        }
+      )
+    );
+  }, [props]);
+
+  useLayoutEffect(() => {
+    const similatorContainerDom = similatorRef.current;
+    // 组件和真实dom的映射关系改变
+    const onDomMapChange = (e: Event) => {
+      console.log('映射关系', (e as CustomEvent)?.detail);
+    };
+    // 模拟器请求事件
+    const onSimilatorRequest = (e: Event) => {
+      (
+        (e as CustomEvent).detail as {
+          // 模拟器获取配置
+          getConfig?: (c: WorkBenchProps) => void;
+        }
+      )?.getConfig?.(propsRef.current);
+    };
+    similatorContainerDom?.addEventListener(
+      SIMILATOR_MAP_EVENT_KEY,
+      onDomMapChange
+    );
+    similatorContainerDom?.addEventListener(
+      SIMILATOR_REQUEST_EVENT_KEY,
+      onSimilatorRequest
+    );
+
+    return () => {
+      similatorContainerDom?.removeEventListener(
+        SIMILATOR_MAP_EVENT_KEY,
+        onDomMapChange
+      );
+      similatorContainerDom?.removeEventListener(
+        SIMILATOR_REQUEST_EVENT_KEY,
+        onSimilatorRequest
+      );
+    };
+  }, []);
 
   const editorStrategy = useMemo<{
     [k in EDITOR_LIB_TYPE]: {
@@ -89,7 +152,11 @@ const Index = ({ type }: Pick<WorkBenchProps, 'type'>) => {
     });
   }, [child, curItem, editorStrategy, type]);
 
-  return child;
+  return (
+    <div ref={similatorRef} onClick={() => {}}>
+      {child}
+    </div>
+  );
 };
 
 export default Index;
