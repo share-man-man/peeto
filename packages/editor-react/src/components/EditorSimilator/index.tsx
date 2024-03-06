@@ -17,13 +17,27 @@ import {
   SIMILATOR_MAP_EVENT_KEY,
   SIMILATOR_REQUEST_EVENT_KEY,
 } from '../EditorWorkbench/util';
-import { EditorSimilatorDispatchProps, EditorSimilatorProps } from './type';
+import {
+  EditorSimilatorAppProps,
+  EditorSimilatorCompDomMap,
+  EditorSimilatorDispatchProps,
+  EditorSimilatorProps,
+} from './type';
 
 const Index = (originProps: EditorSimilatorProps) => {
-  const { type } = originProps;
-  const props = useMemo(() => ({ delay: 1000, ...originProps }), [originProps]);
+  const { type, onMapChange } = originProps;
+  const props = useMemo<EditorSimilatorAppProps>(
+    () => ({
+      delay: originProps.delay || 100,
+      packageList: originProps.packageList,
+      schemaStr: originProps.schemaStr,
+    }),
+    [originProps.delay, originProps.packageList, originProps.schemaStr]
+  );
   const propsRef = useRef(props);
   propsRef.current = props;
+  const onMapChangeRef = useRef(originProps.onMapChange);
+  onMapChangeRef.current = onMapChange;
   const similatorRef = useRef<HTMLDivElement>(null);
   const vueAppDomRef = useRef<HTMLDivElement>(null);
   const vueAppRef = useRef<App>();
@@ -51,7 +65,8 @@ const Index = (originProps: EditorSimilatorProps) => {
     const similatorContainerDom = similatorRef.current;
     // 组件和真实dom的映射关系改变
     const onDomMapChange = (e: Event) => {
-      console.log('映射关系', (e as CustomEvent)?.detail);
+      const map = (e as CustomEvent)?.detail as EditorSimilatorCompDomMap;
+      onMapChangeRef.current?.(map);
     };
     // 模拟器请求事件
     const onSimilatorRequest = (e: Event) => {

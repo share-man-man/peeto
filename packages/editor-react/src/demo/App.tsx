@@ -1,5 +1,5 @@
 import { PackageListType } from '@peeto/parse';
-import { ReactNode, useMemo, useState } from 'react';
+import { ReactNode, useMemo, useRef, useState } from 'react';
 import { Descriptions, Radio, Typography } from 'antd';
 import { h } from 'vue';
 import { v4 as id } from 'uuid';
@@ -12,6 +12,7 @@ import { schema as vueBase } from './schema/vue/base';
 import VueTest from './components/MyTest.vue';
 import MyButton from './components/MyButton.vue';
 import EditorSimilator from '../components/EditorSimilator';
+import { EditorSimilatorCompDomMap } from '../components/EditorSimilator/type';
 
 const reactPackage: PackageListType = [
   {
@@ -95,6 +96,8 @@ function Index() {
     return schemaConfig[libType]?.find((i) => i.key === schemaKey);
   }, [libType, schemaKey]);
 
+  const mapRef = useRef<EditorSimilatorCompDomMap>(new Map());
+
   return (
     <div>
       {/* 配置好库和schema */}
@@ -142,14 +145,29 @@ function Index() {
         ]}
       />
       <Typography.Title level={3}>渲染效果</Typography.Title>
-      {libType && curConfig?.schema && curConfig.packageList && (
-        <EditorSimilator
-          type={libType}
-          schemaStr={curConfig.schema}
-          packageList={curConfig.packageList}
-          // delay={500}
-        />
-      )}
+      <div
+        onClick={(e) => {
+          mapRef.current.forEach((doms, key) => {
+            if (doms.includes(e.target as HTMLElement)) {
+              // TODO 合并dom，获取最大宽高
+              console.log(11, key);
+            }
+          });
+        }}
+      >
+        {libType && curConfig?.schema && curConfig.packageList && (
+          <EditorSimilator
+            type={libType}
+            schemaStr={curConfig.schema}
+            packageList={curConfig.packageList}
+            // delay={500}
+            onMapChange={(map) => {
+              // console.log('映射关系', map);
+              mapRef.current = map;
+            }}
+          />
+        )}
+      </div>
     </div>
   );
 }

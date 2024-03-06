@@ -1,6 +1,10 @@
-import { PackageListType } from '@peeto/parse';
+import { PackageListType, SchemaCompTree } from '@peeto/parse';
 import { EDITOR_LIB_TYPE } from '../../type';
 
+export type EditorSimilatorCompDomMap = Map<
+  SchemaCompTree['id'],
+  HTMLElement[]
+>;
 export interface EditorSimilatorProps {
   /**
    * ui库类型
@@ -18,11 +22,22 @@ export interface EditorSimilatorProps {
    * 加载映射关系的节流时间
    */
   delay?: number;
+  /**
+   * 映射关系改变
+   * @param map
+   * @returns
+   */
+  onMapChange?: (map: EditorSimilatorCompDomMap) => void;
 }
+
+export type EditorSimilatorAppProps = Pick<
+  EditorSimilatorProps,
+  'delay' | 'packageList' | 'schemaStr'
+>;
 
 export type EditorSimilatorDispatchProps =
   | {
       type: 'config';
-      paylod: EditorSimilatorProps;
+      paylod: EditorSimilatorAppProps;
     }
   | { type: 'comp-dom-map' };

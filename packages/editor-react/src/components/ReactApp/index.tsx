@@ -1,5 +1,5 @@
 import type { AnyType, JSONValue } from '@peeto/parse';
-import { SchemaCompTree, deepRecursionCompTree } from '@peeto/parse';
+import { deepRecursionCompTree } from '@peeto/parse';
 import { ReactRender } from '@peeto/render-react';
 import {
   ReactNode,
@@ -17,6 +17,7 @@ import {
   SIMILATOR_REQUEST_EVENT_KEY,
 } from '../EditorWorkbench/util';
 import {
+  EditorSimilatorCompDomMap,
   EditorSimilatorDispatchProps,
   EditorSimilatorProps,
 } from '../EditorSimilator/type';
@@ -69,8 +70,8 @@ const getCompDomMap = ({
   node: ReactNode | ReactNode[] | null;
   schemaStr: string;
   peetoPrivateKey: string;
-}): Map<SchemaCompTree['id'], HTMLElement[]> => {
-  const map = new Map<SchemaCompTree['id'], HTMLElement[]>();
+}): EditorSimilatorCompDomMap => {
+  const map: EditorSimilatorCompDomMap = new Map();
   const schemaObj = JSON.parse(schemaStr) as JSONValue;
   // 初始化map
   deepRecursionCompTree({
