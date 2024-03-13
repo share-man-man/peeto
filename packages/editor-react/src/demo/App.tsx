@@ -1,5 +1,8 @@
+import 'element-plus/dist/index.css';
+
 import { PackageListType } from '@peeto/parse';
-import { ReactNode, useMemo, useRef, useState } from 'react';
+import { StepBackwardOutlined, PlusOutlined } from '@ant-design/icons';
+import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { Descriptions, Radio, Typography } from 'antd';
 import { h } from 'vue';
 import { v4 as id } from 'uuid';
@@ -11,8 +14,12 @@ import { schema as vueBase } from './schema/vue/base';
 
 import VueTest from './components/MyTest.vue';
 import MyButton from './components/MyButton.vue';
-import EditorSimilator from '../components/EditorSimilator';
+import { useEditorWokrBench } from '../components/EditorWorkbench';
+import TestPlugin from './plugins/TestPlugin';
+import TestPlugin2 from './plugins/TestPlugin2';
+import TestVuePlugin from './plugins/TestVuePlugin/SchemaChange.vue';
 import { EditorSimilatorCompDomMap } from '../components/EditorSimilator/type';
+import EditorSimilator from '../components/EditorSimilator';
 
 const reactPackage: PackageListType = [
   {
@@ -98,6 +105,46 @@ function Index() {
 
   const mapRef = useRef<EditorSimilatorCompDomMap>(new Map());
 
+  const { workbench, injectPlugin } = useEditorWokrBench();
+
+  useEffect(() => {
+    injectPlugin(() => {
+      return {
+        name: 'TestPlugin',
+        icon: <StepBackwardOutlined />,
+        type: 'left-tool-bar',
+        renderProps: {
+          libType: EDITOR_LIB_TYPE.REACT,
+          node: TestPlugin,
+        },
+      };
+    });
+    injectPlugin(() => {
+      return {
+        name: 'TestPlugin2',
+        icon: <PlusOutlined />,
+        type: 'left-tool-bar',
+        renderProps: {
+          libType: EDITOR_LIB_TYPE.REACT,
+          node: TestPlugin2,
+        },
+        pannelWidth: 500,
+      };
+    });
+    injectPlugin(() => {
+      return {
+        name: 'TestVuePlugin',
+        icon: <PlusOutlined />,
+        type: 'left-tool-bar',
+        renderProps: {
+          libType: EDITOR_LIB_TYPE.VUE,
+          node: TestVuePlugin,
+        },
+        pannelWidth: 500,
+      };
+    });
+  }, [injectPlugin]);
+
   return (
     <div>
       {/* 配置好库和schema */}
@@ -144,6 +191,8 @@ function Index() {
           },
         ]}
       />
+      {workbench}
+
       <Typography.Title level={3}>渲染效果</Typography.Title>
       <div
         onClick={(e) => {

@@ -13,7 +13,6 @@
     "build": "vite build",
     "preview": "vite preview"
   },
-  "dependencies": {},
   "peerDependencies": {
     "@peeto/parse": "workspace:*",
     "@peeto/render-react": "workspace:*",
@@ -23,5 +22,7 @@
     "uuid": "^9.0.0",
     "vue": "^3.3.4"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@ant-design/icons": "^5.3.1"
+  }
 }
