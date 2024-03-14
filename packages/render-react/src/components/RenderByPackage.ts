@@ -7,7 +7,6 @@ import {
   useRef,
   useMemo,
   ReactNode,
-  useLayoutEffect,
 } from 'react';
 import { RenderByPackageProps } from '../type';
 
@@ -107,7 +106,7 @@ const RenderByPackage = ({
   const onNodeChangeRef = useRef(onNodeChange);
   onNodeChangeRef.current = onNodeChange;
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     onNodeChangeRef.current?.(dom);
   }, [dom]);
 

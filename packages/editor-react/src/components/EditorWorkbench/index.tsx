@@ -5,10 +5,12 @@ import {
   InjectPluginCompProps,
   InjectPluginProps,
   LeftToolBarPluginItemProps,
+  SimilatorPluginItemProps,
   SubscribeEventItem,
   TopToolBarPluginItemProps,
 } from './type';
 import LeftToolBar from './conponents/LeftToolBar';
+import SimilatorRender from './conponents/SimilatorRender';
 
 const { Header, Footer, Content } = Layout;
 
@@ -27,7 +29,7 @@ const contentStyle: React.CSSProperties = {
   minHeight: 120,
   lineHeight: '120px',
   color: '#fff',
-  backgroundColor: '#0958d9',
+  // backgroundColor: '#0958d9',
 };
 
 const footerStyle: React.CSSProperties = {
@@ -37,7 +39,6 @@ const footerStyle: React.CSSProperties = {
 };
 
 const layoutStyle = {
-  // borderRadius: 8,
   overflow: 'hidden',
   width: '100%',
 };
@@ -47,6 +48,10 @@ export const useEditorWokrBench = () => {
   const eventMap = useRef(
     new Map<SubscribeEventItem['name'], SubscribeEventItem['run'][]>()
   );
+  // 模拟器
+  const [similatorList, setSimilatorList] = useState<
+    SimilatorPluginItemProps[]
+  >([]);
   // 左侧工具栏
   const [leftToolBarList, setLeftToolBarList] = useState<
     LeftToolBarPluginItemProps[]
@@ -56,11 +61,40 @@ export const useEditorWokrBench = () => {
     TopToolBarPluginItemProps[]
   >([]);
 
+  const pendingRef = useRef<(() => Promise<void>)[]>([]);
+  const pendingNumRef = useRef(0);
+
   /**
    * 注册插件
    */
   const injectPlugin = useCallback<InjectPluginProps>(async (runInject) => {
-    // 插件订阅事件
+    pendingNumRef.current += 1;
+    const pluginProps = runInject();
+    /**
+     * 插件通信：分发事件
+     * @param disList
+     */
+    const dispatchEvent: InjectPluginCompProps['dispatchEvent'] = (disList) => {
+      // console.log(pluginProps.name, '分发事件');
+      // 所有插件还未挂载完成时,放入待执行队列
+      if (pendingNumRef.current !== 0) {
+        // console.log('还有插件未加载');
+        pendingRef.current.push(async () => {
+          dispatchEvent(disList);
+        });
+      } else {
+        disList.forEach((d) => {
+          eventMap.current.get(d.name)?.forEach((run) => {
+            run(d.paylod);
+          });
+        });
+      }
+    };
+
+    /**
+     * 插件通信：订阅事件
+     * @param subList
+     */
     const subscribeEvent: InjectPluginCompProps['subscribeEvent'] = (
       subList
     ) => {
@@ -71,15 +105,18 @@ export const useEditorWokrBench = () => {
         eventMap.current.get(s.name)?.push(s.run);
       });
     };
-    // 插件分发事件
-    const dispatchEvent: InjectPluginCompProps['dispatchEvent'] = (disList) => {
-      disList.forEach((d) => {
-        eventMap.current.get(d.name)?.forEach((run) => {
-          run(d.paylod);
+
+    // 挂载回调，PluginRender在挂载完成后执行
+    const onMount: InjectPluginCompProps['onMount'] = () => {
+      pendingNumRef.current -= 1;
+      // 所有插件挂载完后，清空分发事件队列
+      if (pendingNumRef.current === 0) {
+        // console.log('所有插件加载完成');
+        Promise.all(pendingRef.current.map((i) => i())).then(() => {
+          pendingRef.current = [];
         });
-      });
+      }
     };
-    const pluginProps = runInject();
 
     if (pluginNameRef.current.has(pluginProps.name)) {
       throw new Error(`已有插件：${pluginProps.name}`);
@@ -88,6 +125,7 @@ export const useEditorWokrBench = () => {
     pluginProps.renderProps.props = {
       dispatchEvent,
       subscribeEvent,
+      onMount,
       ...pluginProps.renderProps.props,
     };
 
@@ -100,6 +138,11 @@ export const useEditorWokrBench = () => {
         break;
       case 'top-tool-bar':
         setTopToolBarList((prev) => {
+          return [...prev, pluginProps];
+        });
+        break;
+      case 'similator':
+        setSimilatorList((prev) => {
           return [...prev, pluginProps];
         });
         break;
@@ -124,7 +167,7 @@ export const useEditorWokrBench = () => {
             </Header>
             <Content style={contentStyle}>
               悬浮工具栏
-              <div>渲染器</div>
+              <SimilatorRender list={similatorList} />
             </Content>
             <Footer style={footerStyle}>Footer</Footer>
           </Layout>
@@ -134,7 +177,7 @@ export const useEditorWokrBench = () => {
         </Layout>
       </Flex>
     );
-  }, [leftToolBarList, topToolBarList.length]);
+  }, [leftToolBarList, similatorList, topToolBarList.length]);
 
   return {
     workbench,

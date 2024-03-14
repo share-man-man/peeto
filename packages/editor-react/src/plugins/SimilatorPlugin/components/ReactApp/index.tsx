@@ -4,31 +4,31 @@ import { ReactRender } from '@peeto/render-react';
 import {
   ReactNode,
   useCallback,
-  useLayoutEffect,
+  useEffect,
   useMemo,
   useRef,
   useState,
 } from 'react';
-import type { FiberNode } from './type';
+import type { FiberNode, ReactAppProps } from './type';
 
+// import {
+//   SIMILATOR_MAP_EVENT_KEY,
+//   SIMILATOR_DISPATCH_EVENT_KEY,
+//   SIMILATOR_REQUEST_EVENT_KEY,
+// } from '../EditorWorkbench/util';
 import {
-  SIMILATOR_MAP_EVENT_KEY,
-  SIMILATOR_DISPATCH_EVENT_KEY,
-  SIMILATOR_REQUEST_EVENT_KEY,
-} from '../EditorWorkbench/util';
-import {
-  EditorSimilatorCompDomMap,
-  EditorSimilatorDispatchProps,
-  EditorSimilatorProps,
-} from '../EditorSimilator/type';
+  SimilatorPluginCompDomMap,
+  // EditorSimilatorDispatchProps,
+  SimilatorPluginConfig,
+} from '../../type';
 
-/**
- * 获取模拟器容器dom
- * @param dom
- * @returns
- */
-const getSimilatorContainerDom = (dom: HTMLDivElement | null) =>
-  dom?.parentElement?.parentElement;
+// /**
+//  * 获取模拟器容器dom
+//  * @param dom
+//  * @returns
+//  */
+// const getSimilatorContainerDom = (dom: HTMLDivElement | null) =>
+//   dom?.parentElement?.parentElement;
 
 /**
  * 遍历fiber树
@@ -70,8 +70,8 @@ const getCompDomMap = ({
   node: ReactNode | ReactNode[] | null;
   schemaStr: string;
   peetoPrivateKey: string;
-}): EditorSimilatorCompDomMap => {
-  const map: EditorSimilatorCompDomMap = new Map();
+}): SimilatorPluginCompDomMap => {
+  const map: SimilatorPluginCompDomMap = new Map();
   const schemaObj = JSON.parse(schemaStr) as JSONValue;
   // 初始化map
   deepRecursionCompTree({
@@ -104,33 +104,26 @@ const getCompDomMap = ({
   return map;
 };
 
-const App = () => {
-  const [delay, setDelay] = useState<EditorSimilatorProps['delay']>();
+const App = ({ subConfig, onMapChange }: ReactAppProps) => {
+  const [delay, setDelay] = useState<SimilatorPluginConfig['delay']>();
   const [schemaStr, setSchemaStr] =
-    useState<EditorSimilatorProps['schemaStr']>();
+    useState<SimilatorPluginConfig['schemaStr']>();
   const [packageList, setPackageList] =
-    useState<EditorSimilatorProps['packageList']>();
+    useState<SimilatorPluginConfig['packageList']>();
   const renderContainerRef = useRef<HTMLDivElement>(null);
   const peetoPrivateKey = useMemo(() => `__peeto_${new Date().getTime()}`, []);
-
-  // 获取初始化配置
-  useLayoutEffect(() => {
-    const similatorContainerDom = getSimilatorContainerDom(
-      renderContainerRef.current
-    );
-    similatorContainerDom?.dispatchEvent(
-      new CustomEvent(SIMILATOR_REQUEST_EVENT_KEY, {
-        detail: {
-          getConfig: (config: EditorSimilatorProps) => {
-            setSchemaStr(config.schemaStr);
-            setPackageList(config.packageList);
-            setDelay(config.delay);
-          },
-        },
-      })
-    );
+  const subConfigRef = useRef(subConfig);
+  subConfigRef.current = subConfig;
+  useEffect(() => {
+    subConfigRef.current((config: SimilatorPluginConfig) => {
+      setSchemaStr(config.schemaStr);
+      setPackageList(config.packageList);
+      setDelay(config.delay);
+    });
   }, []);
 
+  const onMapChangeRef = useRef(onMapChange);
+  onMapChangeRef.current = onMapChange;
   const renderNodeRef = useRef<ReactNode | ReactNode[] | null>(null);
   // 上抛映射关系
   const dispatch = useCallback(() => {
@@ -144,43 +137,17 @@ const App = () => {
       schemaStr,
       peetoPrivateKey,
     });
-    // 触发回调，传入映射关系
-    const similatorContainerDom = getSimilatorContainerDom(
-      renderContainerRef.current
-    );
-    similatorContainerDom?.dispatchEvent(
-      new CustomEvent(SIMILATOR_MAP_EVENT_KEY, {
-        detail: map,
-      })
-    );
+    onMapChangeRef.current?.(map);
   }, [packageList, peetoPrivateKey, schemaStr]);
 
   const dispatchRef = useRef(dispatch);
   dispatchRef.current = dispatch;
-  // 监听上级下发事件
-  useLayoutEffect(() => {
-    const similatorContainerDom = getSimilatorContainerDom(
-      renderContainerRef.current
-    );
-    similatorContainerDom?.addEventListener(
-      SIMILATOR_DISPATCH_EVENT_KEY,
-      (e) => {
-        const config = (e as CustomEvent<EditorSimilatorDispatchProps>).detail;
-        if (config.type === 'config') {
-          setSchemaStr(config.paylod.schemaStr);
-          setPackageList(config.paylod.packageList);
-        } else if (config.type === 'comp-dom-map') {
-          dispatchRef.current();
-        }
-      }
-    );
-  }, []);
 
-  // 监听dom变化：创建映射关系F
+  // 监听dom变化：创建映射关系
   const timeOutRunRef = useRef<NodeJS.Timeout | null>(null);
   const delayRef = useRef(delay);
   delayRef.current = delay;
-  useLayoutEffect(() => {
+  useEffect(() => {
     const observer = new MutationObserver(() => {
       if (timeOutRunRef.current) {
         clearTimeout(timeOutRunRef.current);
@@ -190,6 +157,7 @@ const App = () => {
     });
 
     // TODO 监测不到renderContainer以外的的dom，比如@antd.Modal
+    // dom可能频繁改变，导致会回调多次
     if (renderContainerRef.current) {
       observer.observe(renderContainerRef.current, {
         childList: true,
@@ -210,7 +178,7 @@ const App = () => {
   // // 循环计时，创建映射关系F
   // TODO 循环执行函数，影响系统流畅性
   // const intervalRunRef = useRef<NodeJS.Timeout | null>(null);
-  // useLayoutEffect(() => {
+  // useEffect(() => {
   //   if (intervalRunRef.current) {
   //     clearInterval(intervalRunRef.current);
   //     intervalRunRef.current = null;
@@ -228,12 +196,11 @@ const App = () => {
     <div ref={renderContainerRef}>
       {schemaStr && packageList && (
         <ReactRender
+          schemaStr={schemaStr}
+          packageList={packageList}
           onNodeChange={(node) => {
             // 存储虚拟dom
             renderNodeRef.current = node;
-          }}
-          loadingRender={() => {
-            return <div>react-loading</div>;
           }}
           onCreateNode={(Comp, p, children) => {
             const res = (
@@ -250,8 +217,9 @@ const App = () => {
 
             return res;
           }}
-          schemaStr={schemaStr}
-          packageList={packageList}
+          loadingRender={() => {
+            return <div>react-loading</div>;
+          }}
           noMatchPackageRender={({ id: componentId, packageName }) => (
             <div
               key={`nomatch-package-${componentId}`}

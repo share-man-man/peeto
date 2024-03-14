@@ -69,6 +69,10 @@
 
    - 通过 click 事件回调参数 e.target（实际点击的 dom ）和映射里的 dom 是否相等，从而找到组件
 
+5. 插件之间通信
+
+   - 通过传入的参数 subscribeEvent(订阅)、dispatchEvent(分发事件)来实现通信
+
 ### 编辑器校验（schema 的校验函数）
 
 - states 里 name 不能重复

@@ -1,11 +1,11 @@
 import { PackageListType, SchemaCompTree } from '@peeto/parse';
 import { EDITOR_LIB_TYPE } from '../../type';
 
-export type EditorSimilatorCompDomMap = Map<
+export type SimilatorPluginCompDomMap = Map<
   SchemaCompTree['id'],
   HTMLElement[]
 >;
-export interface EditorSimilatorProps {
+export interface SimilatorPluginConfig {
   /**
    * ui库类型
    */
@@ -27,17 +27,5 @@ export interface EditorSimilatorProps {
    * @param map
    * @returns
    */
-  onMapChange?: (map: EditorSimilatorCompDomMap) => void;
+  onMapChange?: (map: SimilatorPluginCompDomMap) => void;
 }
-
-export type EditorSimilatorAppProps = Pick<
-  EditorSimilatorProps,
-  'delay' | 'packageList' | 'schemaStr'
->;
-
-export type EditorSimilatorDispatchProps =
-  | {
-      type: 'config';
-      paylod: EditorSimilatorAppProps;
-    }
-  | { type: 'comp-dom-map' };

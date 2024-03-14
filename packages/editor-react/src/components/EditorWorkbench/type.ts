@@ -36,13 +36,20 @@ export interface LeftToolBarPluginItemProps extends BaseToolBarPluginProps {
 export interface TopToolBarPluginItemProps extends BaseToolBarPluginProps {}
 
 /**
+ * 模拟器插件
+ */
+export interface SimilatorPluginItemProps
+  extends Omit<BaseToolBarPluginProps, 'icon'> {}
+
+/**
  * 注册插件所需参数
  */
 export type InjectFnResType =
   | ({
       type: 'left-tool-bar';
     } & LeftToolBarPluginItemProps)
-  | ({ type: 'top-tool-bar' } & TopToolBarPluginItemProps);
+  | ({ type: 'top-tool-bar' } & TopToolBarPluginItemProps)
+  | ({ type: 'similator' } & SimilatorPluginItemProps);
 
 export type InjectPluginProps = (
   injectFn: () => InjectFnResType
@@ -62,6 +69,11 @@ export type DispatchEventItem = {
  * 注册的插件组件，默认注入的参数
  */
 export type InjectPluginCompProps = {
+  /**
+   * 插件挂载完成
+   * @returns
+   */
+  onMount: () => void;
   /**
    * 订阅事件
    * @param subList

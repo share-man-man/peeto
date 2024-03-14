@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref, defineProps, PropType } from 'vue';
+import { ref, PropType } from 'vue';
 import { ElButton } from 'element-plus';
-import type { InjectPluginCompProps } from '../../components/EditorWorkbench/type';
+import type { InjectPluginCompProps } from '../../../type';
 
 const props = defineProps({
   subscribeEvent: {
@@ -18,9 +18,9 @@ const schema = ref<string>();
 
 props.subscribeEvent?.([
   {
-    name: 'onSchemaChange',
+    name: '__peeto_similator_config_change_event',
     run: (v) => {
-      schema.value = v;
+      schema.value = v.schemaStr;
     },
   },
 ]);
