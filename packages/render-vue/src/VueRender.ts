@@ -1,4 +1,4 @@
-import { defineComponent, watchEffect, shallowRef } from 'vue';
+import { defineComponent, shallowRef, watch } from 'vue';
 import {
   defaultLoading,
   defaultNoMatchCompRender,
@@ -27,27 +27,33 @@ const VueRender = defineComponent({
 
     const onCreateNode = vueUseCreateNodeFunc(props);
 
-    watchEffect(() => {
-      if (schemaStr.value !== props?.schemaStr) {
-        loading.value = true;
-        const schemaObj = JSON.parse(props?.schemaStr) as SchemaRootObj;
-        // 加载依赖包
-        parsePackage(schemaObj, props?.packageList).then((res) => {
-          // 加载组件
-          const compRes = parseComponent({
-            schemaCompTree: schemaObj?.compTree,
-            packageMap: res,
-            noMatchCompRender: slots.noMatchComp || defaultNoMatchCompRender,
-            noMatchPackageRender:
-              slots.noMatchPackage || defaultNoMatchPackageRender,
+    watch(
+      () => [props?.packageList, props?.schemaStr, schemaStr.value],
+      () => {
+        if (schemaStr.value !== props?.schemaStr) {
+          loading.value = true;
+          const schemaObj = JSON.parse(props?.schemaStr) as SchemaRootObj;
+          // 加载依赖包
+          parsePackage(schemaObj, props?.packageList).then((res) => {
+            // 加载组件
+            const compRes = parseComponent({
+              schemaCompTree: schemaObj?.compTree,
+              packageMap: res,
+              noMatchCompRender: slots.noMatchComp || defaultNoMatchCompRender,
+              noMatchPackageRender:
+                slots.noMatchPackage || defaultNoMatchPackageRender,
+            });
+            packageMap.value = res;
+            compMap.value = compRes;
+            schemaStr.value = props?.schemaStr;
+            loading.value = false;
           });
-          packageMap.value = res;
-          compMap.value = compRes;
-          schemaStr.value = props?.schemaStr;
-          loading.value = false;
-        });
+        }
+      },
+      {
+        immediate: true,
       }
-    });
+    );
 
     return () => {
       // schema变化，重置渲染节点，避免状态管理出现混乱的问题

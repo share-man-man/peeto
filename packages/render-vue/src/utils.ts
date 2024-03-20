@@ -16,6 +16,9 @@ export const defaultProps = {
       type: Function as PropType<VueRenderProps['onCreateNode']>,
       default: h,
     },
+    onNodeChange: {
+      type: Function as PropType<VueRenderProps['onNodeChange']>,
+    },
   },
   slots: Object as SlotsType<VueRenderSlots>,
 };

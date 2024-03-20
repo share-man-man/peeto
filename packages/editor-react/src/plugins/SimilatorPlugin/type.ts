@@ -1,6 +1,11 @@
 import { PackageListType, SchemaCompTree } from '@peeto/parse';
 import { EDITOR_LIB_TYPE } from '../../type';
 
+export interface AppActionRef {
+  setConfig: (c: SimilatorPluginConfig) => void;
+  getMap: () => SimilatorPluginCompDomMap;
+}
+
 export type SimilatorPluginCompDomMap = Map<
   SchemaCompTree['id'],
   HTMLElement[]
@@ -18,10 +23,6 @@ export interface SimilatorPluginConfig {
    * 组件库
    */
   packageList: PackageListType;
-  /**
-   * 加载映射关系的节流时间
-   */
-  delay?: number;
   /**
    * 映射关系改变
    * @param map

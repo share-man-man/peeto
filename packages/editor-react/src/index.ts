@@ -1,1 +1,1 @@
-export { default as EditorWorkbench } from './components/EditorWorkbench';
+export { useEditorWokrBench } from './components/EditorWorkbench';

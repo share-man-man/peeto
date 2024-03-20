@@ -21,7 +21,6 @@ export interface ReactRenderProps
    * 内部为了兼容react16，默认使用createElement
    * 如果要用到react17及以上版本，可自定义通过react/jsx-runtime创建节点
    */
-  // onCreateNode?: RenderProps<ReactNode>['onCreateNode'];
   onCreateNode?: (
     ...p: Parameters<RenderProps<ReactNode>['onCreateNode']>
   ) => ReturnType<typeof createElement>;

@@ -5,6 +5,7 @@ import {
   AnyType,
   parseState,
   PackageMapType,
+  PickRequired,
 } from '@peeto/parse';
 import {
   defineComponent,
@@ -12,16 +13,22 @@ import {
   computed,
   VNode,
   h,
-  isVNode,
   PropType,
   watch,
 } from 'vue';
 import { defaultProps, SlotPrefix } from '../utils';
+import { VueRenderProps } from '../type';
 
 const newProps = {
   ...defaultProps,
   props: {
     ...defaultProps.props,
+    onCreateNode: {
+      type: Function as PropType<
+        PickRequired<VueRenderProps, 'onCreateNode'>['onCreateNode']
+      >,
+      default: h,
+    },
     packageMap: {
       type: Object as PropType<PackageMapType>,
       default: () => new Map(),
@@ -37,7 +44,13 @@ const newProps = {
 
 const RenderByPackage = defineComponent({
   ...newProps,
-  setup({ packageMap, compMap, schemaStr }) {
+  setup({
+    packageMap,
+    compMap,
+    schemaStr,
+    onCreateNode: onCreateNodeRef,
+    onNodeChange,
+  }) {
     // 状态集合
     const stateMap = shallowRef<
       Map<
@@ -119,16 +132,35 @@ const RenderByPackage = defineComponent({
         },
         onCreateNode(comp, originProps = {}, children) {
           const { [SlotPrefix]: compSlots = {}, ...props } = originProps || {};
-          return h(comp, props, {
+          return onCreateNodeRef(comp, props, {
             // 支持vue的具名插槽，默认children为default插槽
-            default: isVNode(children) ? children : () => children,
+            // 插槽组件必须函数类型，否则后台会出现告警
+            default: () => children,
             ...Object.fromEntries(
-              Object.keys(compSlots).map((k) => [k, compSlots?.[k]])
+              Object.keys(compSlots).map((k) => {
+                const slotRender = compSlots?.[k];
+                return [
+                  k,
+                  typeof slotRender === 'function'
+                    ? slotRender
+                    : () => slotRender,
+                ];
+              })
             ),
           });
         },
       });
     });
+
+    watch(
+      () => [dom.value],
+      () => {
+        onNodeChange?.(dom.value);
+      },
+      {
+        immediate: true,
+      }
+    );
 
     return () => dom.value;
   },

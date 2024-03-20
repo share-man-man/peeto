@@ -1,6 +1,11 @@
-import { useEffect, useRef, useState } from 'react';
+import { v4 as id } from 'uuid';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { InjectPluginCompProps } from '../../type';
-import { SimilatorPluginCompDomMap, SimilatorPluginConfig } from './type';
+import {
+  AppActionRef,
+  SimilatorPluginCompDomMap,
+  SimilatorPluginConfig,
+} from './type';
 import AppRender from '../../components/AppRender';
 
 import ReactApp from './components/ReactApp';
@@ -10,6 +15,12 @@ import { VueAppProps } from './components/VueApp/type';
 
 export const SIMILATOR_CONFIG_CHANGE_EVENT =
   '__peeto_similator_config_change_event';
+
+/**
+ * 生成唯一key
+ * @returns
+ */
+export const generateKey = () => `__peeto_similator_${id()}`;
 
 const Index = ({ subscribeEvent }: InjectPluginCompProps) => {
   const mapRef = useRef<SimilatorPluginCompDomMap>(new Map());
@@ -27,56 +38,59 @@ const Index = ({ subscribeEvent }: InjectPluginCompProps) => {
     ]);
   }, [subscribeEvent]);
 
-  const cbRef = useRef<Parameters<ReactAppProps['subConfig']>[0]>();
-
+  const appActionRef = useRef<AppActionRef>();
   useEffect(() => {
     if (!config) {
       return;
     }
-    cbRef.current?.(config);
+    appActionRef.current?.setConfig(config);
   }, [config]);
+
+  // TODO 探寻获取映射方法：click,window宽高
+
+  const handleClickContainer = useCallback(
+    (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+      mapRef.current = appActionRef.current?.getMap() || new Map();
+
+      console.log(22, mapRef.current, e.target);
+
+      // TODO 点击的dom没找到的话，从父节点查找
+      // mapRef.current.forEach((doms, key) => {
+      //   // 不能通过target寻找，遇到组件内部停止冒泡，就获取不到准确的dom
+      //   // if (doms.includes(e.target as HTMLElement)) {
+      //   //   // TODO 合并dom，获取最大宽高、位置
+      //   //   console.log(11, key);
+      //   // }
+      // });
+    },
+    []
+  );
 
   if (!config) {
     return <div>没有配置</div>;
   }
 
   return (
-    <div
-      onClick={(e) => {
-        mapRef.current.forEach((doms, key) => {
-          if (doms.includes(e.target as HTMLElement)) {
-            // TODO 合并dom，获取最大宽高、位置
-            console.log(11, key);
-          }
-        });
-      }}
-    >
+    <div onClick={handleClickContainer}>
       <AppRender
         type={config.type}
         reactProps={{
           comp: ReactApp,
           prop: {
-            // 订阅config改变
-            subConfig: (cb) => {
-              cbRef.current = cb;
-              cbRef.current?.(config);
-            },
-            onMapChange: (map) => {
-              // console.log('react-映射关系===', map);
-              mapRef.current = map;
+            actionRef: (ctx) => {
+              appActionRef.current = ctx;
+              // 手动调用一次setConfig，初始化配置
+              appActionRef.current?.setConfig(config);
             },
           } as ReactAppProps,
         }}
         vueProps={{
           comp: VueApp,
           prop: {
-            subConfig: (cb) => {
-              cbRef.current = cb;
-              cbRef.current?.(config);
-            },
-            onMapChange: (map) => {
-              // console.log('vue-映射关系===', map);
-              mapRef.current = map;
+            actionRef: (ctx) => {
+              appActionRef.current = ctx;
+              // 手动调用一次setConfig，初始化配置
+              appActionRef.current?.setConfig(config);
             },
           } as VueAppProps,
         }}

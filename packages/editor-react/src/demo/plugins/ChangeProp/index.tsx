@@ -9,6 +9,7 @@ import { EDITOR_LIB_TYPE, InjectPluginCompProps } from '../../../type';
 import { schema as baseReact } from '../../schema/react/base';
 import { schema as modalForm } from '../../schema/react/modal-form';
 import { schema as vueBase } from '../../schema/vue/base';
+import { schema as vueSearchTable } from '../../schema/vue/search-table';
 
 import MyButton from '../../components/MyButton.vue';
 import MyTest from '../../components/MyTest.vue';
@@ -81,13 +82,17 @@ const schemaConfig: {
       schema: JSON.stringify(vueBase),
       packageList: vuePackage,
     },
+    {
+      key: id(),
+      children: 'vueSearchTable',
+      schema: JSON.stringify(vueSearchTable),
+      packageList: vuePackage,
+    },
   ],
 };
 
 const Index = ({ dispatchEvent }: InjectPluginCompProps) => {
-  const [libType, setLibType] = useState<EDITOR_LIB_TYPE>(
-    EDITOR_LIB_TYPE.REACT
-  );
+  const [libType, setLibType] = useState<EDITOR_LIB_TYPE>(EDITOR_LIB_TYPE.VUE);
   const [schemaKey, setSchemaKey] = useState<string>(
     schemaConfig[libType]?.[1]?.key
   );

@@ -1,10 +1,9 @@
 import { AnyType } from '@peeto/parse';
 import { ReactElement } from 'react';
-import { SimilatorPluginCompDomMap, SimilatorPluginConfig } from '../../type';
+import { AppActionRef } from '../../type';
 
 export interface ReactAppProps {
-  subConfig: (cb: (c: SimilatorPluginConfig) => void) => void;
-  onMapChange?: (map: SimilatorPluginCompDomMap) => void;
+  actionRef: (ctx: AppActionRef) => void;
 }
 
 export interface FiberNode {
