@@ -16,16 +16,16 @@ const { Header, Footer, Content } = Layout;
 
 // TODO
 const headerStyle: React.CSSProperties = {
-  textAlign: 'center',
+  // textAlign: 'center',
   color: '#fff',
   height: 64,
-  paddingInline: 48,
-  lineHeight: '64px',
-  backgroundColor: '#4096ff',
+  // paddingInline: 48,
+  // lineHeight: '64px',
+  // backgroundColor: '#4096ff',
 };
 
 const contentStyle: React.CSSProperties = {
-  textAlign: 'center',
+  // textAlign: 'center',
   minHeight: 120,
   lineHeight: '120px',
   color: '#fff',
@@ -33,9 +33,9 @@ const contentStyle: React.CSSProperties = {
 };
 
 const footerStyle: React.CSSProperties = {
-  textAlign: 'center',
+  // textAlign: 'center',
   color: '#fff',
-  backgroundColor: '#4096ff',
+  // backgroundColor: '#4096ff',
 };
 
 const layoutStyle = {

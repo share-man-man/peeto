@@ -17,7 +17,7 @@ import {
 import { generateKey } from '../..';
 import { getCompDomMap } from './util';
 
-const App = ({ actionRef }: ReactAppProps) => {
+const App = ({ actionRef, onMount }: ReactAppProps) => {
   const [schemaStr, setSchemaStr] =
     useState<SimilatorPluginConfig['schemaStr']>();
   const [packageList, setPackageList] =
@@ -53,10 +53,13 @@ const App = ({ actionRef }: ReactAppProps) => {
     });
   }, [actionRef]);
 
+  const onMountRef = useRef(onMount);
+  onMountRef.current = onMount;
   const onNodeChange = useCallback<Required<ReactRenderProps>['onNodeChange']>(
     (node) => {
       // 存储虚拟dom
       renderNodeRef.current = node;
+      onMountRef.current?.();
     },
     []
   );
@@ -80,12 +83,16 @@ const App = ({ actionRef }: ReactAppProps) => {
     [peetoPrivateKey]
   );
 
+  const renderFlag = useMemo(() => {
+    return schemaStr && packageList;
+  }, [packageList, schemaStr]);
+
   return (
     <div>
-      {schemaStr && packageList && (
+      {renderFlag && (
         <ReactRender
-          schemaStr={schemaStr}
-          packageList={packageList}
+          schemaStr={schemaStr || '{}'}
+          packageList={packageList || []}
           onNodeChange={onNodeChange}
           onCreateNode={onCreateNode}
           loadingRender={() => {

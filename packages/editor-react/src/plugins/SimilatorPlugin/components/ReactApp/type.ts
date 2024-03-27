@@ -4,6 +4,7 @@ import { AppActionRef } from '../../type';
 
 export interface ReactAppProps {
   actionRef: (ctx: AppActionRef) => void;
+  onMount: () => void;
 }
 
 export interface FiberNode {

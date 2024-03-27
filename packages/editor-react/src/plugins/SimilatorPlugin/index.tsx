@@ -12,6 +12,7 @@ import ReactApp from './components/ReactApp';
 import { ReactAppProps } from './components/ReactApp/type';
 import VueApp from './components/VueApp/App.vue';
 import { VueAppProps } from './components/VueApp/type';
+import ComponentPicker from './utils/component-pick';
 
 export const SIMILATOR_CONFIG_CHANGE_EVENT =
   '__peeto_similator_config_change_event';
@@ -23,8 +24,33 @@ export const SIMILATOR_CONFIG_CHANGE_EVENT =
 export const generateKey = () => `__peeto_similator_${id()}`;
 
 const Index = ({ subscribeEvent }: InjectPluginCompProps) => {
+  const componentPickerRef = useRef(new ComponentPicker());
   const mapRef = useRef<SimilatorPluginCompDomMap>(new Map());
   const [config, setConfig] = useState<SimilatorPluginConfig>();
+  const getMap = useCallback(() => {
+    // 过滤深度子dom
+    const newMap: SimilatorPluginCompDomMap =
+      appActionRef.current?.getMap() || new Map();
+    newMap.forEach((domList, k) => {
+      const tmpList = [...domList];
+      const newList = domList.filter((el) => {
+        let tmp: HTMLElement | null = el.parentElement;
+        let flag = false;
+        while (!flag && tmp) {
+          if (tmpList.some((d) => d === tmp)) {
+            flag = true;
+          } else {
+            tmp = tmp.parentElement;
+          }
+        }
+        return !flag;
+      });
+      newMap.set(k, newList);
+    });
+    mapRef.current = newMap;
+    componentPickerRef.current.updateMap(newMap);
+  }, []);
+
   useEffect(() => {
     subscribeEvent([
       {
@@ -46,32 +72,20 @@ const Index = ({ subscribeEvent }: InjectPluginCompProps) => {
     appActionRef.current?.setConfig(config);
   }, [config]);
 
-  // TODO 探寻获取映射方法：click,window宽高
-
-  const handleClickContainer = useCallback(
-    (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-      mapRef.current = appActionRef.current?.getMap() || new Map();
-
-      console.log(22, mapRef.current, e.target);
-
-      // TODO 点击的dom没找到的话，从父节点查找
-      // mapRef.current.forEach((doms, key) => {
-      //   // 不能通过target寻找，遇到组件内部停止冒泡，就获取不到准确的dom
-      //   // if (doms.includes(e.target as HTMLElement)) {
-      //   //   // TODO 合并dom，获取最大宽高、位置
-      //   //   console.log(11, key);
-      //   // }
-      // });
-    },
-    []
-  );
+  useEffect(() => {
+    const picker = componentPickerRef.current;
+    picker.startSelecting();
+    return () => {
+      picker.stopSelecting();
+    };
+  }, []);
 
   if (!config) {
     return <div>没有配置</div>;
   }
 
   return (
-    <div onClick={handleClickContainer}>
+    <div>
       <AppRender
         type={config.type}
         reactProps={{
@@ -82,6 +96,9 @@ const Index = ({ subscribeEvent }: InjectPluginCompProps) => {
               // 手动调用一次setConfig，初始化配置
               appActionRef.current?.setConfig(config);
             },
+            onMount: () => {
+              getMap();
+            },
           } as ReactAppProps,
         }}
         vueProps={{
@@ -91,6 +108,9 @@ const Index = ({ subscribeEvent }: InjectPluginCompProps) => {
               appActionRef.current = ctx;
               // 手动调用一次setConfig，初始化配置
               appActionRef.current?.setConfig(config);
+            },
+            onMount: () => {
+              getMap();
             },
           } as VueAppProps,
         }}

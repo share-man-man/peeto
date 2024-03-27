@@ -4,4 +4,5 @@ import { AppActionRef } from '../../type';
 
 export interface VueAppProps {
   actionRef: (ctx: AppActionRef) => void;
+  onMount: () => void;
 }

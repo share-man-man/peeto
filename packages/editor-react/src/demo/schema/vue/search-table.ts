@@ -10,7 +10,7 @@ export const schema: SchemaRootObj = {
       props: {},
       children: [
         {
-          id: `table-${id}`,
+          id: `table-${id()}`,
           componentName: 'ElTable',
           packageName: 'element-plus',
           props: {
@@ -36,7 +36,6 @@ export const schema: SchemaRootObj = {
                 address: 'No. 189, Grove St, Los Angeles',
               },
             ],
-            // style: 'width: 100%',
           },
           children: [
             {
@@ -66,6 +65,8 @@ export const schema: SchemaRootObj = {
               props: {
                 prop: 'address',
                 label: 'Address',
+                width: '180',
+                fixed: 'right',
               },
             },
           ],

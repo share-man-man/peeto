@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { PropType, VNode, h, shallowRef, watch } from 'vue';
+import { PropType, VNode, computed, h, nextTick, shallowRef, watch } from 'vue';
 import { VueRender, VueRenderProps } from '@peeto/render-vue';
 import { VueAppProps } from './type';
 import {
@@ -12,6 +12,10 @@ import { getCompDomMap } from './util';
 const props = defineProps({
   actionRef: {
     type: Function as PropType<VueAppProps['actionRef']>,
+    default: null,
+  },
+  onMount: {
+    type: Function as PropType<VueAppProps['onMount']>,
     default: null,
   },
 });
@@ -52,6 +56,9 @@ watch(
 
 const onNodeChange: VueRenderProps['onNodeChange'] = (n) => {
   renderNodeRef.value = n;
+  nextTick(() => {
+    props.onMount();
+  });
 };
 
 const onCreateNode: VueRenderProps['onCreateNode'] = (comp, p, children) => {
@@ -65,12 +72,16 @@ const onCreateNode: VueRenderProps['onCreateNode'] = (comp, p, children) => {
   );
   return res;
 };
+
+const renderFlag = computed(() => {
+  return schemaStr.value && packageList.value;
+});
 </script>
 
 <template>
   <div>
     <VueRender
-      v-if="schemaStr && packageList"
+      v-if="renderFlag"
       :schema-str="schemaStr"
       :package-list="packageList"
       @node-change="onNodeChange"
