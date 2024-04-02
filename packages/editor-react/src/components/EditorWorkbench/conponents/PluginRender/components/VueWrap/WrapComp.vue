@@ -9,8 +9,8 @@ export default {
       type: Component as PropType<VueWrapProps['comp']>,
       default: null,
     },
-    childProp: {
-      type: Object as PropType<VueWrapProps['childProp']>,
+    compProp: {
+      type: Object as PropType<VueWrapProps['compProp']>,
       default: null,
     },
     onMount: {
@@ -18,8 +18,8 @@ export default {
       default: null,
     },
   },
-  setup({ comp, childProp }) {
-    return () => h(comp, childProp);
+  setup({ comp, compProp }) {
+    return () => h(comp, compProp);
   },
   mounted() {
     this.$props.onMount?.();

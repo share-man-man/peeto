@@ -92,7 +92,9 @@ const schemaConfig: {
 };
 
 const Index = ({ dispatchEvent }: InjectPluginCompProps) => {
-  const [libType, setLibType] = useState<EDITOR_LIB_TYPE>(EDITOR_LIB_TYPE.VUE);
+  const [libType, setLibType] = useState<EDITOR_LIB_TYPE>(
+    EDITOR_LIB_TYPE.REACT
+  );
   const [schemaKey, setSchemaKey] = useState<string>(
     schemaConfig[libType]?.[1]?.key
   );

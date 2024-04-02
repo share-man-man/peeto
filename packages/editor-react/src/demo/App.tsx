@@ -1,26 +1,15 @@
 import 'element-plus/dist/index.css';
 
-import { PackageListType } from '@peeto/parse';
-import { StepBackwardOutlined, PlusOutlined } from '@ant-design/icons';
-import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
-import { Descriptions, Radio, Typography } from 'antd';
-import { h } from 'vue';
+import { StepBackwardOutlined } from '@ant-design/icons';
+import { useEffect } from 'react';
 
 import { EDITOR_LIB_TYPE } from '../type';
 
-import VueTest from './components/MyTest.vue';
-import MyButton from './components/MyButton.vue';
 import { useEditorWokrBench } from '../components/EditorWorkbench';
-import TestPlugin from './plugins/TestPlugin';
-import TestPlugin2 from './plugins/TestPlugin2';
-import TestVuePlugin from './plugins/TestVuePlugin/SchemaChange.vue';
-// import { SimilatorPluginCompDomMap } from '../components/EditorSimilator/type';
 import ChangeProp from './plugins/ChangeProp';
 import SimilatorPlugin from '../plugins/SimilatorPlugin';
 
 function Index() {
-  // const mapRef = useRef<SimilatorPluginCompDomMap>(new Map());
-
   const { workbench, injectPlugin } = useEditorWokrBench();
 
   useEffect(() => {
@@ -82,36 +71,7 @@ function Index() {
     // });
   }, [injectPlugin]);
 
-  return (
-    <div>
-      {workbench}
-
-      <Typography.Title level={3}>渲染效果</Typography.Title>
-      {/* <div
-        onClick={(e) => {
-          mapRef.current.forEach((doms, key) => {
-            if (doms.includes(e.target as HTMLElement)) {
-              // TODO 合并dom，获取最大宽高
-              console.log(11, key);
-            }
-          });
-        }}
-      >
-        {libType && curConfig?.schema && curConfig.packageList && (
-          <EditorSimilator
-            type={libType}
-            schemaStr={curConfig.schema}
-            packageList={curConfig.packageList}
-            // delay={500}
-            onMapChange={(map) => {
-              // console.log('映射关系', map);
-              mapRef.current = map;
-            }}
-          />
-        )}
-      </div> */}
-    </div>
-  );
+  return <div>{workbench}</div>;
 }
 
 export default Index;

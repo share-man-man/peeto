@@ -1,20 +1,11 @@
 import { PushpinOutlined } from '@ant-design/icons';
 import { Layout, Row, Space } from 'antd';
-import { LeftToolBarPluginItemProps } from '../../type';
+import { LeftToolBarPluginItemProps, PluginRenderProps } from '../../type';
 import { useMemo, useState } from 'react';
-import PluginRender from '../../../PluginRender';
-
-// TODO
-const siderStyle: React.CSSProperties = {
-  fontSize: 28,
-  textAlign: 'center',
-  // lineHeight: '120px',
-  color: '#fff',
-  backgroundColor: '#1677ff',
-};
+import PluginRender from '../PluginRender';
 
 export interface LeftToolBarRenderProps {
-  list: LeftToolBarPluginItemProps[];
+  list: PluginRenderProps[];
 }
 
 /**
@@ -33,7 +24,8 @@ const Index = ({ list }: LeftToolBarRenderProps) => {
   >(null);
   //   当前选中插件
   const curPlugin = useMemo(() => {
-    return list.find((i) => i.name === curName);
+    return list.find((i) => i.config.name === curName)
+      ?.config as LeftToolBarPluginItemProps;
   }, [curName, list]);
   const curPanneWidth = useMemo(() => {
     if (!curPlugin) {
@@ -46,7 +38,7 @@ const Index = ({ list }: LeftToolBarRenderProps) => {
   }, [curPanneWidth, fixPannel]);
 
   return (
-    <Layout.Sider width={siderWidth} style={siderStyle}>
+    <Layout.Sider width={siderWidth} theme="light">
       <Row
         style={{
           fontSize: 28,
@@ -56,20 +48,23 @@ const Index = ({ list }: LeftToolBarRenderProps) => {
         }}
       >
         <Space direction="vertical">
-          {list.map((t) => (
-            <div
-              key={t.name}
-              onClick={() => {
-                if (curName === t.name) {
-                  setCurName(null);
-                } else {
-                  setCurName(t.name);
-                }
-              }}
-            >
-              {t.icon}
-            </div>
-          ))}
+          {list.map(({ config }) => {
+            const t = config as LeftToolBarPluginItemProps;
+            return (
+              <div
+                key={t.name}
+                onClick={() => {
+                  if (curName === t.name) {
+                    setCurName(null);
+                  } else {
+                    setCurName(t.name);
+                  }
+                }}
+              >
+                {t.icon}
+              </div>
+            );
+          })}
         </Space>
 
         <div
@@ -98,11 +93,7 @@ const Index = ({ list }: LeftToolBarRenderProps) => {
             />
             <div>
               {list.map((item) => (
-                <PluginRender
-                  key={item.name}
-                  item={item}
-                  visible={curName === item.name}
-                />
+                <PluginRender key={item.config.name} {...item} />
               ))}
             </div>
           </div>

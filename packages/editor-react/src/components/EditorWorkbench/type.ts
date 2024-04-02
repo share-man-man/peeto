@@ -1,7 +1,7 @@
 import type { AnyType } from '@peeto/parse';
 import type { EDITOR_LIB_TYPE } from '../../type';
 import type { FunctionComponent, ComponentClass, ReactNode } from 'react';
-import type { Component } from 'vue';
+import { Component } from 'vue';
 
 export interface BaseToolBarPluginProps {
   name: string;
@@ -42,18 +42,53 @@ export interface SimilatorPluginItemProps
   extends Omit<BaseToolBarPluginProps, 'icon'> {}
 
 /**
+ * 注册插件函数
+ */
+export type InjectPluginFnType = (
+  injectFn: () => InjectPluginFnResType
+) => Promise<void>;
+
+/**
  * 注册插件所需参数
  */
-export type InjectFnResType =
+export type InjectPluginFnResType =
   | ({
       type: 'left-tool-bar';
     } & LeftToolBarPluginItemProps)
   | ({ type: 'top-tool-bar' } & TopToolBarPluginItemProps)
   | ({ type: 'similator' } & SimilatorPluginItemProps);
 
-export type InjectPluginProps = (
-  injectFn: () => InjectFnResType
-) => Promise<void>;
+/**
+ * 渲染插件组件参数
+ */
+export interface PluginRenderProps {
+  visible?: boolean;
+  config: InjectPluginFnResType;
+  /**
+   * 插件生命周期
+   */
+  lifeCycleHooks: {
+    /**
+     * 插件挂载完成
+     * @returns
+     */
+    onMount: () => void;
+  };
+  injectProps: {
+    /**
+     * 订阅事件
+     * @param subList
+     * @returns
+     */
+    subscribeEvent: (subList: SubscribeEventItem[]) => void;
+    /**
+     * 分发事件
+     * @param disList
+     * @returns
+     */
+    dispatchEvent: (disList: DispatchEventItem[]) => void;
+  };
+}
 
 export type SubscribeEventItem = {
   name: string;
@@ -65,27 +100,6 @@ export type DispatchEventItem = {
   paylod: AnyType;
 };
 
-/**
- * 注册的插件组件，默认注入的参数
- */
-export type InjectPluginCompProps = {
-  /**
-   * 插件挂载完成
-   * @returns
-   */
-  onMount: () => void;
-  /**
-   * 订阅事件
-   * @param subList
-   * @returns
-   */
-  subscribeEvent: (subList: SubscribeEventItem[]) => void;
-  /**
-   * 分发事件
-   * @param disList
-   * @returns
-   */
-  dispatchEvent: (disList: DispatchEventItem[]) => void;
-};
+export type InjectPluginCompProps = PluginRenderProps['injectProps'];
 
 export interface EditorWorkbenchProps {}

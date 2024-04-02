@@ -80,6 +80,17 @@ const Index = ({ subscribeEvent }: InjectPluginCompProps) => {
     };
   }, []);
 
+  // 循环获取映射，原因：有些组件会异步改变状态或dom
+  useEffect(() => {
+    const timer = setInterval(() => {
+      // TODO 使用requestAnimationFrame，防止页面掉帧
+      getMap();
+    }, 1000);
+    return () => {
+      clearInterval(timer);
+    };
+  }, [getMap]);
+
   if (!config) {
     return <div>没有配置</div>;
   }
