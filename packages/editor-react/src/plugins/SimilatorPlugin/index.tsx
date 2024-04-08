@@ -24,7 +24,13 @@ export const SIMILATOR_CONFIG_CHANGE_EVENT =
 export const generateKey = () => `__peeto_similator_${id()}`;
 
 const Index = ({ subscribeEvent }: InjectPluginCompProps) => {
-  const componentPickerRef = useRef(new ComponentPicker());
+  const componentPickerRef = useRef(
+    new ComponentPicker({
+      onCheckComp: (compList) => {
+        console.log(111, compList);
+      },
+    })
+  );
   const mapRef = useRef<SimilatorPluginCompDomMap>(new Map());
   const [config, setConfig] = useState<SimilatorPluginConfig>();
   const getMap = useCallback(() => {
@@ -50,6 +56,8 @@ const Index = ({ subscribeEvent }: InjectPluginCompProps) => {
     mapRef.current = newMap;
     componentPickerRef.current.updateMap(newMap);
   }, []);
+  const getMapRef = useRef(getMap);
+  getMapRef.current = getMap;
 
   useEffect(() => {
     subscribeEvent([
@@ -84,12 +92,12 @@ const Index = ({ subscribeEvent }: InjectPluginCompProps) => {
   useEffect(() => {
     const timer = setInterval(() => {
       // TODO 使用requestAnimationFrame，防止页面掉帧
-      getMap();
-    }, 1000);
+      getMapRef.current?.();
+    }, 2000);
     return () => {
       clearInterval(timer);
     };
-  }, [getMap]);
+  }, []);
 
   if (!config) {
     return <div>没有配置</div>;

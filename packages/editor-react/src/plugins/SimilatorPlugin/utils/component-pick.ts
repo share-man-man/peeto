@@ -6,16 +6,31 @@ import { isBrowser } from './commom';
 import { SimilatorPluginCompDomMap } from '../type';
 import { JobQueue } from './queue';
 
+export interface CompPickerContext {
+  onCheckComp?: (compList: string[]) => void;
+}
+
 export default class ComponentPicker {
+  /**
+   * 组件、dom映射关系
+   */
   private map: SimilatorPluginCompDomMap = new Map();
+  /**
+   * 当前预选的组件id
+   */
   private selectedInstance?: string;
+  /**
+   * 预选框
+   */
   private overlay?: HTMLDivElement;
   private overlayContent?: HTMLDivElement;
   private jobQueue = new JobQueue();
   private updateTimer?: NodeJS.Timeout;
+  private checkCompList: string[] = [];
+  private ctx?: CompPickerContext = {};
 
-  constructor(/* ctx: BackendContext */) {
-    // this.ctx = ctx;
+  constructor(ctx: CompPickerContext) {
+    this.ctx = ctx;
     this.bindMethods();
   }
 
@@ -217,21 +232,14 @@ export default class ComponentPicker {
   /**
    * Selects an instance in the component view
    */
-  async elementClicked(/* e: MouseEvent */) {
-    // this.cancelEvent(e);
-    // if (this.selectedInstance && this.selectedBackend) {
-    //   const parentInstances =
-    //     await this.selectedBackend.api.walkComponentParents(
-    //       this.selectedInstance
-    //     );
-    //   this.ctx.bridge.send(BridgeEvents.TO_FRONT_COMPONENT_PICK, {
-    //     id: this.selectedInstance.__VUE_DEVTOOLS_UID__,
-    //     parentIds: parentInstances.map((i) => i.__VUE_DEVTOOLS_UID__),
-    //   });
-    // } else {
-    //   this.ctx.bridge.send(BridgeEvents.TO_FRONT_COMPONENT_PICK_CANCELED, null);
-    // }
-    // this.stopSelecting();
+  async elementClicked(e: MouseEvent) {
+    this.cancelEvent(e);
+    if (this.selectedInstance) {
+      // 默认单选
+      this.checkCompList = [this.selectedInstance];
+      this.ctx?.onCheckComp?.(this.checkCompList);
+    }
+    this.stopSelecting();
   }
 
   /**

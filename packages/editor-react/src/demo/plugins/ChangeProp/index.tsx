@@ -96,7 +96,7 @@ const Index = ({ dispatchEvent }: InjectPluginCompProps) => {
     EDITOR_LIB_TYPE.REACT
   );
   const [schemaKey, setSchemaKey] = useState<string>(
-    schemaConfig[libType]?.[1]?.key
+    schemaConfig[libType]?.[0]?.key
   );
 
   const curConfig = useMemo(() => {

@@ -2,20 +2,22 @@
 
 ## parse
 
-1. 弃用动态异步加载组件方案。vite 打包的项目，import 的后面，需要明确加载的包名，否则会报错
+1. 同步导入所有组件，导致单文件打包结果过大。
 
-   - 错误代码
+   - 使用 Promise，异步导入组件。以便 vite、webpack 打包的项目动态倒入。vite 的 import 的后面，需要明确加载的包名，否则找不到包名，会报错
 
-     ```jsx
-     const getName = () => 'antd';
-     const package = import(getName());
-     ```
+     - 错误代码
 
-   - 正确代码
+       ```jsx
+       const getName = () => 'antd';
+       const package = import(getName());
+       ```
 
-     ```jsx
-     const package = import('antd');
-     ```
+     - 正确代码
+
+       ```jsx
+       const package = import('antd');
+       ```
 
 ## react-render
 
@@ -46,7 +48,7 @@
 
 1. 有一些组件，会改变子组件的 key，比如 antd.Button，会把 children 的 key 改为'.$'+key
 
-   - 在 onCreateNode 时，再包装一层抽象组件
+   - 在 onCreateNode 时，加入自定义的 key
 
 2. demo/main 报错：`不能将类型“Element”分配给类型“ReactNode”`
 
@@ -60,14 +62,13 @@
 
    - 获取组件和真实 dom 的映射关系
 
-     - react、vue 等模拟器在 虚拟 dom 重新创建成功后（onNodeChange），存储虚拟 dom
-     - react、vue 等模拟器监听真实 dom 修改（MutationObserver）
-     - 真实 dom 修改后，通过虚拟 dom 创建映射关系
-     - 上抛映射关系
+     - react、vue 等模拟器在虚拟 dom 重新创建成功后（onNodeChange），存储虚拟 dom
+     - react、vue 等模拟器各自实现遍历虚拟 dom 方法，获取虚拟 dom 和 dom 的映射关系
+     - 提供 getMap 方法，供父组件调用，返回映射关系
 
-   - 监听编辑器的 click 事件
+   - 监听编辑器的 hover 事件
 
-   - 通过 click 事件回调参数 e.target（实际点击的 dom ）和映射里的 dom 是否相等，从而找到组件
+   - 通过 hover 事件回调参数 e.target 的 dom 和映射里的 dom 是否相等或子节点，从而找到组件
 
 5. 插件之间通信
 
