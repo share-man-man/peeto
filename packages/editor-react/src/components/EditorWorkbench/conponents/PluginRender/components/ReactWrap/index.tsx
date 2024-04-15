@@ -1,6 +1,6 @@
+import { PluginRenderProps } from '@peeto/editor';
 import { AnyType } from '@peeto/parse';
 import { useEffect, useRef } from 'react';
-import { PluginRenderProps } from '../../../../type';
 
 export interface ReactWrapProps {
   comp: AnyType;

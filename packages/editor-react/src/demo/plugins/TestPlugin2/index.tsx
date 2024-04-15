@@ -1,4 +1,4 @@
-import { InjectPluginCompProps } from '../../../components/EditorWorkbench/type';
+import { InjectPluginCompProps } from '@peeto/editor';
 
 const Index = ({ dispatchEvent }: InjectPluginCompProps) => {
   return (

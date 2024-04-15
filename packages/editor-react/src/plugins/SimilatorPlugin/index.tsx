@@ -1,6 +1,6 @@
 import { v4 as id } from 'uuid';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { InjectPluginCompProps } from '../../type';
+
 import {
   AppActionRef,
   SimilatorPluginCompDomMap,
@@ -13,6 +13,7 @@ import { ReactAppProps } from './components/ReactApp/type';
 import VueApp from './components/VueApp/App.vue';
 import { VueAppProps } from './components/VueApp/type';
 import ComponentPicker from './utils/component-pick';
+import { InjectPluginCompProps } from '@peeto/editor';
 
 export const SIMILATOR_CONFIG_CHANGE_EVENT =
   '__peeto_similator_config_change_event';
@@ -80,6 +81,7 @@ const Index = ({ subscribeEvent }: InjectPluginCompProps) => {
     appActionRef.current?.setConfig(config);
   }, [config]);
 
+  // TODO 需要监听选中组件
   useEffect(() => {
     const picker = componentPickerRef.current;
     picker.startSelecting();

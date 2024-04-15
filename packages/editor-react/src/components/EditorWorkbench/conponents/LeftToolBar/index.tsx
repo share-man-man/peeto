@@ -1,8 +1,8 @@
-import { PushpinOutlined } from '@ant-design/icons';
+import { PushpinOutlined, UsbOutlined } from '@ant-design/icons';
 import { Layout, Row, Space } from 'antd';
-import { LeftToolBarPluginItemProps, PluginRenderProps } from '../../type';
 import { useMemo, useState } from 'react';
 import PluginRender from '../PluginRender';
+import { LeftToolBarPluginItemProps, PluginRenderProps } from '@peeto/editor';
 
 export interface LeftToolBarRenderProps {
   list: PluginRenderProps[];
@@ -61,7 +61,7 @@ const Index = ({ list }: LeftToolBarRenderProps) => {
                   }
                 }}
               >
-                {t.icon}
+                {t.icon || <UsbOutlined />}
               </div>
             );
           })}

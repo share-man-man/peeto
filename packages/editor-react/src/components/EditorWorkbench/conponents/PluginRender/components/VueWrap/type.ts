@@ -1,5 +1,5 @@
+import { PluginRenderProps } from '@peeto/editor';
 import { AppRenderProps } from '../../../../../AppRender';
-import { PluginRenderProps } from '../../../../type';
 
 export interface VueWrapProps {
   onMount: PluginRenderProps['lifeCycleHooks']['onMount'];

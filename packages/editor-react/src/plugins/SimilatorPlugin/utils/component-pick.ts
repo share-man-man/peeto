@@ -153,24 +153,41 @@ export default class ComponentPicker {
     this.overlayContent.style.backgroundClip = 'padding-box';
   }
 
-  // TODO
+  positionOverlayToInstance(instance: string) {
+    if (!instance || !this.overlay) {
+      return;
+    }
+    const domList = this.map.get(instance);
+    if (domList && (domList || [])?.length > 0) {
+      const firstRect = domList[0].getBoundingClientRect();
+      let t = firstRect.top;
+      let l = firstRect.left;
+      let r = firstRect.left + firstRect.width;
+      let b = firstRect.top + firstRect.height;
+      (domList || []).forEach((el) => {
+        const rect = el.getBoundingClientRect();
+        if (rect.height > 0 && rect.width > 0) {
+          t = rect.top < t ? rect.top : t;
+          l = rect.left < l ? rect.left : l;
+          const rr = rect.left + rect.width;
+          r = rr > r ? rr : r;
+          const rb = rect.top + rect.height;
+          b = rb > b ? rb : b;
+        }
+      });
+      this.overlay.style.top = `${t}px`;
+      this.overlay.style.left = `${l}px`;
+      this.overlay.style.width = `${r - l}px`;
+      this.overlay.style.height = `${b - t}px`;
+    }
+  }
+
   /**
    * 更新遮罩框
    */
   updateOverlay() {
     if (this.selectedInstance) {
-      // const bounds = await backend.api.getComponentBounds(currentInstance);
-      // if (bounds) {
-      //   const sizeEl = overlayContent.children.item(3);
-      //   const widthEl = sizeEl.childNodes[0] as unknown as Text;
-      //   widthEl.textContent = (Math.round(bounds.width * 100) / 100).toString();
-      //   const heightEl = sizeEl.childNodes[2] as unknown as Text;
-      //   heightEl.textContent = (
-      //     Math.round(bounds.height * 100) / 100
-      //   ).toString();
-      //   positionOverlay(bounds);
-      //   positionOverlayContent(bounds);
-      // }
+      this.positionOverlayToInstance(this.selectedInstance);
     }
   }
 
@@ -180,31 +197,9 @@ export default class ComponentPicker {
       if (!instance || !this.overlay) {
         return;
       }
-      const domList = this.map.get(instance);
-      if (domList && (domList || [])?.length > 0) {
-        const firstRect = domList[0].getBoundingClientRect();
-        let t = firstRect.top;
-        let l = firstRect.left;
-        let r = firstRect.left + firstRect.width;
-        let b = firstRect.top + firstRect.height;
-        (domList || []).forEach((el) => {
-          const rect = el.getBoundingClientRect();
-          if (rect.height > 0 && rect.width > 0) {
-            t = rect.top < t ? rect.top : t;
-            l = rect.left < l ? rect.left : l;
-            const rr = rect.left + rect.width;
-            r = rr > r ? rr : r;
-            const rb = rect.top + rect.height;
-            b = rb > b ? rb : b;
-          }
-        });
-
-        this.overlay.style.top = `${t}px`;
-        this.overlay.style.left = `${l}px`;
-        this.overlay.style.width = `${r - l}px`;
-        this.overlay.style.height = `${b - t}px`;
-        document.body.appendChild(this.overlay);
-      }
+      document.body.appendChild(this.overlay);
+      this.positionOverlayToInstance(instance);
+      this.startUpdateTimer();
     });
   }
 
@@ -216,21 +211,21 @@ export default class ComponentPicker {
     });
   }
 
-  // startUpdateTimer() {
-  //   this.stopUpdateTimer();
-  //   this.updateTimer = setInterval(() => {
-  //     this.jobQueue.queue('updateOverlay', async () => {
-  //       await this.updateOverlay();
-  //     });
-  //   }, 1000 / 30); // 30fps
-  // }
+  startUpdateTimer() {
+    this.stopUpdateTimer();
+    this.updateTimer = setInterval(() => {
+      this.jobQueue.queue('updateOverlay', async () => {
+        await this.updateOverlay();
+      });
+    }, 500);
+  }
 
   stopUpdateTimer() {
     clearInterval(this.updateTimer);
   }
 
   /**
-   * Selects an instance in the component view
+   * 选中组件
    */
   async elementClicked(e: MouseEvent) {
     this.cancelEvent(e);

@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
-import { InjectPluginCompProps } from '../../../components/EditorWorkbench/type';
 import { PackageListType } from '@peeto/parse';
+import { InjectPluginCompProps } from '@peeto/editor';
 
 const Index = ({ subscribeEvent, dispatchEvent }: InjectPluginCompProps) => {
   useEffect(() => {

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, PropType } from 'vue';
 import { ElButton } from 'element-plus';
-import type { InjectPluginCompProps } from '../../../type';
+import { InjectPluginCompProps } from '@peeto/editor';
 
 const props = defineProps({
   subscribeEvent: {

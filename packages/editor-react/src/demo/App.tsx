@@ -1,39 +1,39 @@
 import 'element-plus/dist/index.css';
 
-import { StepBackwardOutlined } from '@ant-design/icons';
+// import { StepBackwardOutlined } from '@ant-design/icons';
 import { useEffect } from 'react';
-
-import { EDITOR_LIB_TYPE } from '../type';
 
 import { useEditorWokrBench } from '../components/EditorWorkbench';
 import ChangeProp from './plugins/ChangeProp';
 import SimilatorPlugin from '../plugins/SimilatorPlugin';
+import { PLUGIN_CONFIG_TYPE, PLUGIN_LIB_TYPE } from '@peeto/editor';
 
 function Index() {
   const { workbench, injectPlugin } = useEditorWokrBench();
 
   useEffect(() => {
-    injectPlugin(() => {
+    injectPlugin(async () => {
       return {
         name: 'ChangeProp',
-        icon: <StepBackwardOutlined />,
-        type: 'left-tool-bar',
+        // icon: <StepBackwardOutlined />,
+        type: PLUGIN_CONFIG_TYPE.LEFT_TOOL_BAR,
         renderProps: {
-          libType: EDITOR_LIB_TYPE.REACT,
+          libType: PLUGIN_LIB_TYPE.REACT18,
           node: ChangeProp,
         },
       };
     });
-    injectPlugin(() => {
+    injectPlugin(async () => {
       return {
         name: 'similator',
-        type: 'similator',
+        type: PLUGIN_CONFIG_TYPE.SIMILATOR,
         renderProps: {
-          libType: EDITOR_LIB_TYPE.REACT,
+          libType: PLUGIN_LIB_TYPE.REACT18,
           node: SimilatorPlugin,
         },
       };
     });
+
     // injectPlugin(() => {
     //   return {
     //     name: 'TestPlugin',

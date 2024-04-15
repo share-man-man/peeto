@@ -14,11 +14,14 @@ export default defineConfig({
       formats: ['es', 'umd', 'cjs', 'iife'],
     },
     rollupOptions: {
-      external: ['react', 'vue'],
+      external: ['react', 'vue', 'react-dom', 'antd', '@ant-design/icons'],
       output: {
         globals: {
           react: 'react',
           vue: 'vue',
+          'react-dom': 'ReactDOM',
+          antd: 'antd',
+          // '@ant-design/icons': 'icon',
         },
       },
     },

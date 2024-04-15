@@ -1,4 +1,4 @@
-import { PluginRenderProps } from '../../type';
+import { PluginRenderProps } from '@peeto/editor';
 import AppRender from '../../../AppRender';
 import ReactWrap, { ReactWrapProps } from './components/ReactWrap';
 import VueWrap from './components/VueWrap/WrapComp.vue';
