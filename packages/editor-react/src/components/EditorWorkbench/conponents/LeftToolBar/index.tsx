@@ -1,5 +1,4 @@
 import { PushpinOutlined, UsbOutlined } from '@ant-design/icons';
-import { Layout, Row, Space } from 'antd';
 import { useMemo, useState } from 'react';
 import PluginRender from '../PluginRender';
 import { LeftToolBarPluginItemProps, PluginRenderProps } from '@peeto/editor';
@@ -11,7 +10,7 @@ export interface LeftToolBarRenderProps {
 /**
  * 默认icon列表宽度
  */
-const defaultWidth = 28;
+const defaultWidth = 40;
 /**
  * 默认面板宽度
  */
@@ -38,68 +37,64 @@ const Index = ({ list }: LeftToolBarRenderProps) => {
   }, [curPanneWidth, fixPannel]);
 
   return (
-    <Layout.Sider width={siderWidth} theme="light">
-      <Row
+    <div
+      className="workbench-left-tool-bar"
+      style={{
+        width: siderWidth,
+      }}
+    >
+      <div className="workbench-left-tool-bar-icons">
+        {list.map(({ config }) => {
+          const t = config as LeftToolBarPluginItemProps;
+          return (
+            <div
+              key={t.name}
+              onClick={() => {
+                if (curName === t.name) {
+                  setCurName(null);
+                } else {
+                  setCurName(t.name);
+                }
+              }}
+            >
+              {t.icon || <UsbOutlined />}
+            </div>
+          );
+        })}
+      </div>
+
+      <div
         style={{
-          fontSize: 28,
-          flexWrap: 'nowrap',
+          width: curPanneWidth,
+          position: fixPannel ? 'absolute' : 'relative',
+          transform: fixPannel ? `translateX(${defaultWidth}px)` : '',
           overflow: 'hidden',
           height: '100%',
         }}
       >
-        <Space direction="vertical">
-          {list.map(({ config }) => {
-            const t = config as LeftToolBarPluginItemProps;
-            return (
-              <div
-                key={t.name}
-                onClick={() => {
-                  if (curName === t.name) {
-                    setCurName(null);
-                  } else {
-                    setCurName(t.name);
-                  }
-                }}
-              >
-                {t.icon || <UsbOutlined />}
-              </div>
-            );
-          })}
-        </Space>
-
         <div
           style={{
-            width: curPanneWidth,
-            position: fixPannel ? 'absolute' : 'relative',
-            transform: fixPannel ? `translateX(${defaultWidth}px)` : '',
-            overflow: 'hidden',
-            height: '100%',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            overflow: 'auto',
           }}
         >
-          <div
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              overflow: 'auto',
+          <PushpinOutlined
+            onClick={() => {
+              setFixPannel(!fixPannel);
             }}
-          >
-            <PushpinOutlined
-              onClick={() => {
-                setFixPannel(!fixPannel);
-              }}
-            />
-            <div>
-              {list.map((item) => (
-                <PluginRender key={item.config.name} {...item} />
-              ))}
-            </div>
+          />
+          <div>
+            {list.map((item) => (
+              <PluginRender key={item.config.name} {...item} />
+            ))}
           </div>
         </div>
-      </Row>
-    </Layout.Sider>
+      </div>
+    </div>
   );
 };
 

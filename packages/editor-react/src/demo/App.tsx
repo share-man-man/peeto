@@ -1,4 +1,7 @@
 import 'element-plus/dist/index.css';
+import '../components/EditorWorkbench/style.less';
+
+import './style.less';
 
 // import { StepBackwardOutlined } from '@ant-design/icons';
 import { useEffect } from 'react';
