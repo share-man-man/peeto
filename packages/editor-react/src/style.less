@@ -13,7 +13,7 @@
     inset -5px -5px 9px color-mix(in srgb, @primary-color 99%, black 1%);
 }
 
-.workbench {
+.peeto-workbench {
   background-color: @primary-color;
   position: fixed;
   height: 100vh;
@@ -22,9 +22,9 @@
   align-items: center;
   padding: 4px;
   box-sizing: border-box;
+  // font-size: 24px;
   &-left-tool-bar {
     .neumorphism();
-    font-size: 24px;
     height: 100%;
     box-sizing: border-box;
     &-icons {
@@ -44,12 +44,17 @@
       .neumorphism();
       box-sizing: border-box;
       height: 36px;
-      display: flex;
-      flex-direction: row;
-      &-left {
-        flex: 1 0 0;
-        align-items: center;
-        justify-content: flex-start;
+      &-icons {
+        display: flex;
+        flex-direction: row;
+        &-left {
+          flex: 1 0 0;
+          align-items: center;
+          justify-content: flex-start;
+        }
+      }
+      &-panel {
+        // 顶部工具栏面板
       }
     }
     &-similator {
@@ -60,10 +65,10 @@
       transform: translate(0, 0);
       &-content {
         position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
+        top: 8px;
+        left: 8px;
+        right: 8px;
+        bottom: 8px;
         overflow: auto;
         scrollbar-width: none;
       }

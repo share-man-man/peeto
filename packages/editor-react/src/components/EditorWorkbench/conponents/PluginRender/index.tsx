@@ -10,7 +10,7 @@ const Index = ({
   injectProps,
   lifeCycleHooks,
 }: PluginRenderProps) => {
-  const { props: compProp } = config.renderProps || {};
+  const { nodeProps } = config.renderProps || {};
   const { onMount } = lifeCycleHooks;
   return (
     <div style={{ display: visible ? '' : 'none' }}>
@@ -23,7 +23,7 @@ const Index = ({
             onMount,
             comp: config.renderProps.node as VueWrapProps['comp'],
             compProp: {
-              ...compProp,
+              ...nodeProps,
               ...injectProps,
             },
           } as VueWrapProps,
@@ -34,7 +34,7 @@ const Index = ({
             onMount,
             comp: config.renderProps.node as ReactWrapProps['comp'],
             compProp: {
-              ...compProp,
+              ...nodeProps,
               ...injectProps,
             },
           } as ReactWrapProps,

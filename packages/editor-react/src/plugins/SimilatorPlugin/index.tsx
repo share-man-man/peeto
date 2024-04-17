@@ -18,6 +18,8 @@ import { InjectPluginCompProps } from '@peeto/editor';
 export const SIMILATOR_CONFIG_CHANGE_EVENT =
   '__peeto_similator_config_change_event';
 
+export const SIMILATOR_START_PICK_EVENT = '__peeto_similator_start_pick_event';
+
 /**
  * 生成唯一key
  * @returns
@@ -70,6 +72,13 @@ const Index = ({ subscribeEvent }: InjectPluginCompProps) => {
           });
         },
       },
+      {
+        name: SIMILATOR_START_PICK_EVENT,
+        run: () => {
+          const picker = componentPickerRef.current;
+          picker.startSelecting();
+        },
+      },
     ]);
   }, [subscribeEvent]);
 
@@ -81,10 +90,10 @@ const Index = ({ subscribeEvent }: InjectPluginCompProps) => {
     appActionRef.current?.setConfig(config);
   }, [config]);
 
-  // TODO 需要监听选中组件
+  // 卸载后停止监听
   useEffect(() => {
     const picker = componentPickerRef.current;
-    picker.startSelecting();
+    // picker.startSelecting();
     return () => {
       picker.stopSelecting();
     };

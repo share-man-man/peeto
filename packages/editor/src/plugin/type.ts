@@ -17,6 +17,9 @@ export enum PLUGIN_CONFIG_TYPE {
   SIMILATOR = 'similator',
 }
 
+/**
+ * 插件基础参数类型
+ */
 export interface BaseToolBarPluginProps {
   /**
    * 插件名。唯一标识，不可重复
@@ -60,10 +63,33 @@ export interface SimilatorPluginItemProps extends BaseToolBarPluginProps {
 }
 
 /**
+ * 事件集合
+ */
+export type EventMapType = Map<
+  SubscribeEventItem['name'],
+  EventMapValueItemType[]
+>;
+
+/**
+ * 事件集合触发列表单项类型
+ */
+export type EventMapValueItemType = SubscribeEventItem & {
+  renderProps: PluginRenderProps;
+};
+
+/**
  * 订阅事件
  */
 export type SubscribeEventItem = {
+  /**
+   * 事件名称
+   */
   name: string;
+  /**
+   * 触发订阅回调
+   * @param p
+   * @returns
+   */
   run: (p: AnyType) => void;
 };
 
@@ -71,14 +97,26 @@ export type SubscribeEventItem = {
  * 分发事件
  */
 export type DispatchEventItem = {
+  /**
+   * 事件名
+   */
   name: string;
-  paylod: AnyType;
+  /**
+   * 过滤分发事件
+   */
+  filtert?: Parameters<Array<EventMapValueItemType>['filter']>[0];
+  /**
+   * 事件载荷
+   */
+  paylod?: AnyType;
 };
 
 /**
  * 渲染插件组件参数
  */
-export interface PluginRenderProps<PluginConfig = AnyType> {
+export interface PluginRenderProps<
+  PluginConfig extends BaseToolBarPluginProps = BaseToolBarPluginProps
+> {
   visible?: boolean;
   config: PluginConfig;
   /**
@@ -91,6 +129,9 @@ export interface PluginRenderProps<PluginConfig = AnyType> {
      */
     onMount: () => void;
   };
+  /**
+   * 内置插件的组件参数
+   */
   injectProps: {
     /**
      * 订阅事件

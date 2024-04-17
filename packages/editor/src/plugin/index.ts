@@ -1,12 +1,13 @@
 import {
   BaseToolBarPluginProps,
+  DispatchEventItem,
+  EventMapType,
   InjectPluginConfigFn,
   LeftToolBarPluginItemProps,
   PLUGIN_CONFIG_TYPE,
   PluginConfig,
   PluginRenderProps,
   SimilatorPluginItemProps,
-  SubscribeEventItem,
   TopToolBarPluginItemProps,
 } from './type';
 
@@ -26,7 +27,7 @@ export class Plugin {
   /**
    * 事件集合
    */
-  eventMap = new Map<SubscribeEventItem['name'], SubscribeEventItem['run'][]>();
+  eventMap: EventMapType = new Map();
   /**
    * 左侧工具栏
    */
@@ -86,8 +87,10 @@ export class Plugin {
    * @param config
    * @returns
    */
-  createPluginRenderProps<T>(config: T): PluginRenderProps<T> {
-    return {
+  createPluginRenderProps<
+    T extends BaseToolBarPluginProps = BaseToolBarPluginProps
+  >(config: T): PluginRenderProps<T> {
+    const res: PluginRenderProps<T> = {
       config,
       lifeCycleHooks: {
         onMount: () => {
@@ -111,30 +114,47 @@ export class Plugin {
               this.eventMap.set(s.name, []);
             }
             // TODO 优化点：排除多次订阅的情况
-            this.eventMap.get(s.name)?.push(s.run);
+            this.eventMap.get(s.name)?.push({
+              name: s.name,
+              renderProps: res,
+              run: s.run,
+            });
           });
         },
-        dispatchEvent: (disList) => {
-          // console.log(pluginProps.name, '分发事件');
-          const doEachDispatch = () => {
-            disList.forEach((d) => {
-              this.eventMap.get(d.name)?.forEach((run) => {
-                run(d.paylod);
-              });
-            });
-          };
-          // 所有插件还未挂载完成时,放入待执行队列
-          if (this.pendingPluginNum !== 0) {
-            // console.log('还有插件未加载');
-            this.pendingDispatchEventList.push(async () => {
-              doEachDispatch();
-            });
-          } else {
-            doEachDispatch();
-          }
+        dispatchEvent: (li) => {
+          this.dispatchEvent(li);
         },
       },
     };
+
+    return res;
+  }
+
+  /**
+   * 分发事件
+   * @param disList
+   */
+  dispatchEvent(disList: DispatchEventItem[]) {
+    const doEachDispatch = () => {
+      disList.forEach((d) => {
+        let li = this.eventMap.get(d.name);
+        if (d.filtert) {
+          li = li?.filter(d.filtert);
+        }
+        li?.forEach(({ run }) => {
+          run(d.paylod);
+        });
+      });
+    };
+    // 所有插件还未挂载完成时,放入待执行队列
+    if (this.pendingPluginNum !== 0) {
+      // console.log('还有插件未加载');
+      this.pendingDispatchEventList.push(async () => {
+        doEachDispatch();
+      });
+    } else {
+      doEachDispatch();
+    }
   }
 }
 

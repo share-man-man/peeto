@@ -1,5 +1,4 @@
 import 'element-plus/dist/index.css';
-import '../components/EditorWorkbench/style.less';
 
 import './style.less';
 
@@ -7,9 +6,11 @@ import './style.less';
 import { useEffect } from 'react';
 
 import { useEditorWokrBench } from '../components/EditorWorkbench';
+import '../style.less';
 import ChangeProp from './plugins/ChangeProp';
 import SimilatorPlugin from '../plugins/SimilatorPlugin';
 import { PLUGIN_CONFIG_TYPE, PLUGIN_LIB_TYPE } from '@peeto/editor';
+import PickComp from '../plugins/PickComp';
 
 function Index() {
   const { workbench, injectPlugin } = useEditorWokrBench();
@@ -33,6 +34,16 @@ function Index() {
         renderProps: {
           libType: PLUGIN_LIB_TYPE.REACT18,
           node: SimilatorPlugin,
+        },
+      };
+    });
+    injectPlugin(async () => {
+      return {
+        name: 'pick-comp',
+        type: PLUGIN_CONFIG_TYPE.TOP_TOOL_BAR,
+        renderProps: {
+          libType: PLUGIN_LIB_TYPE.REACT18,
+          node: PickComp,
         },
       };
     });
