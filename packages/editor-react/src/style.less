@@ -1,20 +1,19 @@
 // 主题色
 :root {
-  --peeto-workbench-primary-color: #ffffff;
+  --peeto-workbench-bg-color: #ffffff;
 }
-@primary-color: var(--peeto-workbench-primary-color);
+@bg-color: var(--peeto-workbench-bg-color);
 
 .neumorphism() {
   padding: 8px;
   border-radius: 8px;
-  background: @primary-color;
-  box-shadow: inset 5px 5px 9px
-      color-mix(in srgb, @primary-color 90%, black 10%),
-    inset -5px -5px 9px color-mix(in srgb, @primary-color 99%, black 1%);
+  background: @bg-color;
+  box-shadow: inset 5px 5px 9px color-mix(in srgb, @bg-color 90%, black 10%),
+    inset -5px -5px 9px color-mix(in srgb, @bg-color 99%, black 1%);
 }
 
 .peeto-workbench {
-  background-color: @primary-color;
+  background-color: @bg-color;
   position: fixed;
   height: 100vh;
   width: 100vw;
@@ -55,6 +54,7 @@
       }
       &-panel {
         // 顶部工具栏面板
+        display: none;
       }
     }
     &-similator {
