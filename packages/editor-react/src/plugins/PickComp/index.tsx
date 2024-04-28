@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { InjectPluginCompProps } from '@peeto/editor';
-import { SIMILATOR_START_PICK_EVENT } from '../SimilatorPlugin';
 import { WORK_BENCH_ICON_CLICK_EVENT } from '../../components/EditorWorkbench';
+import { START_PICK_EVENT } from '../CompConfigEdit';
 
 const Index = ({ subscribeEvent, dispatchEvent }: InjectPluginCompProps) => {
   useEffect(() => {
@@ -11,7 +11,7 @@ const Index = ({ subscribeEvent, dispatchEvent }: InjectPluginCompProps) => {
         run: () => {
           dispatchEvent([
             {
-              name: SIMILATOR_START_PICK_EVENT,
+              name: START_PICK_EVENT,
             },
           ]);
         },

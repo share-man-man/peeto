@@ -15,6 +15,7 @@ export enum PLUGIN_CONFIG_TYPE {
   LEFT_TOOL_BAR = 'left-tool-bar',
   TOP_TOOL_BAR = 'top-tool-bar',
   SIMILATOR = 'similator',
+  SUSPENSE_TOOL_BAR = 'suspense_tool_bar',
 }
 
 /**
@@ -60,6 +61,13 @@ export interface TopToolBarPluginItemProps extends BaseToolBarPluginProps {
  */
 export interface SimilatorPluginItemProps extends BaseToolBarPluginProps {
   type: PLUGIN_CONFIG_TYPE.SIMILATOR;
+}
+
+/**
+ * 悬浮工具栏
+ */
+export interface SuspenseToolBarPluginItemProps extends BaseToolBarPluginProps {
+  type: PLUGIN_CONFIG_TYPE.SUSPENSE_TOOL_BAR;
 }
 
 /**
@@ -154,7 +162,8 @@ export interface PluginRenderProps<
 export type InjectPluginConfig =
   | LeftToolBarPluginItemProps
   | TopToolBarPluginItemProps
-  | SimilatorPluginItemProps;
+  | SimilatorPluginItemProps
+  | SuspenseToolBarPluginItemProps;
 
 /**
  * 注册插件回调函数

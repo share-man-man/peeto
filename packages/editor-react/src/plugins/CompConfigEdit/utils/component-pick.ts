@@ -3,7 +3,7 @@
 // import type { ComponentInstance } from '@vue/devtools-api'
 import { SchemaCompTree } from '@peeto/parse';
 import { isBrowser } from './commom';
-import { SimilatorPluginCompDomMap } from '../type';
+import { SimilatorPluginCompDomMap } from '../../SimilatorPlugin/type';
 import { JobQueue } from './queue';
 
 export interface CompPickerContext {

@@ -23,10 +23,4 @@ export interface SimilatorPluginConfig {
    * 组件库
    */
   packageList: PackageListType;
-  /**
-   * 映射关系改变
-   * @param map
-   * @returns
-   */
-  onMapChange?: (map: SimilatorPluginCompDomMap) => void;
 }

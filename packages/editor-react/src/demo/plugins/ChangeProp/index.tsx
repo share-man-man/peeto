@@ -117,6 +117,7 @@ const Index = ({ dispatchEvent }: InjectPluginCompProps) => {
           type: libType,
         } as SimilatorPluginConfig,
       },
+      // 告诉配置插件，重新注册相关setter
     ]);
   }, [curConfig?.packageList, curConfig?.schema, dispatchEvent, libType]);
 

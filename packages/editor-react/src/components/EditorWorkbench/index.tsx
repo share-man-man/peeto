@@ -3,6 +3,7 @@ import LeftToolBar from './conponents/LeftToolBar';
 import SimilatorRender from './conponents/SimilatorRender';
 import { Plugin } from '@peeto/editor';
 import TopToolBar from './conponents/TopToolBar';
+import SuspenseToolBarRender from './conponents/SuspenseToolBarRender';
 
 export const WorkBenchContext = createContext<{ plugin?: Plugin }>({});
 
@@ -40,7 +41,11 @@ export const useEditorWokrBench = () => {
             <TopToolBar list={[...pluginRef.current.topToolBarPluginList]} />
             <div className="peeto-workbench-content-similator">
               <div className="peeto-workbench-content-similator-content">
-                {/* 悬浮工具栏 模拟器工具栏 */}
+                {/* 悬浮工具栏 */}
+                <SuspenseToolBarRender
+                  list={[...pluginRef.current.suspenseToolBarPluginList]}
+                />
+                {/* 模拟器工具栏 */}
                 {/* TODO 所有Similator、simulator拼写错误，文件夹也要修改 */}
                 <SimilatorRender
                   list={[...pluginRef.current.similatorPluginList]}

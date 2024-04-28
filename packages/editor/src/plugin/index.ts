@@ -8,6 +8,7 @@ import {
   PluginConfig,
   PluginRenderProps,
   SimilatorPluginItemProps,
+  SuspenseToolBarPluginItemProps,
   TopToolBarPluginItemProps,
 } from './type';
 
@@ -41,6 +42,11 @@ export class Plugin {
    */
   topToolBarPluginList: PluginRenderProps<TopToolBarPluginItemProps>[] = [];
   /**
+   * 悬浮工具栏
+   */
+  suspenseToolBarPluginList: PluginRenderProps<SuspenseToolBarPluginItemProps>[] =
+    [];
+  /**
    * 配置
    */
   pluginConfig?: PluginConfig;
@@ -71,6 +77,11 @@ export class Plugin {
           break;
         case PLUGIN_CONFIG_TYPE.SIMILATOR:
           this.similatorPluginList.push(this.createPluginRenderProps(config));
+          break;
+        case PLUGIN_CONFIG_TYPE.SUSPENSE_TOOL_BAR:
+          this.suspenseToolBarPluginList.push(
+            this.createPluginRenderProps(config)
+          );
           break;
         default:
           neverType = config;

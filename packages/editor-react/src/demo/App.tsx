@@ -8,9 +8,12 @@ import { useEffect } from 'react';
 import { useEditorWokrBench } from '../components/EditorWorkbench';
 import '../style.less';
 import ChangeProp from './plugins/ChangeProp';
-import SimilatorPlugin from '../plugins/SimilatorPlugin';
+import SimilatorPlugin, {
+  SIMILATOR_CONFIG_CHANGE_EVENT,
+} from '../plugins/SimilatorPlugin';
 import { PLUGIN_CONFIG_TYPE, PLUGIN_LIB_TYPE } from '@peeto/editor';
 import PickComp from '../plugins/PickComp';
+import CompConfigEdit from '../plugins/CompConfigEdit';
 
 function Index() {
   const { workbench, injectPlugin } = useEditorWokrBench();
@@ -34,6 +37,9 @@ function Index() {
         renderProps: {
           libType: PLUGIN_LIB_TYPE.REACT18,
           node: SimilatorPlugin,
+          nodeProps: {
+            configChangeEventName: SIMILATOR_CONFIG_CHANGE_EVENT,
+          },
         },
       };
     });
@@ -44,6 +50,16 @@ function Index() {
         renderProps: {
           libType: PLUGIN_LIB_TYPE.REACT18,
           node: PickComp,
+        },
+      };
+    });
+    injectPlugin(async () => {
+      return {
+        name: 'comp-config-edit',
+        type: PLUGIN_CONFIG_TYPE.SUSPENSE_TOOL_BAR,
+        renderProps: {
+          libType: PLUGIN_LIB_TYPE.REACT18,
+          node: CompConfigEdit,
         },
       };
     });
