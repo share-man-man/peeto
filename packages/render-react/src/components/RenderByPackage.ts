@@ -1,4 +1,9 @@
-import { AnyType, SchemaRootObj, parseState, parseRender } from '@peeto/parse';
+import {
+  AnyType,
+  parseState,
+  parseRender,
+  getSchemaObjFromStr,
+} from '@peeto/parse';
 import {
   useEffect,
   useState,
@@ -36,7 +41,7 @@ const RenderByPackage = ({
   const onCreateNodeRef = useRef(onCreateNode);
   onCreateNodeRef.current = onCreateNode;
 
-  const schemaRootObj = JSON.parse(schemaStr) as SchemaRootObj;
+  const schemaRootObj = getSchemaObjFromStr(schemaStr);
 
   // 使用包自带的状态管理
   const schemaObjStates = schemaRootObj.states;
@@ -79,7 +84,7 @@ const RenderByPackage = ({
   });
 
   const dom = useMemo(() => {
-    const schemaObj = JSON.parse(schemaStr) as SchemaRootObj;
+    const schemaObj = getSchemaObjFromStr(schemaStr);
     // 异步解析后加载dom
     return parseRender<ReactNode>({
       schemaCompTree: schemaObj?.compTree,

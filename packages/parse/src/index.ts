@@ -13,6 +13,7 @@ export type {
   SchemaRootObj,
   JSONValue,
 } from './type';
+export { getSchemaObjFromStr } from './utils';
 export { parsePackage } from './ParsePackage';
 export { parseState } from './ParseState';
 export { parseComponent, deepRecursionCompTree } from './ParseComponent';

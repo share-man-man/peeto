@@ -10,7 +10,7 @@ import vueUseCreateNodeFunc from './hooks/useCreateNodeFunc';
 import {
   CompMapType,
   PackageMapType,
-  SchemaRootObj,
+  getSchemaObjFromStr,
   parseComponent,
   parsePackage,
 } from '@peeto/parse';
@@ -32,7 +32,7 @@ const VueRender = defineComponent({
       () => {
         if (schemaStr.value !== props?.schemaStr) {
           loading.value = true;
-          const schemaObj = JSON.parse(props?.schemaStr) as SchemaRootObj;
+          const schemaObj = getSchemaObjFromStr(props?.schemaStr);
           // 加载依赖包
           parsePackage(schemaObj, props?.packageList).then((res) => {
             // 加载组件

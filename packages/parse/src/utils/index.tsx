@@ -6,6 +6,7 @@ import type {
   JSFunctionType,
   JSStateEffectType,
   JSStateType,
+  SchemaRootObj,
 } from '../type';
 
 /**
@@ -84,4 +85,22 @@ export const isState = (obj: AnyType): obj is JSStateType => {
  */
 export const isStateEffect = (obj: AnyType): obj is JSStateEffectType => {
   return obj?.type === 'JSFunction' && obj?.effects;
+};
+
+/**
+ * 字符串转对象
+ * @param str
+ * @returns
+ */
+export const getSchemaObjFromStr = (str?: string): SchemaRootObj => {
+  if (!str) {
+    throw new Error('没有schema');
+  }
+  let schemaObj: SchemaRootObj;
+  try {
+    schemaObj = JSON.parse(str);
+  } catch (error) {
+    throw new Error('schema格式错误');
+  }
+  return schemaObj;
 };

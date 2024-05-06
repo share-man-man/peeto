@@ -10,7 +10,7 @@ import useCreateNodeFunc from './hooks/useCreateNodeFunc';
 import {
   CompMapType,
   PackageMapType,
-  SchemaRootObj,
+  getSchemaObjFromStr,
   parseComponent,
   parsePackage,
 } from '@peeto/parse';
@@ -33,7 +33,7 @@ const ReactRender = (props: ReactRenderProps) => {
   useEffect(() => {
     if (schemaStr !== props?.schemaStr) {
       setLoading(true);
-      const schemaObj = JSON.parse(props?.schemaStr) as SchemaRootObj;
+      const schemaObj = getSchemaObjFromStr(props?.schemaStr);
       // 加载依赖包
       parsePackage(schemaObj, props?.packageList).then((res) => {
         // 加载组件

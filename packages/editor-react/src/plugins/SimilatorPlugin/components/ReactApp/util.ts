@@ -1,7 +1,12 @@
 import { ReactNode } from 'react';
 import { FiberNode } from './type';
 import { SimilatorPluginCompDomMap } from '../../type';
-import { AnyType, JSONValue, deepRecursionCompTree } from '@peeto/parse';
+import {
+  AnyType,
+  JSONValue,
+  deepRecursionCompTree,
+  getSchemaObjFromStr,
+} from '@peeto/parse';
 
 /**
  * 遍历fiber树
@@ -45,10 +50,10 @@ export const getCompDomMap = ({
   peetoPrivateKey: string;
 }): SimilatorPluginCompDomMap => {
   const map: SimilatorPluginCompDomMap = new Map();
-  const schemaObj = JSON.parse(schemaStr) as JSONValue;
+  const schemaObj = getSchemaObjFromStr(schemaStr);
   // 初始化map
   deepRecursionCompTree({
-    obj: schemaObj,
+    obj: schemaObj as unknown as JSONValue,
     compCallback: (obj) => {
       map.set(obj.id, []);
     },

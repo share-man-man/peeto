@@ -1,11 +1,11 @@
 import {
   CompMapType,
-  SchemaRootObj,
   parseRender,
   AnyType,
   parseState,
   PackageMapType,
   PickRequired,
+  getSchemaObjFromStr,
 } from '@peeto/parse';
 import {
   defineComponent,
@@ -62,7 +62,7 @@ const RenderByPackage = defineComponent({
       >
     >(new Map());
 
-    const schemaRootObj = JSON.parse(schemaStr) as SchemaRootObj;
+    const schemaRootObj = getSchemaObjFromStr(schemaStr);
 
     // 使用包自带的状态管理
     const schemaObjStates = schemaRootObj.states;
@@ -110,7 +110,7 @@ const RenderByPackage = defineComponent({
     });
 
     const dom = computed(() => {
-      const schemaObj = JSON.parse(schemaStr) as SchemaRootObj;
+      const schemaObj = getSchemaObjFromStr(schemaStr);
       // 异步解析后加载dom
       return parseRender<VNode>({
         schemaCompTree: schemaObj?.compTree,
