@@ -23,9 +23,14 @@
 //     compCallback(obj);
 //   }
 
-import { AnonymousFunction } from '../root/type';
+import { isAnonymousFunctionNode } from '../event';
+import { AnonymousFunctionNode } from '../event/type';
+import { NodeType } from '../root';
+import { isStateNode } from '../state';
+import { StateNodeType } from '../state/type';
 import { AnyType, JSONValue } from '../type';
 import {
+  DeepRecursionParseType,
   GenerateNodePropType,
   SchemaCompTreeItem,
   SchemaCompTreePath,
@@ -116,6 +121,15 @@ export const isBasicType = (obj: AnyType): boolean => {
 };
 
 /**
+ * 是否是组件节点
+ * @param obj
+ * @returns
+ */
+export const isSchemaCompTree = (obj: AnyType): obj is SchemaCompTreeItem => {
+  return obj?.type === NodeType.COMPONENT;
+};
+
+/**
  * 判断路径是否相等
  * @param p1
  * @param p2
@@ -125,121 +139,86 @@ const isPathEqual = (p1: SchemaCompTreePath, p2: SchemaCompTreePath) => {
   return p1.join('.') === p2.join('.');
 };
 
-export const generateNode = <VNodeType>({
-  schemaRootObj,
-  getState,
-  onCreateNode,
-  libListMap,
-  noMatchCompRender,
-  noMatchPackageRender,
-  setState,
-}: GenerateNodePropType<VNodeType>) => {
-  const {
-    stateCompTreeeMap = [],
-    compTreeLibMap = [],
-    anonymousFunctionList = [],
-    // eventCompTreeeMap = [],
-    // refCompTreeeMap = [],
-  } = schemaRootObj;
-
-  const deepRecursionParse = ({
+/**
+ * 转换树结构
+ * @param param0
+ * @returns
+ */
+export const parseObj = <VNodeType>({
+  node,
+  nodePath = [],
+  parseStateNode,
+  parseAnonymousFunctionNode,
+  parseSchemaComp,
+}: {
+  node: JSONValue;
+  nodePath: SchemaCompTreePath[];
+  parseStateNode?: (p: {
+    curSchema: StateNodeType;
+    deepRecursionParse: DeepRecursionParseType<VNodeType>;
+    path: SchemaCompTreePath;
+  }) => AnyType;
+  parseAnonymousFunctionNode?: (p: {
+    curSchema: AnonymousFunctionNode;
+    deepRecursionParse: DeepRecursionParseType<VNodeType>;
+    path: SchemaCompTreePath;
+  }) => AnyType;
+  parseSchemaComp?: (p: {
+    curSchema: SchemaCompTreeItem;
+    deepRecursionParse: DeepRecursionParseType<VNodeType>;
+    path: SchemaCompTreePath;
+    props: AnyType;
+    children: AnyType;
+  }) => AnyType;
+}) => {
+  const deepRecursionParse: DeepRecursionParseType<VNodeType> = ({
     cur,
     path,
-  }: {
-    cur: JSONValue;
-    path: SchemaCompTreePath;
-  }): VNodeType | JSONValue | AnyType => {
-    // 状态
-    const stateItem = stateCompTreeeMap.find((map) =>
-      map.paths.some((p) => isPathEqual(p, path))
-    );
-    if (stateItem) {
-      return getState?.({ stateName: [stateItem.stateName] })?.[0];
-    }
-    // 匿名函数
-    const anonymousFunctionItem = anonymousFunctionList.find((f) =>
-      isPathEqual(f.path, path)
-    );
-    if (anonymousFunctionItem) {
-      const {
-        params = [],
-        body,
-        effects = [],
-      } = cur as unknown as AnonymousFunction;
-      const funcBind: /* typeof ext & */ {
-        states?: Record<string, AnyType>;
-        onChangeState?: (changeObj: [string, AnyType][]) => void;
-      } = {
-        // ...ext,
-        // states: Object.fromEntries(
-        //   obj.states?.map((s) => [s, getState?.([s])]) || []
-        // ),
-      };
-      // 安全考虑，暴露特定的函数、变量
-      funcBind.onChangeState = (changeObj) => {
-        setState?.({
-          fieldList: (changeObj || [])
-            .filter(([name]) => (effects || []).some((e) => e === name))
-            .map(([name, value]) => ({
-              name,
-              value,
-            })),
-        });
-      };
-      // TODO 箭头函数兼容性待验证
-      const res = new Function(`
-        const onChangeState = this.onChangeState;
-        return (${params.join(',')})=>{
-          ${body}
-        }
-      `).call(funcBind);
-      return res;
-    }
-    // // 事件
-    // const eventItem = eventCompTreeeMap.find((map) =>
-    //   map.paths.some((p) => isPathEqual(p, path))
-    // );
-    // if (eventItem) {
-    //   return getEvent?.({ eventName: eventItem.eventName });
-    // }
-    // // ref
-    // const refItem = refCompTreeeMap.find((map) =>
-    //   map.paths.some((p) => isPathEqual(p, path))
-    // );
-    // if (refItem) {
-    //   return getRef?.({ refName: refItem.refName });
-    // }
-    // // TODO 函数
-    // 组件
-    const compTreeItem = compTreeLibMap.find((map) =>
-      map.path.some((p) => isPathEqual(p, path))
-    );
-    if (compTreeItem) {
-      const obj = cur as SchemaCompTreeItem;
-      const lib = libListMap.get(compTreeItem.packageName);
-      // 没有找到包
-      if (!lib) {
-        return noMatchPackageRender({
-          schema: obj,
-          compTreeItem,
-        });
+  }) => {
+    // 无序特殊处理的节点
+    if (!nodePath.some((c) => isPathEqual(c, path))) {
+      // 基础节点，直接返回
+      if (isBasicType(cur)) {
+        return cur;
       }
-
-      const { componentName } = compTreeItem;
-      // 组件可能包含子组件，比如Form.Item,Radio.Group
-      const compPath = componentName.split('.');
-      let matchComp = lib;
-      compPath.forEach((name) => {
-        matchComp = (matchComp || {})[name];
-      });
-      // 没找到组件
-      if (!matchComp) {
-        return noMatchCompRender({
-          schema: obj,
-          compTreeItem,
-        });
+      // 遍历数组
+      if (Array.isArray(cur)) {
+        return cur.map((o, oIndex) =>
+          deepRecursionParse({ cur: o, path: [...path, oIndex] })
+        ) as VNodeType;
       }
+      // null、undefined等非对象类型类型
+      if (!(cur instanceof Object)) {
+        return cur;
+      }
+      // 遍历对象
+      return Object.fromEntries(
+        Object.keys(cur).map((k) => [
+          k,
+          deepRecursionParse({ cur: cur[k], path: [...path, k] }),
+        ])
+      );
+    }
 
+    // 状态节点
+    if (isStateNode(cur)) {
+      return parseStateNode
+        ? parseStateNode({ curSchema: cur, deepRecursionParse, path })
+        : cur;
+    }
+    // 匿名函数节点
+    if (isAnonymousFunctionNode(cur)) {
+      return parseAnonymousFunctionNode
+        ? parseAnonymousFunctionNode({
+            curSchema: cur,
+            deepRecursionParse,
+            path,
+          })
+        : cur;
+    }
+    // 组件节点
+    if (isSchemaCompTree(cur)) {
+      const obj = cur;
       // 组件参数，参数可能深层嵌套schema节点
       const props = {
         // 每个组件都默认有一个key
@@ -264,36 +243,98 @@ export const generateNode = <VNodeType>({
             deepRecursionParse({ cur: c, path: [...path, 'children', cIndex] })
           );
 
+      return parseSchemaComp
+        ? parseSchemaComp({
+            curSchema: cur,
+            deepRecursionParse,
+            path,
+            props,
+            children,
+          })
+        : cur;
+    }
+  };
+  return deepRecursionParse({ cur: node, path: [] });
+};
+
+export const generateNode = <VNodeType>({
+  schemaRootObj,
+  getState,
+  onCreateNode,
+  libListMap,
+  noMatchCompRender,
+  noMatchPackageRender,
+  setState,
+}: GenerateNodePropType<VNodeType>) => {
+  const { compTreePaths = [], compTree } = schemaRootObj;
+
+  // 解析渲染组件
+  return parseObj({
+    node: compTree,
+    nodePath: compTreePaths || [],
+    parseStateNode: ({ curSchema }) =>
+      getState?.({ stateName: [curSchema.stateName] })?.[0],
+    parseAnonymousFunctionNode: ({ curSchema }) => {
+      const { params = [], body, effects = [] } = curSchema;
+      const funcBind: /* typeof ext & */ {
+        states?: Record<string, AnyType>;
+        onChangeState?: (changeObj: [string, AnyType][]) => void;
+      } = {
+        // ...ext,
+        // states: Object.fromEntries(
+        //   obj.states?.map((s) => [s, getState?.([s])]) || []
+        // ),
+      };
+      // 安全考虑，暴露特定的函数、变量
+      funcBind.onChangeState = (changeObj) => {
+        setState?.({
+          fieldList: (changeObj || [])
+            .filter(([name]) => (effects || []).some((e) => e === name))
+            .map(([name, value]) => {
+              return {
+                name,
+                value,
+              };
+            }),
+        });
+      };
+      // TODO 箭头函数兼容性待验证
+      const res = new Function(`
+        const onChangeState = this.onChangeState;
+        return (${params.join(',')})=>{
+          ${body}
+        }
+      `).call(funcBind);
+      return res;
+    },
+    parseSchemaComp: ({ curSchema: obj, props, children }) => {
+      const lib = libListMap.get(obj.packageName);
+      // 没有找到包
+      if (!lib) {
+        return noMatchPackageRender({
+          schema: obj,
+        });
+      }
+
+      const { componentName } = obj;
+      // 组件可能包含子组件，比如Form.Item,Radio.Group
+      const compPath = componentName.split('.');
+      let matchComp = lib;
+      compPath.forEach((name) => {
+        matchComp = (matchComp || {})[name];
+      });
+      // 没找到组件
+      if (!matchComp) {
+        return noMatchCompRender({
+          schema: obj,
+        });
+      }
+
       return onCreateNode({
         comp: matchComp,
         props,
         children,
       });
-    }
-
-    // 基础节点，直接返回
-    if (isBasicType(cur)) {
-      return cur;
-    }
-    // 数组节点遍历渲染
-    if (Array.isArray(cur)) {
-      return cur.map((o, oIndex) =>
-        deepRecursionParse({ cur: o, path: [...path, oIndex] })
-      ) as VNodeType;
-    }
-    // null、undefined等非对象类型类型
-    if (!(cur instanceof Object)) {
-      return cur;
-    }
-
-    return Object.fromEntries(
-      Object.keys(cur).map((k) => [
-        k,
-        deepRecursionParse({ cur: cur[k], path: [...path, k] }),
-      ])
-    );
-  };
-
-  // 解析渲染组件
-  return deepRecursionParse({ cur: schemaRootObj.compTree, path: [] });
+    },
+  });
 };

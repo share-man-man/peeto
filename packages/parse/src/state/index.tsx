@@ -1,6 +1,10 @@
 // import type { AnyType, PackageMapType, SchemaRootObj } from '../type';
 // import type { SchemaStateItem, StateJSExpressionType } from './type';
 
+import { NodeType } from '../root';
+import { AnyType } from '../type';
+import { StateNodeType } from './type';
+
 // /**
 //  * 是否为表达式状态
 //  * @param obj
@@ -50,3 +54,12 @@
 //   // }
 //   return returnValue;
 // };
+
+/**
+ * 是否为状态节点
+ * @param obj
+ * @returns
+ */
+export const isStateNode = (obj: AnyType): obj is StateNodeType => {
+  return obj?.type === NodeType.STATE;
+};

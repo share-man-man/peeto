@@ -5,7 +5,7 @@ export type { SchemaCompTreeItem } from './component/type';
 export type { GenerateNodePropType } from './component/type';
 export type { AnyType, PickRequired, SchemaRootObj, JSONValue } from './type';
 export {} from './utils';
-export { getSchemaObjFromStr, loadLibList } from './root';
+export { getSchemaObjFromStr, loadLibList, NodeType } from './root';
 // export { parseState } from './state';
 export { generateNode } from './component';
 // export { render as parseRender } from './ParseRender';

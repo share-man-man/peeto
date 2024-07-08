@@ -1,7 +1,16 @@
 // import { getCompPakcageNames } from '../component';
+import { parseObj } from '../component';
 import { LibListMapType, LibListItem } from '../lib/type';
 import { SchemaRootObj } from './type';
 // import { getStatePakcageNames } from '../state';
+
+export enum NodeType {
+  STATE = 'state',
+  EVENT = 'event',
+  COMPONENT = 'component',
+  REF = 'ref',
+  ANONYMOUSFUNCTION = 'anonymous-function',
+}
 
 /**
  * 解析对象，加载实际用到的依赖包，配合懒加载，尽量剔除无用的资源
@@ -15,10 +24,15 @@ export const loadLibList = async (
 ): Promise<LibListMapType> => {
   // 1、分析依赖包
   const packageMap: LibListMapType = new Map();
-  let nameList: string[] = [];
-  nameList = nameList.concat(
-    (obj.compTreeLibMap || []).map((i) => i.packageName)
-  );
+  const nameList: string[] = [];
+  // 组件树所用到的组件
+  parseObj({
+    node: obj.compTree,
+    nodePath: obj.compTreePaths || [],
+    parseSchemaComp: ({ curSchema }) => {
+      nameList.push(curSchema.packageName);
+    },
+  });
   // 后面可以从stat、event、ref提取
   // 2、异步加载依赖包
   const loadList = Array.from(new Set(nameList)).map((name) => {

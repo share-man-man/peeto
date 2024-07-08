@@ -1,7 +1,8 @@
 // import { SchemaEventItem } from '../event/type';
 import { LibListMapType } from '../lib/type';
+import { NodeType } from '../root';
 // import { SchemaRefItem } from '../ref/type';
-import { CompTreeLibMapItem, SchemaRootObj } from '../root/type';
+import { SchemaRootObj } from '../root/type';
 import { SchemaStateItem } from '../state/type';
 import type { AnyType, JSONObject, JSONValue } from '../type';
 
@@ -11,15 +12,16 @@ import type { AnyType, JSONObject, JSONValue } from '../type';
 export type SchemaCompTreePath = (string | number)[];
 
 export interface SchemaCompTreeItem extends JSONObject {
+  type: NodeType.COMPONENT;
   id: string;
-  // /**
-  //  * 组件名，支持子组件链式调用，比如antd的：Collapse.Panel、Typography.Text等
-  //  */
-  // componentName: string;
-  // /**
-  //  * 组件所属包名
-  //  */
-  // packageName: string;
+  /**
+   * 组件名，支持子组件链式调用，比如antd的：Collapse.Panel、Typography.Text等
+   */
+  componentName: string;
+  /**
+   * 组件所属包名
+   */
+  packageName: string;
   /**
    * 组件参数
    */
@@ -85,17 +87,18 @@ export interface GenerateNodePropType<VNodeType> {
    * @param obj
    * @returns
    */
-  noMatchCompRender: (p: {
-    schema: SchemaCompTreeItem;
-    compTreeItem: CompTreeLibMapItem;
-  }) => VNodeType;
+  noMatchCompRender: (p: { schema: SchemaCompTreeItem }) => VNodeType;
   /**
    * 没有找到包
    * @param obj
    * @returns
    */
-  noMatchPackageRender: (p: {
-    schema: SchemaCompTreeItem;
-    compTreeItem: CompTreeLibMapItem;
-  }) => VNodeType;
+  noMatchPackageRender: (p: { schema: SchemaCompTreeItem }) => VNodeType;
+}
+
+export interface DeepRecursionParseType<VNodeType = AnyType> {
+  (p: { cur: JSONValue; path: SchemaCompTreePath }):
+    | VNodeType
+    | JSONValue
+    | AnyType;
 }

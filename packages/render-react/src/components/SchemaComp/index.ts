@@ -99,7 +99,7 @@ const Index: FC<SchemaCompProps> = ({
 
   const dom = useMemo(() => {
     const obj = getSchemaObjFromStr(schemaStr);
-    return generateNode({
+    const res = generateNode({
       schemaRootObj: obj,
       getState: ({ stateName }) => {
         return stateName.map((name) => stateMap.get(name)?.stateValue);
@@ -120,6 +120,10 @@ const Index: FC<SchemaCompProps> = ({
       noMatchCompRender: noMatchCompRenderRef.current,
       noMatchPackageRender: noMatchPackageRenderRef.current,
     });
+
+    // console.log(res);
+
+    return res;
   }, [libListMap, schemaStr, stateMap]);
 
   const onNodeChangeRef = useRef(onNodeChange);
@@ -128,6 +132,7 @@ const Index: FC<SchemaCompProps> = ({
   useEffect(() => {
     onNodeChangeRef.current?.(dom);
   }, [dom]);
+
   return dom;
 };
 
