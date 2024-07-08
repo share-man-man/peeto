@@ -1,20 +1,11 @@
-export type { SchemaStateItem } from './ParseState/type';
-export type {
-  SchemaCompTree,
-  ParseComponentProps,
-} from './ParseComponent/type';
-export type { RenderProps } from './ParseRender/type';
-export type {
-  AnyType,
-  PickRequired,
-  CompMapType,
-  PackageMapType,
-  PackageListType,
-  SchemaRootObj,
-  JSONValue,
-} from './type';
-export { getSchemaObjFromStr } from './utils';
-export { parsePackage } from './ParsePackage';
-export { parseState } from './ParseState';
-export { parseComponent, deepRecursionCompTree } from './ParseComponent';
-export { render as parseRender } from './ParseRender';
+export type { LibListItem, LibListMapType } from './lib/type';
+export type { SchemaStateItem } from './state/type';
+export type { SchemaCompTreeItem } from './component/type';
+// export type { RenderProps } from './ParseRender/type';
+export type { GenerateNodePropType } from './component/type';
+export type { AnyType, PickRequired, SchemaRootObj, JSONValue } from './type';
+export {} from './utils';
+export { getSchemaObjFromStr, loadLibList } from './root';
+// export { parseState } from './state';
+export { generateNode } from './component';
+// export { render as parseRender } from './ParseRender';

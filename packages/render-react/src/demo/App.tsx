@@ -2,7 +2,7 @@ import { SchemaRootObj } from '@peeto/parse';
 import ReactRender from '../ReactRender';
 
 import { v4 as id } from 'uuid';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Radio, Row } from 'antd';
 
 const testObj: SchemaRootObj = {
@@ -10,235 +10,265 @@ const testObj: SchemaRootObj = {
     {
       desc: '响应式状态',
       name: 'title',
-      initialValue: '111',
+      initialValue: '响应式状态',
     },
     {
       desc: '状态依赖展示字符串',
       name: 'titleLengthDesc',
     },
   ],
-  effects: [
+  events: [
+    // {
+    //   desc: 'title和titleLengthDesc的状态依赖',
+    //   dependences: ['title'],
+    //   effectStates: [
+    //     {
+    //       name: 'titleLengthDesc',
+    //       value: 'return `字符串长度为：${this.title.length || 0}`',
+    //     },
+    //   ],
+    // },
+  ],
+  eventCompTreeeMap: [
+    // {
+    //   eventName: 'title',
+    //   paths: [[0, 'children', 2, 'props', 'onChange']],
+    // },
+  ],
+  stateCompTreeeMap: [
     {
-      desc: 'title和titleLengthDesc的状态依赖',
-      dependences: ['title'],
-      effectStates: [
-        {
-          name: 'titleLengthDesc',
-          value: 'return `字符串长度为：${this.title.length || 0}`',
-        },
+      stateName: 'title',
+      paths: [
+        [0, 'children', 1, 'children', 0, 'props', 'text'],
+        [0, 'children', 2, 'props', 'value'],
       ],
+    },
+  ],
+  compTreeLibMap: [
+    {
+      packageName: '@ant-design/pro-components',
+      componentName: 'PageContainer',
+      path: [[0]],
+    },
+    {
+      packageName: 'antd',
+      componentName: 'Typography.Title',
+      path: [
+        [0, 'children', 0],
+        [0, 'children', 1],
+      ],
+    },
+    {
+      packageName: 'my-custom',
+      componentName: 'Text',
+      path: [
+        [0, 'children', 0, 'children', 0],
+        [0, 'children', 1, 'children', 0],
+      ],
+    },
+    {
+      packageName: 'antd',
+      componentName: 'Input',
+      path: [[0, 'children', 2]],
+    },
+    {
+      packageName: '@ant-design/pro-components',
+      componentName: 'ProTable',
+      path: [[0, 'children', 3]],
+    },
+  ],
+  anonymousFunctionList: [
+    {
+      path: [0, 'children', 2, 'props', 'onChange'],
     },
   ],
   compTree: [
     {
       id: id(),
-      packageName: '@ant-design/pro-components',
-      componentName: 'PageContainer',
       props: {
         header: {
-          title: '测试标题',
+          title: '基础验证',
         },
       },
       children: [
         {
           id: id(),
-          packageName: 'antd',
-          componentName: 'Typography.Title',
           props: {},
           children: [
             {
               id: id(),
-              packageName: 'my-custom',
-              componentName: 'Text',
               props: {
-                text: {
-                  type: 'JSExpression',
-                  state: 'title',
-                },
+                text: 'antd.Title嵌套自定义组件my-custom.Text',
               },
             },
           ],
         },
         {
           id: id(),
-          packageName: 'antd',
-          componentName: 'Typography.Title',
           props: {},
           children: [
             {
               id: id(),
-              packageName: 'my-custom',
-              componentName: 'Text',
               props: {
-                text: {
-                  type: 'JSExpression',
-                  state: 'titleLengthDesc',
-                },
+                text: '默认标题',
               },
             },
           ],
         },
         {
           id: id(),
-          packageName: 'antd',
-          componentName: 'Input',
           props: {
-            value: {
-              type: 'JSExpression',
-              state: 'title',
-            },
+            value: '默认值',
             onChange: {
-              type: 'JSFunction',
               params: ['v'],
-              value: `this.onChangeState([['title',v.target.value]])`,
+              body: `this.onChangeState([['title',v.target.value]])`,
               effects: ['title'],
             },
           },
         },
-        {
-          id: id(),
-          packageName: '@ant-design/pro-components',
-          componentName: 'ProTable',
-          props: {
-            columns: [
-              {
-                dataIndex: 'index',
-                valueType: 'indexBorder',
-                width: 48,
-              },
-              {
-                title: '标题',
-                dataIndex: 'labels',
-                copyable: true,
-                ellipsis: true,
-                tip: '标题过长会自动收缩',
-                formItemProps: {
-                  rules: [
-                    {
-                      required: true,
-                      message: '此项为必填项',
-                    },
-                  ],
-                },
-              },
-              {
-                disable: true,
-                title: '状态',
-                dataIndex: 'state',
-                filters: true,
-                onFilter: true,
-                ellipsis: true,
-                valueType: 'select',
-                valueEnum: {
-                  all: {
-                    text: {
-                      type: 'JSExpression',
-                      value: `'超长'.repeat(50)`,
-                    },
-                  },
-                  open: {
-                    text: '未解决',
-                    status: 'Error',
-                  },
-                  closed: {
-                    text: '已解决',
-                    status: 'Success',
-                    disabled: true,
-                  },
-                  processing: {
-                    text: '解决中',
-                    status: 'Processing',
-                  },
-                },
-              },
-              {
-                disable: true,
-                title: '标签',
-                dataIndex: 'labels',
-                search: false,
-                renderFormItem: {
-                  type: 'JSFunction',
-                  params: ['_', 'config'],
-                  value: `return config.defaultRender(_)`,
-                },
-                render: {
-                  type: 'JSFunction',
-                  params: ['text', 'record'],
-                  children: [
-                    {
-                      id: id(),
-                      packageName: 'antd',
-                      componentName: 'Card',
-                      props: {
-                        title: {
-                          type: 'JSExpression',
-                          value: 'this.scope?.text',
-                        },
-                      },
-                      children: [
-                        {
-                          id: id(),
-                          packageName: 'antd',
-                          componentName: 'Collapse',
-                          props: {
-                            defaultActiveKey: ['1', '3'],
-                          },
-                          children: [
-                            {
-                              id: id(),
-                              packageName: 'antd',
-                              componentName: 'Collapse.Panel',
-                              props: {
-                                key: 1,
-                                header: 'This is panel header 1',
-                              },
-                              children: {
-                                type: 'JSExpression',
-                                value: 'this.scope?.record?.name',
-                              },
-                            },
-                            {
-                              id: id(),
-                              packageName: 'antd',
-                              componentName: 'Collapse.Panel',
-                              props: {
-                                key: 2,
-                                header: 'This is panel header 2',
-                              },
-                              children: '222',
-                            },
-                            {
-                              id: id(),
-                              packageName: 'antd',
-                              componentName: 'Collapse.Panel',
-                              props: {
-                                key: 3,
-                                header: 'This is panel header 3',
-                              },
-                              children: {
-                                type: 'JSExpression',
-                                value: 'this.scope?.text',
-                              },
-                            },
-                          ],
-                        },
-                      ],
-                    },
-                  ],
-                },
-              },
-            ],
-            dataSource: [
-              {
-                key: 123,
-                labels: '测试标签231312',
-                name: '小小',
-                state: 'open',
-              },
-            ],
-          },
-          children: [],
-        },
+        // {
+        //   id: id(),
+        //   // packageName: '@ant-design/pro-components',
+        //   // componentName: 'ProTable',
+        //   props: {
+        //     columns: [
+        //       {
+        //         dataIndex: 'index',
+        //         valueType: 'indexBorder',
+        //         width: 48,
+        //       },
+        //       {
+        //         title: '标题',
+        //         dataIndex: 'labels',
+        //         copyable: true,
+        //         ellipsis: true,
+        //         tip: '标题过长会自动收缩',
+        //         formItemProps: {
+        //           rules: [
+        //             {
+        //               required: true,
+        //               message: '此项为必填项',
+        //             },
+        //           ],
+        //         },
+        //       },
+        //       {
+        //         disable: true,
+        //         title: '状态',
+        //         dataIndex: 'state',
+        //         filters: true,
+        //         onFilter: true,
+        //         ellipsis: true,
+        //         valueType: 'select',
+        //         valueEnum: {
+        //           all: {
+        //             // TODO 结局表达式的问题
+        //             // {type:'JSExpresson',vaue:'"超长".repeat(50)'}
+        //             text: '默认超长文本',
+        //           },
+        //           open: {
+        //             text: '未解决',
+        //             status: 'Error',
+        //           },
+        //           closed: {
+        //             text: '已解决',
+        //             status: 'Success',
+        //             disabled: true,
+        //           },
+        //           processing: {
+        //             text: '解决中',
+        //             status: 'Processing',
+        //           },
+        //         },
+        //       },
+        //       // {
+        //       //   disable: true,
+        //       //   title: '标签',
+        //       //   dataIndex: 'labels',
+        //       //   search: false,
+        //       //   renderFormItem: {
+        //       //     type: 'JSFunction',
+        //       //     params: ['_', 'config'],
+        //       //     value: `return config.defaultRender(_)`,
+        //       //   },
+        //       //   render: {
+        //       //     type: 'JSFunction',
+        //       //     params: ['text', 'record'],
+        //       //     children: [
+        //       //       {
+        //       //         id: id(),
+        //       //         packageName: 'antd',
+        //       //         componentName: 'Card',
+        //       //         props: {
+        //       //           title: {
+        //       //             type: 'JSExpression',
+        //       //             value: 'this.scope?.text',
+        //       //           },
+        //       //         },
+        //       //         children: [
+        //       //           {
+        //       //             id: id(),
+        //       //             packageName: 'antd',
+        //       //             componentName: 'Collapse',
+        //       //             props: {
+        //       //               defaultActiveKey: ['1', '3'],
+        //       //             },
+        //       //             children: [
+        //       //               {
+        //       //                 id: id(),
+        //       //                 packageName: 'antd',
+        //       //                 componentName: 'Collapse.Panel',
+        //       //                 props: {
+        //       //                   key: 1,
+        //       //                   header: 'This is panel header 1',
+        //       //                 },
+        //       //                 children: {
+        //       //                   type: 'JSExpression',
+        //       //                   value: 'this.scope?.record?.name',
+        //       //                 },
+        //       //               },
+        //       //               {
+        //       //                 id: id(),
+        //       //                 packageName: 'antd',
+        //       //                 componentName: 'Collapse.Panel',
+        //       //                 props: {
+        //       //                   key: 2,
+        //       //                   header: 'This is panel header 2',
+        //       //                 },
+        //       //                 children: '222',
+        //       //               },
+        //       //               {
+        //       //                 id: id(),
+        //       //                 packageName: 'antd',
+        //       //                 componentName: 'Collapse.Panel',
+        //       //                 props: {
+        //       //                   key: 3,
+        //       //                   header: 'This is panel header 3',
+        //       //                 },
+        //       //                 children: {
+        //       //                   type: 'JSExpression',
+        //       //                   value: 'this.scope?.text',
+        //       //                 },
+        //       //               },
+        //       //             ],
+        //       //           },
+        //       //         ],
+        //       //       },
+        //       //     ],
+        //       //   },
+        //       // },
+        //     ],
+        //     dataSource: [
+        //       {
+        //         key: 123,
+        //         labels: '测试标签231312',
+        //         name: '小小',
+        //         state: 'open',
+        //       },
+        //     ],
+        //   },
+        //   children: [],
+        // },
       ],
     },
   ],
@@ -268,7 +298,9 @@ const modalForm: SchemaRootObj = {
       },
     },
   ],
-  effects: [],
+  anonymousFunctionList: [],
+  events: [],
+  compTreeLibMap: [],
   compTree: [
     {
       id: id(),
@@ -435,39 +467,55 @@ const modalForm: SchemaRootObj = {
   ],
 };
 
+const enumOp: {
+  key: string;
+  label: string;
+  str: string;
+}[] = [
+  {
+    key: 'testObj',
+    label: '基础',
+    str: JSON.stringify(testObj),
+  },
+  {
+    key: 'modalForm',
+    label: '表单',
+    str: JSON.stringify(modalForm),
+  },
+];
+
 function App() {
-  const [str, setStr] = useState(JSON.stringify(testObj));
+  const [key, setKey] = useState('testObj');
+  const [str, setStr] = useState('');
+
+  useEffect(() => {
+    if (key) {
+      setStr(enumOp.find((e) => e.key === key)?.str || '');
+    }
+  }, [key]);
 
   return (
     <div>
       <Row>
         <Radio.Group
+          value={key}
           onChange={(v) => {
-            setStr(v.target.value);
+            setKey(v.target.value);
           }}
-          options={[
-            {
-              label: '测试1',
-              value: JSON.stringify(testObj),
-            },
-            {
-              label: '表单弹框',
-              value: JSON.stringify(modalForm),
-            },
-          ]}
+          options={enumOp.map((e) => ({ label: e.label, value: e.key }))}
         />
       </Row>
       <ReactRender
         loadingRender={() => {
           return <div>react-loading</div>;
         }}
-        onCreateNode={(Comp, props, children) => {
+        onCreateNode={({ comp: Comp, props, children }) => {
           // 编译工具根据react版本，决定使用createElement或jsx-runtime
           return <Comp {...props}>{children}</Comp>;
         }}
-        schemaStr={str}
+        schemaStr={str || '{}'}
         // 有些打包器（如vite），默认不能通过import($param)动态加载包名，需要提前写好放到异步函数里去
-        packageList={[
+        libList={[
           {
             name: 'antd',
             load: async () => import('antd'),
@@ -487,38 +535,42 @@ function App() {
             },
           },
         ]}
-        noMatchPackageRender={({ id: componentId, packageName }) => (
-          <div
-            key={`nomatch-package-${componentId}`}
-            style={{
-              color: 'red',
-              borderWidth: 2,
-              borderStyle: 'solid',
-              borderColor: 'red',
-              padding: 12,
-            }}
-          >
-            没有找到包:{packageName}
-          </div>
-        )}
-        noMatchCompRender={({
-          id: componentId,
-          componentName,
-          packageName,
-        }) => (
-          <div
-            key={`nomatch-package-component-${componentId}`}
-            style={{
-              color: 'red',
-              borderWidth: 2,
-              borderStyle: 'solid',
-              borderColor: 'red',
-              padding: 12,
-            }}
-          >
-            包:{packageName}里没有找到组件:{componentName}
-          </div>
-        )}
+        noMatchPackageRender={({ schema, compTreeItem }) => {
+          const { id: componentId } = schema;
+          const { packageName } = compTreeItem;
+          return (
+            <div
+              key={`nomatch-package-${componentId}`}
+              style={{
+                color: 'red',
+                borderWidth: 2,
+                borderStyle: 'solid',
+                borderColor: 'red',
+                padding: 12,
+              }}
+            >
+              没有找到包:{packageName}
+            </div>
+          );
+        }}
+        noMatchCompRender={({ schema, compTreeItem }) => {
+          const { id: componentId } = schema;
+          const { componentName, packageName } = compTreeItem;
+          return (
+            <div
+              key={`nomatch-package-component-${componentId}`}
+              style={{
+                color: 'red',
+                borderWidth: 2,
+                borderStyle: 'solid',
+                borderColor: 'red',
+                padding: 12,
+              }}
+            >
+              包:{packageName}里没有找到组件:{componentName}
+            </div>
+          );
+        }}
       />
     </div>
   );

@@ -2,47 +2,47 @@
 
 ## parse
 
-1. 同步导入所有组件，导致单文件打包结果过大。
+### 同步导入所有组件，导致单文件打包结果过大
 
-   - 使用 Promise，异步导入组件。以便 vite、webpack 打包的项目动态倒入。vite 的 import 的后面，需要明确加载的包名，否则找不到包名，会报错
+- 使用 Promise，异步导入组件。以便 vite、webpack 打包的项目动态倒入。vite 的 import 的后面，需要明确加载的包名，否则找不到包名，会报错
 
-     - 错误代码
+  - 错误代码
 
-       ```jsx
-       const getName = () => 'antd';
-       const package = import(getName());
-       ```
+    ```jsx
+    const getName = () => 'antd';
+    const package = import(getName());
+    ```
 
-     - 正确代码
+  - 正确代码
 
-       ```jsx
-       const package = import('antd');
-       ```
+    ```jsx
+    const package = import('antd');
+    ```
 
 ## react-render
 
-1. 解析 schema 后，返回的 dom，不能用 setState，否则 input 的输入框，不能输入中文，需要用 useMemo
+### 解析 schema 后，返回的 dom，不能用 setState，否则 input 的输入框，不能输入中文，需要用 useMemo
 
-   - 错误代码
+- 错误代码
 
-     ```jsx
-     const [dom, setDom] = useState();
-     useEffect(() => {
-       setDom(parseRender());
-     }, []);
-     return dom;
-     ```
+  ```jsx
+  const [dom, setDom] = useState();
+  useEffect(() => {
+    setDom(parseRender());
+  }, []);
+  return dom;
+  ```
 
-   - 正确代码
+- 正确代码
 
-     ```jsx
-     const dom = useMeno(() => {
-       return parseRender();
-     }, []);
-     return dom;
-     ```
+  ```jsx
+  const dom = useMeno(() => {
+    return parseRender();
+  }, []);
+  return dom;
+  ```
 
-2. 不能使用 jsx、tsx 文件，会导致打的包包含 jsx-runtime 的代码，导致体积大了 20 多 kb
+### 不能使用 jsx、tsx 文件，会导致打的包包含 jsx-runtime 的代码，导致体积大了 20 多 kb
 
 ## react-editor
 
@@ -68,7 +68,7 @@
 
    - 监听编辑器的 hover 事件
 
-   - 通过 hover 事件回调参数 e.target 的 dom 和映射里的 dom 是否相等或子节点，从而找到组件
+   - 通过 hover 事件回调参数 e.target 的 dom 和映射里的 dom 是否相等或包含子节点，从而找到组件
 
 5. 插件之间通信
 
@@ -76,9 +76,92 @@
 
 ### 编辑器校验（schema 的校验函数）
 
-- states 里 name 不能重复
-- effects 里 dependences 必须从 states 里选择
-- effects 里 parseEffects 长度必须等于 effects
-- effects 里，effects 数组长度设为 1
+- states、events、refs 里 name 都不能重复
+- 鉴别循环依赖
+- stateCompTreeeMap、eventCompTreeeMap、refCompTreeeMap、stateEventMap 里的依赖、路径等，必须要存在
 - JSFunction 里，函数渲染的 params 在生成作用域时，需要校验 params 是否和上级重名
 - schema 里 id 不能重复
+- 所有映射里的路径不能重复
+
+## 新的 schema 待解决问题
+
+### setState 设置虚拟节点
+
+- 示例
+
+  ```jsx
+  const columns = useMemo(
+    () => [
+      {
+        title: '操作',
+        name: 'options',
+        render: (text, record) => {
+          return (
+            <React.Fragment>
+              <Button
+                onClick={() => {
+                  toDelete(record.name);
+                }}
+              >
+                删除
+              </Button>
+            </React.Fragment>
+          );
+        },
+      },
+    ],
+    []
+  );
+  ```
+
+- 解决方案
+
+  > 此方法是兜底方案，不符合低代码**所见即所得**的设计思路，尽量少用
+
+  具有开发能力的人可手写函数
+
+  ```js
+  // schema片段
+  const schemaSnippets = {
+    type: 'function',
+    params: ['text', 'record'],
+    body: 'return createNode(Button,{type:"primary",onClick:()=>{toDelete(record.id)}},"删除")',
+  };
+  // 转换函数
+  parse(schemaSnippets);
+  // 转换函数伪代码
+  new Function(`
+    const Button = this.library.antd.Button;
+    const createNode = this.createNode
+    return (${params.join(',')})=>{${body}}
+  `).call({ library, createNode });
+  ```
+
+### react 自定义 hooks 问题
+
+- 示例
+
+  ```jsx
+  const [form] = Form.useForm();
+  const { scrollOffset, isBottom } = useScroll();
+  ```
+
+- 解决方案
+  - 暂无
+
+### 条件渲染：for 循环，三元表达式等
+
+- 示例
+
+  ```jsx
+  <div>
+    {showTitle && <h1>标题</h1>}
+    {showText ? <text>文案1</text> : <text>文案2</text>}
+    {list.map((i) => {
+      return <div key={i.id}>{i.text}</div>;
+    })}
+  </div>
+  ```
+
+- 解决方案
+  - 暂无

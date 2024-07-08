@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "build": "lerna run build",
-    "clean": "npx lerna clean -y && rm -rf node_modules && rm -rf packages/*/dist",
-    "create-changelog": "npx lerna version --conventional-commits --no-push --yes",
+    "clean": "lerna clean -y && rm -rf node_modules && rm -rf packages/*/dist",
+    "create-changelog": "lerna version --conventional-commits --no-push --yes",
     "cz": "lint-staged && git cz"
   },
   "devDependencies": {
