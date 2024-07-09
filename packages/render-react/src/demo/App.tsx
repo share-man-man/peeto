@@ -4,7 +4,11 @@ import { useEffect, useState } from 'react';
 
 import { Radio, Row, Typography } from 'antd';
 
-import { basic, state } from '../../../../demo-schema/react/basic';
+import {
+  basic,
+  state,
+  anonymousFunction,
+} from '../../../../demo-schema/react/basic';
 
 const enumOp: {
   key: string;
@@ -15,6 +19,11 @@ const enumOp: {
     key: 'testObj',
     label: basic.desc,
     str: JSON.stringify(basic.schema),
+  },
+  {
+    key: 'anonymousFunction',
+    label: anonymousFunction.desc,
+    str: JSON.stringify(anonymousFunction.schema),
   },
   {
     key: 'state',

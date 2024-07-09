@@ -1,38 +1,51 @@
-import { v4 as id } from 'uuid';
+import {
+  createCompNode,
+  createAnonymousFunction,
+  createStateNode,
+  createSchemaConfig,
+} from '../utils';
 
-import { NodeType } from '../../packages/core/src';
-import { TestScheeaConfig } from '../type';
-
-export const basic: TestScheeaConfig = {
+export const basic = createSchemaConfig({
   desc: '基础-嵌套组件',
   schema: {
-    compTreePaths: [[0], [0, 'children', 0]],
     compTree: [
-      {
-        type: NodeType.COMPONENT,
-        packageName: 'antd',
-        componentName: 'Card',
-        id: id(),
-        props: {
+      createCompNode(
+        'antd',
+        'Card',
+        {
           title: 'antd.Card',
         },
-        children: [
-          {
-            type: NodeType.COMPONENT,
-            packageName: 'my-custom',
-            componentName: 'Text',
-            id: id(),
-            props: {
-              text: 'my-custom.Text',
-            },
-          },
-        ],
-      },
+        [
+          createCompNode('my-custom', 'Text', {
+            text: 'my-custom.Text',
+          }),
+        ]
+      ),
     ],
   },
-};
+});
 
-export const state: TestScheeaConfig = {
+export const anonymousFunction = createSchemaConfig({
+  desc: '基础-匿名函数',
+  schema: {
+    compTree: [
+      createCompNode(
+        'antd',
+        'Button',
+        {
+          type: 'primary',
+          onClick: createAnonymousFunction({
+            params: ['e'],
+            body: 'alert("点击了按钮")',
+          }),
+        },
+        ['点击弹出提示框']
+      ),
+    ],
+  },
+});
+
+export const state = createSchemaConfig({
   desc: '基础-状态响应式',
   schema: {
     states: [
@@ -42,47 +55,25 @@ export const state: TestScheeaConfig = {
         initialValue: '响应式状态',
       },
     ],
-    compTreePaths: [
-      [0],
-      [0, 'props', 'text'],
-      [1],
-      [1, 'props', 'value'],
-      [1, 'props', 'onChange'],
-    ],
     compTree: [
-      {
-        type: NodeType.COMPONENT,
-        packageName: 'my-custom',
-        componentName: 'Text',
-        id: id(),
-        props: {
-          text: {
-            type: NodeType.STATE,
-            stateName: 'title',
-          },
-        },
-      },
-      {
-        type: NodeType.COMPONENT,
-        packageName: 'antd',
-        componentName: 'Input',
-        id: id(),
-        props: {
-          value: {
-            type: NodeType.STATE,
-            stateName: 'title',
-          },
-          onChange: {
-            type: NodeType.ANONYMOUSFUNCTION,
-            params: ['v'],
-            body: `this.onChangeState([['title',v.target.value]])`,
-            effects: ['title'],
-          },
-        },
-      },
+      createCompNode('my-custom', 'Text', {
+        text: createStateNode({
+          stateName: 'title',
+        }),
+      }),
+      createCompNode('antd', 'Input', {
+        value: createStateNode({
+          stateName: 'title',
+        }),
+        onChange: createAnonymousFunction({
+          params: ['v'],
+          body: `this.onChangeState([['title',v.target.value]])`,
+          effects: ['title'],
+        }),
+      }),
     ],
   },
-};
+});
 
 // const testObj: SchemaRootObj = {
 //   states: [
