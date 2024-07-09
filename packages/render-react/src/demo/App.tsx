@@ -1,9 +1,10 @@
 import ReactRender from '../ReactRender';
 
 import { useEffect, useState } from 'react';
+
 import { Radio, Row, Typography } from 'antd';
 
-import { basic, state } from '../../../../demo-schema/basic';
+import { basic, state } from '../../../../demo-schema/react/basic';
 
 const enumOp: {
   key: string;
@@ -49,9 +50,13 @@ function App() {
         loadingRender={() => {
           return <div>react-loading</div>;
         }}
-        onCreateNode={({ comp: Comp, props, children }) => {
+        onCreateCompNode={({ comp: Comp, props, children }) => {
           // 编译工具根据react版本，决定使用createElement或jsx-runtime
           return <Comp {...props}>{children}</Comp>;
+          // return jsxDEV(Comp, {
+          //   ...props,
+          //   children,
+          // });
         }}
         schemaStr={str || '{}'}
         // 有些打包器（如vite），默认不能通过import($param)动态加载包名，需要提前写好放到异步函数里去
@@ -75,7 +80,7 @@ function App() {
             },
           },
         ]}
-        noMatchPackageRender={({ schema }) => {
+        noMatchLibRender={({ schema }) => {
           const { id: componentId, packageName } = schema;
           return (
             <div

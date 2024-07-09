@@ -2,6 +2,8 @@ import { SchemaCompTreeItem, SchemaCompTreePath } from '../component/type';
 import { SchemaEventItem } from '../event/type';
 import { SchemaStateItem } from '../state/type';
 import { SchemaRefItem } from '../ref/type';
+import { AnyType, JSONValue } from '../type';
+import { LibListMapType } from '../lib/type';
 
 /**
  * schema根对象
@@ -80,4 +82,67 @@ export interface SchemaRootObj {
   //    */
   //   desc?: string;
   // }[];
+}
+
+/**
+ * 生成节点
+ */
+export interface GenerateNodePropType<VNodeType> {
+  /**
+   * schema对象
+   */
+  schemaRootObj: SchemaRootObj;
+  /**
+   * 获取状态
+   * @param P
+   * @returns
+   */
+  getState: (P: { stateName: SchemaStateItem['name'][] }) => AnyType[];
+  /**
+   * 设置状态
+   * @param fieldList 状态列表
+   * @returns
+   */
+  setState: (p: { fieldList: { name: string; value: AnyType }[] }) => void;
+  /**
+   * 创建组件节点
+   * @param comp 组件渲染函数
+   * @param props 组件参数
+   * @param children 组件children
+   * @returns 节点对象（虚拟dom）
+   */
+  onCreateCompNode: (p: {
+    comp: AnyType;
+    props: AnyType;
+    children: AnyType;
+  }) => VNodeType;
+  /**
+   * 依赖包集合
+   */
+  libListMap: LibListMapType;
+  /**
+   * 没有找到组件
+   * @param obj
+   * @returns
+   */
+  noMatchCompRender: (p: { schema: SchemaCompTreeItem }) => VNodeType;
+  /**
+   * 没有找到包
+   * @param obj
+   * @returns
+   */
+  noMatchLibRender: (p: { schema: SchemaCompTreeItem }) => VNodeType;
+}
+
+export interface DeepRecursionParseType<VNodeType = AnyType> {
+  (p: { cur: JSONValue; path: SchemaCompTreePath }):
+    | VNodeType
+    | JSONValue
+    | AnyType;
+}
+
+export interface ParseNodeBaseProp<SchemaNodeType, VNodeType> {
+  curSchema: SchemaNodeType;
+  deepRecursionParse: DeepRecursionParseType<VNodeType>;
+  path: SchemaCompTreePath;
 }

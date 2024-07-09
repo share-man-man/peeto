@@ -1,20 +1,13 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import {
   defaultLoading,
   defaultNoMatchCompRender,
-  defaultNoMatchPackageRender,
+  defaultNoMatchLibRender,
 } from './utils';
-// import RenderByPackage from './components/RenderByPackage';
 import SchemaComp, { SchemaCompProps } from './components/SchemaComp';
 import { ReactRenderProps } from './type';
 import useCreateNodeFunc from './hooks/useCreateNodeFunc';
-import {
-  // CompMapType,
-  // LibListMapType,
-  getSchemaObjFromStr,
-  loadLibList,
-  // parseComponent,
-} from '@peeto/parse';
+import { getSchemaObjFromStr, loadLibList } from '@peeto/parse';
 
 const ReactRender = (props: ReactRenderProps) => {
   const [loading, setLoading] = useState(true);
@@ -23,35 +16,15 @@ const ReactRender = (props: ReactRenderProps) => {
   const [libListMap, setLibListMap] = useState<SchemaCompProps['libListMap']>(
     new Map()
   );
-  // // 组件集合
-  // const [compMap, setCompMap] = useState<CompMapType>(new Map());
 
-  const noMatchCompRenderRef = useRef(props?.noMatchCompRender);
-  noMatchCompRenderRef.current = props?.noMatchCompRender;
-  const noMatchPackageRenderRef = useRef(props?.noMatchPackageRender);
-  noMatchPackageRenderRef.current = props?.noMatchPackageRender;
-
-  const onCreateNode = useCreateNodeFunc(props);
+  const onCreateCompNode = useCreateNodeFunc(props);
 
   useEffect(() => {
     if (schemaStr !== props?.schemaStr) {
       setLoading(true);
-
       const schemaObj = getSchemaObjFromStr(props?.schemaStr);
       // 加载依赖包
       loadLibList(schemaObj, props?.libList).then((res) => {
-        // // 加载组件
-        // const compRes = parseComponent({
-        //   schemaCompTree: schemaObj?.compTree,
-        //   libListMap: res,
-        //   compTreeLibMap: schemaObj.compTreeLibMap,
-        //   noMatchCompRender:
-        //     noMatchCompRenderRef.current || defaultNoMatchCompRender,
-        //   noMatchPackageRender:
-        //     noMatchPackageRenderRef.current || defaultNoMatchPackageRender,
-        // });
-        // setPackageMap(res);
-        // setCompMap(compRes);
         setLibListMap(res);
         setSchemaStr(props?.schemaStr);
         setLoading(false);
@@ -61,24 +34,22 @@ const ReactRender = (props: ReactRenderProps) => {
 
   // schema变化，重置渲染节点，避免状态管理出现混乱的问题
   if (loading || schemaStr !== props?.schemaStr) {
-    return onCreateNode({
+    return onCreateCompNode({
       comp: props?.loadingRender || defaultLoading,
       props: undefined,
       children: undefined,
     });
   }
 
-  const res = onCreateNode({
+  const res = onCreateCompNode({
     comp: SchemaComp,
     props: {
       schemaStr,
-      onCreateNode,
+      onCreateCompNode,
       onNodeChange: props.onNodeChange,
       libListMap,
-      noMatchCompRender:
-        noMatchCompRenderRef.current || defaultNoMatchCompRender,
-      noMatchPackageRender:
-        noMatchPackageRenderRef.current || defaultNoMatchPackageRender,
+      noMatchCompRender: props.noMatchCompRender || defaultNoMatchCompRender,
+      noMatchLibRender: props.noMatchLibRender || defaultNoMatchLibRender,
     },
     children: undefined,
   });

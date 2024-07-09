@@ -18,7 +18,6 @@
 //   return `${obj.packageName}-${obj.componentName}`;
 // };
 
-// // TODO 还需要判断是否在路径里
 // /**
 //  * 是否为schema节点
 //  * @param obj

@@ -1,7 +1,5 @@
 export type { SchemaRootObj } from './root/type';
 
-// import type { SchemaCompTree } from './component/type';
-
 /**
  * any类型逃生舱
  */

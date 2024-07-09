@@ -1,7 +1,7 @@
 import { v4 as id } from 'uuid';
 
-import { NodeType } from '../packages/parse/src';
-import { TestScheeaConfig } from './type';
+import { NodeType } from '../../packages/parse/src';
+import { TestScheeaConfig } from '../type';
 
 export const basic: TestScheeaConfig = {
   desc: '基础-嵌套组件',
@@ -11,9 +11,11 @@ export const basic: TestScheeaConfig = {
       {
         type: NodeType.COMPONENT,
         packageName: 'antd',
-        componentName: 'Typography.Title',
+        componentName: 'Card',
         id: id(),
-        props: {},
+        props: {
+          title: 'antd.Card',
+        },
         children: [
           {
             type: NodeType.COMPONENT,
@@ -21,7 +23,7 @@ export const basic: TestScheeaConfig = {
             componentName: 'Text',
             id: id(),
             props: {
-              text: 'antd.Title嵌套自定义组件my-custom.Text',
+              text: 'my-custom.Text',
             },
           },
         ],

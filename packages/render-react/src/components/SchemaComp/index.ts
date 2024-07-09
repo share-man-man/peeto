@@ -21,21 +21,19 @@ const createState = useState;
 // const createEffect = useEffect;
 
 export type SchemaCompProps = {
-  // packageMap: PackageMapType;
-  // compMap: CompMapType;
   libListMap: LibListMapType;
 } & PickRequired<
   ReactRenderProps,
-  'onCreateNode' | 'noMatchCompRender' | 'noMatchPackageRender'
+  'onCreateCompNode' | 'noMatchCompRender' | 'noMatchLibRender'
 >;
 
 const Index: FC<SchemaCompProps> = ({
   schemaStr,
-  onCreateNode,
+  onCreateCompNode,
   onNodeChange,
   libListMap,
   noMatchCompRender,
-  noMatchPackageRender,
+  noMatchLibRender,
 }) => {
   // 状态集合
   const [stateMap, setStateMap] = useState<
@@ -49,10 +47,10 @@ const Index: FC<SchemaCompProps> = ({
   >(new Map());
 
   // 避免react多次渲染
-  const onCreateNodeRef = useRef(onCreateNode);
-  onCreateNodeRef.current = onCreateNode;
+  const onCreateCompNodeRef = useRef(onCreateCompNode);
+  onCreateCompNodeRef.current = onCreateCompNode;
   const noMatchCompRenderRef = useRef(noMatchCompRender);
-  const noMatchPackageRenderRef = useRef(noMatchPackageRender);
+  const noMatchLibRenderRef = useRef(noMatchLibRender);
 
   const schemaRootObj = getSchemaObjFromStr(schemaStr);
 
@@ -115,10 +113,10 @@ const Index: FC<SchemaCompProps> = ({
         // state改变后，通知react重新渲染state
         setStateMap(new Map(stateMap));
       },
-      onCreateNode: onCreateNodeRef.current,
+      onCreateCompNode: onCreateCompNodeRef.current,
       libListMap,
       noMatchCompRender: noMatchCompRenderRef.current,
-      noMatchPackageRender: noMatchPackageRenderRef.current,
+      noMatchLibRender: noMatchLibRenderRef.current,
     });
 
     // console.log(res);

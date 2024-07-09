@@ -1,16 +1,14 @@
-// import { SchemaEventItem } from '../event/type';
-import { LibListMapType } from '../lib/type';
 import { NodeType } from '../root';
-// import { SchemaRefItem } from '../ref/type';
-import { SchemaRootObj } from '../root/type';
-import { SchemaStateItem } from '../state/type';
-import type { AnyType, JSONObject, JSONValue } from '../type';
+import type { JSONObject, JSONValue } from '../type';
 
 /**
  * schema路径
  */
 export type SchemaCompTreePath = (string | number)[];
 
+/**
+ * 组件节点类型
+ */
 export interface SchemaCompTreeItem extends JSONObject {
   type: NodeType.COMPONENT;
   id: string;
@@ -30,75 +28,4 @@ export interface SchemaCompTreeItem extends JSONObject {
    * 子组件树
    */
   children?: SchemaCompTreeItem | SchemaCompTreeItem[] | undefined;
-}
-
-export interface GenerateNodePropType<VNodeType> {
-  /**
-   * schema对象
-   */
-  schemaRootObj: SchemaRootObj;
-  /**
-   * 获取状态
-   * @param P
-   * @returns
-   */
-  getState: (P: { stateName: SchemaStateItem['name'][] }) => AnyType[];
-  // /**
-  //  * 获取事件
-  //  * @param P
-  //  * @returns
-  //  */
-  // getEvent: (P: { eventName: SchemaEventItem['name'] }) => AnyType;
-  // /**
-  //  * 获取ref
-  //  * @param P
-  //  * @returns
-  //  */
-  // getRef: (P: { refName: SchemaRefItem['name'] }) => AnyType;
-  /**
-   * 设置状态
-   * @param fieldList 状态列表
-   * @returns
-   */
-  setState: (p: { fieldList: { name: string; value: AnyType }[] }) => void;
-  /**
-   * 创建节点（虚拟dom）
-   * @param comp 组件渲染函数
-   * @param props 组件参数
-   * @param children 组件children
-   * @returns 节点对象（虚拟dom）
-   */
-  onCreateNode: (p: {
-    comp: AnyType;
-    props: AnyType;
-    children: AnyType;
-  }) => VNodeType;
-  // /**
-  //  * 组件集合
-  //  */
-  // compMap: CompMapType;
-  /**
-   * 依赖包集合
-   */
-  libListMap: LibListMapType;
-  // compTreeLibMap: SchemaRootObj['compTreeLibMap'];
-  /**
-   * 没有找到组件
-   * @param obj
-   * @returns
-   */
-  noMatchCompRender: (p: { schema: SchemaCompTreeItem }) => VNodeType;
-  /**
-   * 没有找到包
-   * @param obj
-   * @returns
-   */
-  noMatchPackageRender: (p: { schema: SchemaCompTreeItem }) => VNodeType;
-}
-
-export interface DeepRecursionParseType<VNodeType = AnyType> {
-  (p: { cur: JSONValue; path: SchemaCompTreePath }):
-    | VNodeType
-    | JSONValue
-    | AnyType;
 }

@@ -9,12 +9,12 @@ export const defaultLoading = () => {
   return createElement('div', undefined, 'loading');
 };
 
-export const defaultNoMatchPackageRender: Required<ReactRenderProps>['noMatchPackageRender'] =
-  ({ id: componentId, packageName }) =>
+export const defaultNoMatchLibRender: Required<ReactRenderProps>['noMatchLibRender'] =
+  ({ schema }) =>
     createElement(
       'div',
       {
-        key: `nomatch-package-${componentId}`,
+        key: `nomatch-package-${schema.id}`,
         style: {
           color: 'red',
           borderWidth: 2,
@@ -23,15 +23,15 @@ export const defaultNoMatchPackageRender: Required<ReactRenderProps>['noMatchPac
           padding: 12,
         },
       },
-      `没有找到包:${packageName}`
+      `没有找到包:${schema.packageName}`
     );
 
 export const defaultNoMatchCompRender: Required<ReactRenderProps>['noMatchCompRender'] =
-  ({ id: componentId, componentName, packageName }) =>
+  ({ schema }) =>
     createElement(
       'div',
       {
-        key: `nomatch-package-component-${componentId}`,
+        key: `nomatch-package-component-${schema.id}`,
         style: {
           color: 'red',
           borderWidth: 2,
@@ -40,5 +40,5 @@ export const defaultNoMatchCompRender: Required<ReactRenderProps>['noMatchCompRe
           padding: 12,
         },
       },
-      `包:${packageName}里没有找到组件:${componentName}`
+      `包:${schema.packageName}里没有找到组件:${schema.componentName}`
     );
