@@ -7,7 +7,7 @@ import {
 import SchemaComp, { SchemaCompProps } from './components/SchemaComp';
 import { ReactRenderProps } from './type';
 import useCreateNodeFunc from './hooks/useCreateNodeFunc';
-import { getSchemaObjFromStr, loadLibList } from '@peeto/parse';
+import { getSchemaObjFromStr, loadLibList } from '@peeto/core';
 
 const ReactRender = (props: ReactRenderProps) => {
   const [loading, setLoading] = useState(true);

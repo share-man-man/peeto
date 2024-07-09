@@ -1,6 +1,6 @@
 import { v4 as id } from 'uuid';
 
-import { NodeType } from '../../packages/parse/src';
+import { NodeType } from '../../packages/core/src';
 import { TestScheeaConfig } from '../type';
 
 export const basic: TestScheeaConfig = {

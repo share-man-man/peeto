@@ -1,4 +1,4 @@
-import type { GenerateNodePropType, LibListItem } from '@peeto/parse';
+import type { GenerateNodePropType, LibListItem } from '@peeto/core';
 import type { ReactNode, createElement } from 'react';
 
 export interface ReactRenderProps

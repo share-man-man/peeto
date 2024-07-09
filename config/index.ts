@@ -1,4 +1,4 @@
-import coreJson from '../packages/parse/package.json';
+import coreJson from '../packages/core/package.json';
 import renderReactJson from '../packages/render-react/package.json';
 
 export const packageConfig: {

@@ -1,4 +1,4 @@
-import { SchemaRootObj } from '../packages/parse/src/type';
+import { SchemaRootObj } from '../packages/core/src/type';
 
 export interface TestScheeaConfig {
   desc: string;

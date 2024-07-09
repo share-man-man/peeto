@@ -1,9 +1,5 @@
 lockfileVersion: '6.0'
 
-settings:
-  autoInstallPeers: true
-  excludeLinksFromLockfile: false
-
 importers:
 
   .:
@@ -102,20 +98,22 @@ importers:
         specifier: ^1.8.27
         version: 1.8.27(typescript@5.0.2)
 
+  packages/core: {}
+
   packages/editor:
     dependencies:
-      '@peeto/parse':
+      '@peeto/core':
         specifier: workspace:*
-        version: link:../parse
+        version: link:../core
 
   packages/editor-react:
     dependencies:
+      '@peeto/core':
+        specifier: workspace:*
+        version: link:../core
       '@peeto/editor':
         specifier: workspace:*
         version: link:../editor
-      '@peeto/parse':
-        specifier: workspace:*
-        version: link:../parse
       '@peeto/render-react':
         specifier: workspace:*
         version: link:../render-react
@@ -142,22 +140,20 @@ importers:
         specifier: ^5.3.1
         version: 5.3.1(react-dom@18.2.0)(react@18.2.0)
 
-  packages/parse: {}
-
   packages/render-react:
     dependencies:
-      '@peeto/parse':
+      '@peeto/core':
         specifier: workspace:*
-        version: link:../parse
+        version: link:../core
       react:
         specifier: ^18.2.0
         version: 18.2.0
 
   packages/render-vue:
     dependencies:
-      '@peeto/parse':
+      '@peeto/core':
         specifier: workspace:*
-        version: link:../parse
+        version: link:../core
       vue:
         specifier: ^3.3.4
         version: 3.3.4
@@ -9403,3 +9399,7 @@ packages:
     optionalDependencies:
       commander: 9.5.0
     dev: true
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false

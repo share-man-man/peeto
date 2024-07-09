@@ -1,4 +1,4 @@
-import { AnyType } from '@peeto/parse';
+import { AnyType } from '@peeto/core';
 
 /**
  * 插件类型：vue3、react-18

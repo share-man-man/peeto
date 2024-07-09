@@ -14,7 +14,7 @@
     "preview": "vite preview"
   },
   "peerDependencies": {
-    "@peeto/parse": "workspace:*",
+    "@peeto/core": "workspace:*",
     "@peeto/editor": "workspace:*",
     "@peeto/render-react": "workspace:*",
     "@peeto/render-vue": "workspace:*",

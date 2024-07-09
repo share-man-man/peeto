@@ -4,7 +4,7 @@ import {
   generateNode,
   PickRequired,
   LibListMapType,
-} from '@peeto/parse';
+} from '@peeto/core';
 import {
   useEffect,
   useState,
