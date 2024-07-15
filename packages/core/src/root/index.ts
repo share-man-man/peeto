@@ -1,6 +1,6 @@
 import { isBasicNode, isSchemaCompTree } from '../component';
 import { SchemaCompTreeItem, SchemaCompTreePath } from '../component/type';
-import { isAnonymousFunctionNode } from '../event';
+import { getSetStateName, isAnonymousFunctionNode } from '../event';
 import { AnonymousFunctionNode } from '../event/type';
 import { LibListMapType, LibListItem } from '../lib/type';
 import { isStateNode } from '../state';
@@ -163,7 +163,8 @@ export const generateNode = <VNodeType>({
       const { params = [], body, effects = [] } = curSchema;
       const funcBind: /* typeof ext & */ {
         states?: Record<string, AnyType>;
-        onChangeState?: (changeObj: [string, AnyType][]) => void;
+      } & {
+        [k in string]: (v: AnyType) => void;
       } = {
         // ...ext,
         // states: Object.fromEntries(
@@ -171,21 +172,28 @@ export const generateNode = <VNodeType>({
         // ),
       };
       // 安全考虑，暴露特定的函数、变量
-      funcBind.onChangeState = (changeObj) => {
-        setState?.({
-          fieldList: (changeObj || [])
-            .filter(([name]) => (effects || []).some((e) => e === name))
-            .map(([name, value]) => {
-              return {
+      const effectEventList = effects.map((name) => {
+        const setStateName = getSetStateName({ stateName: name });
+        const run = (v: AnyType) => {
+          setState({
+            fieldList: [
+              {
                 name,
-                value,
-              };
-            }),
-        });
-      };
+                value: v,
+              },
+            ],
+          });
+        };
+        return { setStateName, run };
+      });
+      effectEventList.forEach(({ setStateName, run }) => {
+        funcBind[setStateName] = run;
+      });
       // TODO 箭头函数兼容性待验证
       const res = new Function(`
-        const onChangeState = this.onChangeState;
+        ${effectEventList.map(
+          ({ setStateName }) => `const ${setStateName} = this.${setStateName}`
+        )}
         return (${params.join(',')})=>{
           ${body}
         }

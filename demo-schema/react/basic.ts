@@ -67,7 +67,7 @@ export const state = createSchemaConfig({
         }),
         onChange: createAnonymousFunction({
           params: ['v'],
-          body: `this.onChangeState([['title',v.target.value]])`,
+          body: `setTitle(v.target.value)`,
           effects: ['title'],
         }),
       }),

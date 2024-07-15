@@ -76,12 +76,12 @@
 
 ### 编辑器校验（schema 的校验函数）
 
-- states、events、refs 里 name 都不能重复
+- states、events、refs 里 name 都不能重复，且都必须是 camelCase 风格
 - 鉴别循环依赖
-- stateCompTreeeMap、eventCompTreeeMap、refCompTreeeMap、stateEventMap 里的依赖、路径等，必须要存在
-- JSFunction 里，函数渲染的 params 在生成作用域时，需要校验 params 是否和上级重名
+- compTreePaths 的路径都必须存在，且不能重复
+- 树结构改变时，compTreePaths 也要跟着改变
+- JSFunction 里，函数渲染的 params 在生成作用域时，需要校验 params 是否和上级、states、events、refs 等重名
 - schema 里 id 不能重复
-- 所有映射里的路径不能重复
 
 ## 新的 schema 待解决问题
 

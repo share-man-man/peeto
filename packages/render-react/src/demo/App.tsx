@@ -9,6 +9,114 @@ import {
   state,
   anonymousFunction,
 } from '../../../../demo-schema/react/basic';
+import { AnyType, parseObj, SchemaRootObj } from '@peeto/core';
+import { getSetStateName } from '../../../core/src/event';
+
+const funcName = '_getPeetoValue';
+const getValueStr = (v: AnyType): AnyType => {
+  return (
+    v?.[funcName]?.() ||
+    ([
+      '[object String]',
+      // '[object Number]',
+      // '[object Boolean]',
+      // '[object Undefined]',
+      null,
+    ].includes(Object.prototype.toString.call(v))
+      ? `"${v}"`
+      : v)
+  );
+};
+const getChildStr = (v: AnyType): AnyType => {
+  return Array.isArray(v) ? v.map((i) => getValueStr(i)).join('\n') : v;
+};
+
+const toReactStr = (str: string) => {
+  const {
+    states = [],
+    compTree = [],
+    compTreePaths = [],
+  } = JSON.parse(str || '{}') as SchemaRootObj;
+
+  const libList: { [key: string]: string[] } = {};
+
+  const treeObj = parseObj({
+    node: compTree,
+    nodePath: compTreePaths || [],
+    parseStateNode: ({ curSchema }) => {
+      return {
+        [funcName]: () => curSchema.stateName,
+      };
+    },
+    parseAnonymousFunctionNode: ({ curSchema }) => {
+      return {
+        [funcName]: () => `(${(curSchema.params || []).join(',')})=>{
+        ${curSchema.body}
+      }`,
+      };
+    },
+    parseSchemaComp: ({ curSchema, props, children }) => {
+      if (!libList[curSchema.packageName]) {
+        libList[curSchema.packageName] = [];
+      }
+      libList[curSchema.packageName].push(curSchema.componentName);
+
+      return {
+        [funcName]: () => `<${curSchema.componentName}\n${Object.keys(props)
+          .map((k) => `${k}={${getValueStr(props[k])}}`)
+          .join('\n')}${
+          !children
+            ? ` />`
+            : `
+>
+{
+${getChildStr(children)}
+}
+</${curSchema.componentName}>`
+        }
+
+      `,
+      };
+    },
+  });
+
+  const libStr = Object.keys(libList)
+    .map((k) => `import { ${libList[k].join(',')} } from '${k}';`)
+    .join('\n');
+
+  const treeStr = getChildStr(treeObj);
+
+  const stateStr = states?.map(
+    (s) =>
+      `const [${s.name},${getSetStateName({
+        stateName: s.name,
+      })}] = useState(${JSON.stringify(s.initialValue)})`
+  );
+
+  return `import { useState, useEffect } from "react";
+${libStr}
+
+const Index = () => {
+  // 引入依赖包
+
+  // 状态
+  ${stateStr}
+
+  // ref
+
+  // 事件
+
+  // 组件树
+  return (
+    <>
+      ${treeStr}
+    </>
+  );
+};
+
+export default Index
+`;
+};
 
 const enumOp: {
   key: string;
@@ -124,6 +232,8 @@ function App() {
           );
         }}
       />
+      <Typography.Title level={2}>出码</Typography.Title>
+      <pre>{str && toReactStr(str)}</pre>
     </div>
   );
 }

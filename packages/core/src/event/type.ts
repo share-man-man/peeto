@@ -11,6 +11,8 @@ export interface SchemaEventItem {
    * 事件方法体
    */
   value: string;
+  // TODO 还未实现
+  dependences: SchemaStateItem['name'][];
   /**
    * 执行事件会影响的状态
    */
