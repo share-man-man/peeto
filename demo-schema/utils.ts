@@ -8,8 +8,7 @@ import { StateNodeType } from 'packages/core/src/state/type';
 export const createCompNode = (
   packageName: string,
   componentName: string,
-  props: Record<string, AnyType> = {},
-  children: AnyType = null
+  props: Record<string, AnyType> = {}
 ): (() => AnyType) => {
   const selfId = id();
   return () => ({
@@ -18,7 +17,6 @@ export const createCompNode = (
     componentName,
     id: selfId,
     props,
-    children,
   });
 };
 

@@ -38,7 +38,7 @@ const toReactStr = (str: string) => {
     compTreePaths = [],
   } = JSON.parse(str || '{}') as SchemaRootObj;
 
-  const libList: { [key: string]: string[] } = {};
+  const libList: { [key: string]: Set<string> } = {};
 
   const treeObj = parseObj({
     node: compTree,
@@ -55,23 +55,26 @@ const toReactStr = (str: string) => {
       }`,
       };
     },
-    parseSchemaComp: ({ curSchema, props, children }) => {
-      if (!libList[curSchema.packageName]) {
-        libList[curSchema.packageName] = [];
+    parseSchemaComp: ({ curSchema, props }) => {
+      const { packageName: pName, componentName } = curSchema;
+      const cName = componentName.split('.')[0];
+
+      if (!libList[pName]) {
+        libList[pName] = new Set();
       }
-      libList[curSchema.packageName].push(curSchema.componentName);
+      libList[pName].add(cName);
+
+      const { children, ...newProps } = props || {};
 
       return {
-        [funcName]: () => `<${curSchema.componentName}\n${Object.keys(props)
-          .map((k) => `${k}={${getValueStr(props[k])}}`)
+        [funcName]: () => `<${componentName}\n${Object.keys(newProps)
+          .map((k) => `${k}={${getValueStr(newProps[k])}}`)
           .join('\n')}${
           !children
             ? ` />`
             : `
 >
-{
 ${getChildStr(children)}
-}
 </${curSchema.componentName}>`
         }
 
@@ -81,17 +84,19 @@ ${getChildStr(children)}
   });
 
   const libStr = Object.keys(libList)
-    .map((k) => `import { ${libList[k].join(',')} } from '${k}';`)
+    .map((k) => `import { ${Array.from(libList[k]).join(',')} } from '${k}';`)
     .join('\n');
 
   const treeStr = getChildStr(treeObj);
 
-  const stateStr = states?.map(
-    (s) =>
-      `const [${s.name},${getSetStateName({
-        stateName: s.name,
-      })}] = useState(${JSON.stringify(s.initialValue)})`
-  );
+  const stateStr = states
+    ?.map(
+      (s) =>
+        `const [${s.name},${getSetStateName({
+          stateName: s.name,
+        })}] = useState(${JSON.stringify(s.initialValue)});`
+    )
+    .join('\n');
 
   return `import { useState, useEffect } from "react";
 ${libStr}
@@ -152,7 +157,7 @@ function App() {
 
   return (
     <div>
-      <Typography.Title level={2}>schema类型</Typography.Title>
+      <Typography.Title level={2}>schema</Typography.Title>
       <Row>
         <Radio.Group
           value={key}
@@ -167,9 +172,14 @@ function App() {
         loadingRender={() => {
           return <div>react-loading</div>;
         }}
-        onCreateCompNode={({ comp: Comp, props, children }) => {
+        onCreateCompNode={({ comp: Comp, props }) => {
           // 编译工具根据react版本，决定使用createElement或jsx-runtime
-          return <Comp {...props}>{children}</Comp>;
+          // const res = <Comp {...props}>{children}</Comp>;
+          const res = <Comp {...props} />;
+          // const res = createElement(Comp, props);
+          // console.log(11, res);
+          return res;
+
           // return jsxDEV(Comp, {
           //   ...props,
           //   children,

@@ -108,14 +108,9 @@ export interface GenerateNodePropType<VNodeType> {
    * 创建组件节点
    * @param comp 组件渲染函数
    * @param props 组件参数
-   * @param children 组件children
    * @returns 节点对象（虚拟dom）
    */
-  onCreateCompNode: (p: {
-    comp: AnyType;
-    props: AnyType;
-    children: AnyType;
-  }) => VNodeType;
+  onCreateCompNode: (p: { comp: AnyType; props: AnyType }) => VNodeType;
   /**
    * 依赖包集合
    */

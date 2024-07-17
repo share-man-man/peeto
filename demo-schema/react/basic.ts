@@ -6,21 +6,15 @@ import {
 } from '../utils';
 
 export const basic = createSchemaConfig({
-  desc: '基础-嵌套组件',
+  desc: '基础-自定义包',
   schema: {
     compTree: [
-      createCompNode(
-        'antd',
-        'Card',
-        {
-          title: 'antd.Card',
-        },
-        [
-          createCompNode('my-custom', 'Text', {
-            text: 'my-custom.Text',
-          }),
-        ]
-      ),
+      createCompNode('antd', 'Card', {
+        title: 'antd.Card',
+        children: createCompNode('antd', 'Typography.Text', {
+          children: '包：my-custom  组件：Text',
+        }),
+      }),
     ],
   },
 });
@@ -29,18 +23,14 @@ export const anonymousFunction = createSchemaConfig({
   desc: '基础-匿名函数',
   schema: {
     compTree: [
-      createCompNode(
-        'antd',
-        'Button',
-        {
-          type: 'primary',
-          onClick: createAnonymousFunction({
-            params: ['e'],
-            body: 'alert("点击了按钮")',
-          }),
-        },
-        ['点击弹出提示框']
-      ),
+      createCompNode('antd', 'Button', {
+        type: 'primary',
+        onClick: createAnonymousFunction({
+          params: ['e'],
+          body: 'alert("点击了按钮")',
+        }),
+        children: '点击弹出提示框',
+      }),
     ],
   },
 });
@@ -54,12 +44,40 @@ export const state = createSchemaConfig({
         name: 'title',
         initialValue: '响应式状态',
       },
+      {
+        desc: 'title长度',
+        name: 'titleLength',
+        initialValue: 0,
+      },
     ],
     compTree: [
-      createCompNode('my-custom', 'Text', {
-        text: createStateNode({
-          stateName: 'title',
-        }),
+      createCompNode('antd', 'Row', {
+        children: [
+          createCompNode('antd', 'Space', {
+            children: [
+              createCompNode('antd', 'Typography.Text', {
+                children: '字符长度：',
+              }),
+              createCompNode('antd', 'Typography.Text', {
+                children: createStateNode({ stateName: 'titleLength' }),
+              }),
+            ],
+          }),
+        ],
+      }),
+      createCompNode('antd', 'Row', {
+        children: [
+          createCompNode('antd', 'Space', {
+            children: [
+              createCompNode('antd', 'Typography.Text', {
+                children: '输入的值：',
+              }),
+              createCompNode('antd', 'Typography.Text', {
+                children: createStateNode({ stateName: 'title' }),
+              }),
+            ],
+          }),
+        ],
       }),
       createCompNode('antd', 'Input', {
         value: createStateNode({

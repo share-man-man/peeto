@@ -52,7 +52,6 @@ export const parseObj = <VNodeType>({
   parseSchemaComp?: (
     p: ParseNodeBaseProp<SchemaCompTreeItem, VNodeType> & {
       props: AnyType;
-      children: AnyType;
     }
   ) => AnyType;
 }) => {
@@ -118,15 +117,6 @@ export const parseObj = <VNodeType>({
           ])
         ),
       };
-      // 解析children，children可能是单一节点，可能是数组节点
-      const children = !Array.isArray(obj.children)
-        ? deepRecursionParse({
-            cur: obj.children || null,
-            path: [...path, 'children'],
-          })
-        : (obj.children || []).map((c, cIndex) =>
-            deepRecursionParse({ cur: c, path: [...path, 'children', cIndex] })
-          );
 
       return parseSchemaComp
         ? parseSchemaComp({
@@ -134,7 +124,6 @@ export const parseObj = <VNodeType>({
             deepRecursionParse,
             path,
             props,
-            children,
           })
         : cur;
     }
@@ -152,9 +141,8 @@ export const generateNode = <VNodeType>({
   setState,
 }: GenerateNodePropType<VNodeType>) => {
   const { compTreePaths = [], compTree } = schemaRootObj;
-
   // 解析渲染组件
-  return parseObj({
+  const nodeObj = parseObj({
     node: compTree,
     nodePath: compTreePaths || [],
     parseStateNode: ({ curSchema }) =>
@@ -200,7 +188,7 @@ export const generateNode = <VNodeType>({
       `).call(funcBind);
       return res;
     },
-    parseSchemaComp: ({ curSchema: obj, props, children }) => {
+    parseSchemaComp: ({ curSchema: obj, props }) => {
       const lib = libListMap.get(obj.packageName);
       // 没有找到包
       if (!lib) {
@@ -223,13 +211,16 @@ export const generateNode = <VNodeType>({
         });
       }
 
-      return onCreateCompNode({
+      const compNode = onCreateCompNode({
         comp: matchComp,
         props,
-        children,
       });
+
+      return compNode;
     },
   });
+
+  return nodeObj;
 };
 
 /**

@@ -24,8 +24,4 @@ export interface SchemaCompTreeItem extends JSONObject {
    * 组件参数
    */
   props?: Record<string, JSONValue> | undefined;
-  /**
-   * 子组件树
-   */
-  children?: SchemaCompTreeItem | SchemaCompTreeItem[] | undefined;
 }
