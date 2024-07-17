@@ -9,7 +9,7 @@ export const isAnonymousFunctionNode = (
   return obj?.type === NodeType.ANONYMOUSFUNCTION;
 };
 
-export const getSetStateName = ({
+export const getSetStateFuncName = ({
   stateName,
 }: {
   stateName: SchemaStateItem['name'];

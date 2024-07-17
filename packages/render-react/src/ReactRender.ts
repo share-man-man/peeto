@@ -37,7 +37,6 @@ const ReactRender = (props: ReactRenderProps) => {
     return onCreateCompNode({
       comp: props?.loadingRender || defaultLoading,
       props: undefined,
-      children: undefined,
     });
   }
 
@@ -51,7 +50,6 @@ const ReactRender = (props: ReactRenderProps) => {
       noMatchCompRender: props.noMatchCompRender || defaultNoMatchCompRender,
       noMatchLibRender: props.noMatchLibRender || defaultNoMatchLibRender,
     },
-    children: undefined,
   });
 
   return res;

@@ -1,10 +1,11 @@
 import { isBasicNode, isSchemaCompTree } from '../component';
 import { SchemaCompTreeItem, SchemaCompTreePath } from '../component/type';
-import { getSetStateName, isAnonymousFunctionNode } from '../event';
+import { SchemaEffectItem } from '../effect/type';
+import { getSetStateFuncName, isAnonymousFunctionNode } from '../event';
 import { AnonymousFunctionNode } from '../event/type';
 import { LibListMapType, LibListItem } from '../lib/type';
 import { isStateNode } from '../state';
-import { StateNodeType } from '../state/type';
+import { StateGetSetType, StateNodeType } from '../state/type';
 import { AnyType, JSONValue } from '../type';
 import {
   DeepRecursionParseType,
@@ -20,6 +21,48 @@ export enum NodeType {
   REF = 'ref',
   ANONYMOUSFUNCTION = 'anonymous-function',
 }
+
+export const generateFields = ({
+  dependences,
+  effectStates,
+  getState,
+  setState,
+}: StateGetSetType &
+  Pick<SchemaEffectItem, 'effectStates' | 'dependences'>) => {
+  const bindObj: Record<string, AnyType> = {};
+  // 安全考虑，暴露特定的函数、状态
+  dependences.forEach((name) => {
+    bindObj[name] = getState({ stateName: name });
+  });
+  const setStateFuncList = effectStates.map((name) => {
+    const funcName = getSetStateFuncName({ stateName: name });
+    const run = (v: AnyType) => {
+      setState({
+        fieldList: [
+          {
+            name,
+            value: v,
+          },
+        ],
+      });
+    };
+    return { funcName, run };
+  });
+  setStateFuncList.forEach(({ funcName, run }) => {
+    bindObj[funcName] = run;
+  });
+
+  return {
+    str: `
+    // 状态
+    ${dependences.map((name) => `const ${name} = this.${name}`)}
+    // 修改状态函数
+    ${setStateFuncList
+      .map(({ funcName }) => `const ${funcName} = this.${funcName};`)
+      .join('\n')}`,
+    bindObj,
+  };
+};
 
 /**
  * 判断路径是否相等
@@ -146,42 +189,31 @@ export const generateNode = <VNodeType>({
     node: compTree,
     nodePath: compTreePaths || [],
     parseStateNode: ({ curSchema }) =>
-      getState?.({ stateName: [curSchema.stateName] })?.[0],
+      getState?.({ stateName: curSchema.stateName }),
     parseAnonymousFunctionNode: ({ curSchema }) => {
-      const { params = [], body, effects = [] } = curSchema;
+      const { params = [], body, effectStates = [] } = curSchema;
+      const { str, bindObj } = generateFields({
+        effectStates,
+        setState,
+        getState,
+        dependences: [],
+      });
+
       const funcBind: /* typeof ext & */ {
         states?: Record<string, AnyType>;
       } & {
         [k in string]: (v: AnyType) => void;
       } = {
         // ...ext,
+        ...bindObj,
         // states: Object.fromEntries(
         //   obj.states?.map((s) => [s, getState?.([s])]) || []
         // ),
       };
-      // 安全考虑，暴露特定的函数、变量
-      const effectEventList = effects.map((name) => {
-        const setStateName = getSetStateName({ stateName: name });
-        const run = (v: AnyType) => {
-          setState({
-            fieldList: [
-              {
-                name,
-                value: v,
-              },
-            ],
-          });
-        };
-        return { setStateName, run };
-      });
-      effectEventList.forEach(({ setStateName, run }) => {
-        funcBind[setStateName] = run;
-      });
+
       // TODO 箭头函数兼容性待验证
       const res = new Function(`
-        ${effectEventList.map(
-          ({ setStateName }) => `const ${setStateName} = this.${setStateName}`
-        )}
+        ${str}
         return (${params.join(',')})=>{
           ${body}
         }

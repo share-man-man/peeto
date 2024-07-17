@@ -50,6 +50,14 @@ export const state = createSchemaConfig({
         initialValue: 0,
       },
     ],
+    effects: [
+      {
+        dependences: ['title'],
+        effectStates: ['titleLength'],
+        body: `
+        setTitleLength(title.length)`,
+      },
+    ],
     compTree: [
       createCompNode('antd', 'Row', {
         children: [
@@ -86,7 +94,7 @@ export const state = createSchemaConfig({
         onChange: createAnonymousFunction({
           params: ['v'],
           body: `setTitle(v.target.value)`,
-          effects: ['title'],
+          effectStates: ['title'],
         }),
       }),
     ],

@@ -1,5 +1,5 @@
 import { NodeType } from '../root';
-import type { /* JSExpressionType, */ JSONValue } from '../type';
+import type { /* JSExpressionType, */ AnyType, JSONValue } from '../type';
 
 // export interface StateJSExpressionType extends JSExpressionType {
 //   packages: string[];
@@ -29,4 +29,22 @@ export interface SchemaStateItem {
 export interface StateNodeType {
   type: NodeType.STATE;
   stateName: string;
+}
+
+/**
+ * 操作state
+ */
+export interface StateGetSetType {
+  /**
+   * 获取状态
+   * @param P
+   * @returns
+   */
+  getState: (P: { stateName: SchemaStateItem['name'] }) => AnyType;
+  /**
+   * 设置状态
+   * @param fieldList 状态列表
+   * @returns
+   */
+  setState: (p: { fieldList: { name: string; value: AnyType }[] }) => void;
 }

@@ -1,9 +1,10 @@
 import { SchemaCompTreeItem, SchemaCompTreePath } from '../component/type';
 import { SchemaEventItem } from '../event/type';
-import { SchemaStateItem } from '../state/type';
+import { SchemaStateItem, StateGetSetType } from '../state/type';
 import { SchemaRefItem } from '../ref/type';
 import { AnyType, JSONValue } from '../type';
 import { LibListMapType } from '../lib/type';
+import { SchemaEffectItem } from '../effect/type';
 
 /**
  * schema根对象
@@ -29,6 +30,10 @@ export interface SchemaRootObj {
    * 需要特殊处理的节点路径
    */
   compTreePaths?: SchemaCompTreePath[];
+  /**
+   * 状态副作用
+   */
+  effects?: SchemaEffectItem[];
   // /**
   //  * 组件-lib包映射
   //  * 一对多
@@ -87,23 +92,12 @@ export interface SchemaRootObj {
 /**
  * 生成节点
  */
-export interface GenerateNodePropType<VNodeType> {
+export interface GenerateNodePropType<VNodeType>
+  extends Pick<StateGetSetType, 'getState' | 'setState'> {
   /**
    * schema对象
    */
   schemaRootObj: SchemaRootObj;
-  /**
-   * 获取状态
-   * @param P
-   * @returns
-   */
-  getState: (P: { stateName: SchemaStateItem['name'][] }) => AnyType[];
-  /**
-   * 设置状态
-   * @param fieldList 状态列表
-   * @returns
-   */
-  setState: (p: { fieldList: { name: string; value: AnyType }[] }) => void;
   /**
    * 创建组件节点
    * @param comp 组件渲染函数

@@ -4,6 +4,8 @@ import {
   generateNode,
   PickRequired,
   LibListMapType,
+  GenerateNodePropType,
+  generateFields,
 } from '@peeto/core';
 import {
   useEffect,
@@ -13,12 +15,13 @@ import {
   useRef,
   useMemo,
   FC,
+  useCallback,
 } from 'react';
 import { ReactRenderProps } from '../../type';
 
 // 避免lint检测到条件判断里的useState、useEffect等
 const createState = useState;
-// const createEffect = useEffect;
+const createEffect = useEffect;
 
 export type SchemaCompProps = {
   libListMap: LibListMapType;
@@ -35,8 +38,20 @@ const Index: FC<SchemaCompProps> = ({
   noMatchCompRender,
   noMatchLibRender,
 }) => {
+  const [renderTimes, setRenderTimes] = useState(1);
+
+  // 避免react多次渲染
+  const libListMapRef = useRef(libListMap);
+  libListMapRef.current = libListMap;
+  const onCreateCompNodeRef = useRef(onCreateCompNode);
+  onCreateCompNodeRef.current = onCreateCompNode;
+  const noMatchCompRenderRef = useRef(noMatchCompRender);
+  noMatchCompRenderRef.current = noMatchCompRender;
+  const noMatchLibRenderRef = useRef(noMatchLibRender);
+  noMatchLibRenderRef.current = noMatchLibRender;
+
   // 状态集合
-  const [stateMap, setStateMap] = useState<
+  const stateMapRef = useRef<
     Map<
       string,
       {
@@ -46,83 +61,80 @@ const Index: FC<SchemaCompProps> = ({
     >
   >(new Map());
 
-  // 避免react多次渲染
-  const onCreateCompNodeRef = useRef(onCreateCompNode);
-  onCreateCompNodeRef.current = onCreateCompNode;
-  const noMatchCompRenderRef = useRef(noMatchCompRender);
-  const noMatchLibRenderRef = useRef(noMatchLibRender);
-
   const schemaRootObj = getSchemaObjFromStr(schemaStr);
 
-  // 使用包自带的状态管理
+  // 使用自带的状态管理
   const schemaObjStates = schemaRootObj.states;
   schemaObjStates?.forEach((s) => {
-    const [stateValue, setStateValue] = createState(
-      // parseState({
-      //   initialValue: s.initialValue,
-      //   packageMap,
-      // })
-      s.initialValue
-    );
-    stateMap.set(s.name, {
+    const [stateValue, setStateValue] = createState(s.initialValue);
+    stateMapRef.current.set(s.name, {
       stateValue,
       setStateValue,
     });
   });
 
-  // // 使用自带的依赖管理函数
-  // schemaRootObj.effects?.forEach((e) => {
-  //   createEffect(
-  //     () => {
-  //       e.effectStates.forEach(({ name: effectName, value: funcBody }) => {
-  //         if (funcBody) {
-  //           stateMap.get(effectName)?.setStateValue(
-  //             new Function(funcBody).call(
-  //               // 将dependences的state绑定到this里去
-  //               Object.fromEntries(
-  //                 e.dependences.map((depName) => [
-  //                   depName,
-  //                   stateMap.get(depName)?.stateValue,
-  //                 ])
-  //               )
-  //             )
-  //           );
-  //         }
-  //       });
-  //       setStateMap(new Map(stateMap));
-  //     },
-  //     e.dependences.map((d) => stateMap.get(d)?.stateValue)
-  //   );
-  // });
+  const getState = useCallback<
+    GenerateNodePropType<ReturnType<typeof onCreateCompNode>>['getState']
+  >(({ stateName }) => {
+    return stateMapRef.current.get(stateName)?.stateValue;
+  }, []);
+  const getStateRef = useRef(getState);
+  getStateRef.current = getState;
+
+  const setState = useCallback<
+    GenerateNodePropType<ReturnType<typeof onCreateCompNode>>['setState']
+  >(
+    ({ fieldList = [] }) => {
+      fieldList.forEach(({ name, value }) => {
+        stateMapRef.current.get(name)?.setStateValue(value);
+      });
+      // state改变后，通知react重新渲染state
+      setRenderTimes(renderTimes + 1);
+    },
+    [renderTimes]
+  );
+  const setStateRef = useRef(setState);
+  setStateRef.current = setState;
+
+  // 使用自带的依赖管理函数
+  schemaRootObj.effects?.forEach(({ effectStates, body, dependences }) => {
+    createEffect(
+      () => {
+        const { str, bindObj } = generateFields({
+          effectStates,
+          setState: setStateRef.current,
+          getState: getStateRef.current,
+          dependences,
+        });
+
+        new Function(`
+          ${str}
+          ${body}
+          `).call({
+          ...bindObj,
+        });
+      },
+      dependences.map((d) => stateMapRef.current.get(d)?.stateValue)
+    );
+  });
 
   const dom = useMemo(() => {
+    if (!renderTimes) {
+      return null;
+    }
     const obj = getSchemaObjFromStr(schemaStr);
     const res = generateNode({
       schemaRootObj: obj,
-      getState: ({ stateName }) => {
-        return stateName.map((name) => stateMap.get(name)?.stateValue);
-      },
-      setState({ fieldList = [] }) {
-        // 只有在states里声明的状态才会纳入管理
-        const changeList = fieldList.filter((l) =>
-          Array(stateMap.keys()).some((s) => l.name === s.next().value)
-        );
-        changeList.forEach(({ name, value }) => {
-          stateMap.get(name)?.setStateValue(value);
-        });
-        // state改变后，通知react重新渲染state
-        setStateMap(new Map(stateMap));
-      },
+      getState: getStateRef.current,
+      setState: setStateRef.current,
       onCreateCompNode: onCreateCompNodeRef.current,
-      libListMap,
+      libListMap: libListMapRef.current,
       noMatchCompRender: noMatchCompRenderRef.current,
       noMatchLibRender: noMatchLibRenderRef.current,
     });
 
-    // console.log(res);
-
     return res;
-  }, [libListMap, schemaStr, stateMap]);
+  }, [renderTimes, schemaStr]);
 
   const onNodeChangeRef = useRef(onNodeChange);
   onNodeChangeRef.current = onNodeChange;

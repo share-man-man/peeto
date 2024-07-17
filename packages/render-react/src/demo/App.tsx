@@ -2,21 +2,21 @@ import ReactRender from '../ReactRender';
 
 import { useEffect, useState } from 'react';
 
-import { Radio, Row, Typography } from 'antd';
+import { Button, message, Radio, Row, Typography } from 'antd';
 
 import {
   basic,
   state,
   anonymousFunction,
 } from '../../../../demo-schema/react/basic';
-import { AnyType, parseObj, SchemaRootObj } from '@peeto/core';
-import { getSetStateName } from '../../../core/src/event';
+import { AnyType, NodeType, parseObj, SchemaRootObj } from '@peeto/core';
+import { getSetStateFuncName } from '../../../core/src/event';
+import SourceCode from './SourceCode';
 
 const funcName = '_getPeetoValue';
-const getValueStr = (v: AnyType): AnyType => {
-  return (
-    v?.[funcName]?.() ||
-    ([
+const getPropStr = (v: AnyType): AnyType => {
+  if (!v?.[funcName]) {
+    return [
       '[object String]',
       // '[object Number]',
       // '[object Boolean]',
@@ -24,11 +24,47 @@ const getValueStr = (v: AnyType): AnyType => {
       null,
     ].includes(Object.prototype.toString.call(v))
       ? `"${v}"`
-      : v)
-  );
+      : `{${v}}`;
+  }
+  if (
+    [
+      NodeType.REF,
+      NodeType.STATE,
+      NodeType.ANONYMOUSFUNCTION,
+      NodeType.EVENT,
+    ].includes(v.type)
+  ) {
+    return `{${v?.[funcName]?.()}}`;
+  }
+  return v?.[funcName]?.();
 };
 const getChildStr = (v: AnyType): AnyType => {
-  return Array.isArray(v) ? v.map((i) => getValueStr(i)).join('\n') : v;
+  if (Array.isArray(v)) {
+    return v.map((i) => getChildStr(i)).join('\n');
+  }
+
+  if (!v?.[funcName]) {
+    return [
+      '[object String]',
+      // '[object Number]',
+      // '[object Boolean]',
+      // '[object Undefined]',
+      null,
+    ].includes(Object.prototype.toString.call(v))
+      ? `${v}`
+      : `{${v}}`;
+  }
+  if (
+    [
+      NodeType.REF,
+      NodeType.STATE,
+      NodeType.ANONYMOUSFUNCTION,
+      NodeType.EVENT,
+    ].includes(v.type)
+  ) {
+    return `{${v?.[funcName]?.()}}`;
+  }
+  return v?.[funcName]?.();
 };
 
 const toReactStr = (str: string) => {
@@ -36,6 +72,7 @@ const toReactStr = (str: string) => {
     states = [],
     compTree = [],
     compTreePaths = [],
+    effects = [],
   } = JSON.parse(str || '{}') as SchemaRootObj;
 
   const libList: { [key: string]: Set<string> } = {};
@@ -45,11 +82,13 @@ const toReactStr = (str: string) => {
     nodePath: compTreePaths || [],
     parseStateNode: ({ curSchema }) => {
       return {
+        type: NodeType.STATE,
         [funcName]: () => curSchema.stateName,
       };
     },
     parseAnonymousFunctionNode: ({ curSchema }) => {
       return {
+        type: NodeType.ANONYMOUSFUNCTION,
         [funcName]: () => `(${(curSchema.params || []).join(',')})=>{
         ${curSchema.body}
       }`,
@@ -67,8 +106,9 @@ const toReactStr = (str: string) => {
       const { children, ...newProps } = props || {};
 
       return {
+        type: NodeType.COMPONENT,
         [funcName]: () => `<${componentName}\n${Object.keys(newProps)
-          .map((k) => `${k}={${getValueStr(newProps[k])}}`)
+          .map((k) => `${k}=${getPropStr(newProps[k])}`)
           .join('\n')}${
           !children
             ? ` />`
@@ -92,9 +132,17 @@ ${getChildStr(children)}
   const stateStr = states
     ?.map(
       (s) =>
-        `const [${s.name},${getSetStateName({
+        `const [${s.name},${getSetStateFuncName({
           stateName: s.name,
         })}] = useState(${JSON.stringify(s.initialValue)});`
+    )
+    .join('\n');
+
+  const effectsStr = effects
+    .map(
+      ({ dependences, body }) => `useEffect(()=>{
+    ${body}
+    },[${dependences.join(',')}]);`
     )
     .join('\n');
 
@@ -110,6 +158,9 @@ const Index = () => {
   // ref
 
   // 事件
+
+  // 副作用
+  ${effectsStr}
 
   // 组件树
   return (
@@ -242,8 +293,22 @@ function App() {
           );
         }}
       />
-      <Typography.Title level={2}>出码</Typography.Title>
+      <Typography.Title level={2}>
+        出码
+        <Button
+          style={{ marginLeft: 20 }}
+          size="small"
+          onClick={() => {
+            navigator.clipboard.writeText(toReactStr(str));
+            message.success('复制成功，请粘贴到SourceCode.tsx');
+          }}
+        >
+          复制
+        </Button>
+      </Typography.Title>
       <pre>{str && toReactStr(str)}</pre>
+      <Typography.Title level={2}>出码渲染验证</Typography.Title>
+      <SourceCode />
     </div>
   );
 }
