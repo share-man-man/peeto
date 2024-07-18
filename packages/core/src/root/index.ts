@@ -135,13 +135,21 @@ export const parseObj = <VNodeType>({
     }
     // 匿名函数节点
     if (isAnonymousFunctionNode(cur)) {
+      const parseCur = cur as AnonymousFunctionNode;
+      if (cur.isRenderFunc) {
+        cur.getTreeNode = () =>
+          deepRecursionParse({
+            cur: parseCur.compTree,
+            path: [...path, 'compTree'],
+          });
+      }
       return parseAnonymousFunctionNode
         ? parseAnonymousFunctionNode({
             curSchema: cur,
             deepRecursionParse,
             path,
           })
-        : cur;
+        : parseCur;
     }
     // 组件节点
     if (isSchemaCompTree(cur)) {
@@ -191,7 +199,14 @@ export const generateNode = <VNodeType>({
     parseStateNode: ({ curSchema }) =>
       getState?.({ stateName: curSchema.stateName }),
     parseAnonymousFunctionNode: ({ curSchema }) => {
-      const { params = [], body, effectStates = [] } = curSchema;
+      const {
+        params = [],
+        body = '',
+        effectStates = [],
+        IIFE = false,
+        isRenderFunc = false,
+        getTreeNode = () => {},
+      } = curSchema;
       const { str, bindObj } = generateFields({
         effectStates,
         setState,
@@ -199,25 +214,31 @@ export const generateNode = <VNodeType>({
         dependences: [],
       });
 
-      const funcBind: /* typeof ext & */ {
-        states?: Record<string, AnyType>;
-      } & {
-        [k in string]: (v: AnyType) => void;
+      const funcBind: {
+        [k in string]: AnyType;
       } = {
-        // ...ext,
         ...bindObj,
-        // states: Object.fromEntries(
-        //   obj.states?.map((s) => [s, getState?.([s])]) || []
-        // ),
       };
+
+      let parseBody = body;
+      // TODO 提取出私有方法
+      const funcKey = '__peeto_getTreeNode__';
+      if (isRenderFunc) {
+        parseBody = `return this.${funcKey}()`;
+        funcBind[funcKey] = getTreeNode;
+      }
 
       // TODO 箭头函数兼容性待验证
       const res = new Function(`
         ${str}
         return (${params.join(',')})=>{
-          ${body}
+          ${parseBody}
         }
-      `).call(funcBind);
+      `).call({ ...funcBind });
+
+      if (IIFE) {
+        return res();
+      }
       return res;
     },
     parseSchemaComp: ({ curSchema: obj, props }) => {
@@ -274,6 +295,10 @@ export const loadLibList = async (
     nodePath: obj.compTreePaths || [],
     parseSchemaComp: ({ curSchema }) => {
       nameList.push(curSchema.packageName);
+    },
+    parseAnonymousFunctionNode: ({ curSchema }) => {
+      // 需要执行该函数，以递归遍历渲染函数的组件树
+      curSchema.getTreeNode?.();
     },
   });
   // 后面可以从stat、event、ref提取

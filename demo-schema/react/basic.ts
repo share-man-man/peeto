@@ -1,3 +1,4 @@
+import { AnyType } from '@peeto/core';
 import {
   createCompNode,
   createAnonymousFunction,
@@ -101,25 +102,110 @@ export const state = createSchemaConfig({
   },
 });
 
+export const table = createSchemaConfig({
+  desc: '表格-表达式、渲染函数',
+  schema: {
+    compTree: [
+      createCompNode('@ant-design/pro-components', 'ProTable', {
+        columns: [
+          {
+            title: '序号',
+            dataIndex: 'index',
+            valueType: 'indexBorder',
+            width: 48,
+          },
+          {
+            title: '标题',
+            dataIndex: 'labels',
+            copyable: true,
+            ellipsis: true,
+            tip: '标题过长会自动收缩',
+            formItemProps: {
+              rules: [
+                {
+                  required: true,
+                  message: '此项为必填项',
+                },
+              ],
+            },
+          },
+          {
+            disable: true,
+            title: '状态',
+            dataIndex: 'state',
+            filters: true,
+            onFilter: true,
+            ellipsis: true,
+            valueType: 'select',
+            valueEnum: {
+              all: {
+                text: createAnonymousFunction({
+                  body: 'return "表达式-".repeat(50)',
+                  IIFE: true,
+                }),
+              },
+              open: {
+                text: '未解决',
+                status: 'Error',
+              },
+              closed: {
+                text: '已解决',
+                status: 'Success',
+                disabled: true,
+              },
+              processing: {
+                text: '解决中',
+                status: 'Processing',
+              },
+            },
+          },
+          {
+            disable: true,
+            title: '标签',
+            dataIndex: 'labels',
+            search: false,
+            renderFormItem: createAnonymousFunction({
+              params: ['_', 'config'],
+              body: 'return config.defaultRender(_)',
+            }),
+            render: createAnonymousFunction({
+              params: ['_', 'record'],
+              body: '',
+              isRenderFunc: true,
+              compTree: [
+                createCompNode('antd', 'Space', {
+                  children: [
+                    createCompNode('antd', 'Tag', {
+                      color: 'red',
+                      // TODO 上下文引用；渲染函数立即执行，支持条件判断，循环遍历
+                      children: 'aaa',
+                    }),
+                  ],
+                }) as AnyType,
+              ],
+            }),
+          },
+        ],
+        dataSource: [
+          {
+            key: 111,
+            labels: 'aaa',
+            name: '小小',
+            state: 'open',
+          },
+          {
+            key: 222,
+            labels: 'bbb',
+            name: '大大',
+            state: 'all',
+          },
+        ],
+      }),
+    ],
+  },
+});
+
 // const testObj: SchemaRootObj = {
-//   states: [
-//     {
-//       desc: '状态依赖展示字符串',
-//       name: 'titleLengthDesc',
-//     },
-//   ],
-//   events: [
-//     {
-//       desc: 'title和titleLengthDesc的状态依赖',
-//       dependences: ['title'],
-//       effectStates: [
-//         {
-//           name: 'titleLengthDesc',
-//           value: 'return `字符串长度为：${this.title.length || 0}`',
-//         },
-//       ],
-//     },
-//   ],
 //   compTree: [
 //     {
 //       id: id(),
@@ -128,64 +214,6 @@ export const state = createSchemaConfig({
 //       props: {
 //         columns: [
 //           {
-//             dataIndex: 'index',
-//             valueType: 'indexBorder',
-//             width: 48,
-//           },
-//           {
-//             title: '标题',
-//             dataIndex: 'labels',
-//             copyable: true,
-//             ellipsis: true,
-//             tip: '标题过长会自动收缩',
-//             formItemProps: {
-//               rules: [
-//                 {
-//                   required: true,
-//                   message: '此项为必填项',
-//                 },
-//               ],
-//             },
-//           },
-//           {
-//             disable: true,
-//             title: '状态',
-//             dataIndex: 'state',
-//             filters: true,
-//             onFilter: true,
-//             ellipsis: true,
-//             valueType: 'select',
-//             valueEnum: {
-//               all: {
-//                 // TODO 结局表达式的问题
-//                 // {type:'JSExpresson',vaue:'"超长".repeat(50)'}
-//                 text: '默认超长文本',
-//               },
-//               open: {
-//                 text: '未解决',
-//                 status: 'Error',
-//               },
-//               closed: {
-//                 text: '已解决',
-//                 status: 'Success',
-//                 disabled: true,
-//               },
-//               processing: {
-//                 text: '解决中',
-//                 status: 'Processing',
-//               },
-//             },
-//           },
-//           {
-//             disable: true,
-//             title: '标签',
-//             dataIndex: 'labels',
-//             search: false,
-//             renderFormItem: {
-//               type: 'JSFunction',
-//               params: ['_', 'config'],
-//               value: `return config.defaultRender(_)`,
-//             },
 //             render: {
 //               type: 'JSFunction',
 //               params: ['text', 'record'],

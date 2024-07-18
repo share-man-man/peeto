@@ -88,12 +88,15 @@ export const createSchemaConfig = ({
       ])
     );
   };
+
+  const compTree = deep({ cur: schema.compTree, path: [] });
+
   return {
     desc,
     schema: {
       ...schema,
       compTreePaths,
-      compTree: deep({ cur: schema.compTree, path: [] }),
+      compTree,
     },
   };
 };

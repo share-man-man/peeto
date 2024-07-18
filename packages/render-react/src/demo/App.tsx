@@ -8,6 +8,7 @@ import {
   basic,
   state,
   anonymousFunction,
+  table,
 } from '../../../../demo-schema/react/basic';
 import { AnyType, NodeType, parseObj, SchemaRootObj } from '@peeto/core';
 import { getSetStateFuncName } from '../../../core/src/event';
@@ -194,10 +195,15 @@ const enumOp: {
     label: state.desc,
     str: JSON.stringify(state.schema),
   },
+  {
+    key: 'table',
+    label: table.desc,
+    str: JSON.stringify(table.schema),
+  },
 ];
 
 function App() {
-  const [key, setKey] = useState('state');
+  const [key, setKey] = useState('table');
   const [str, setStr] = useState('');
 
   useEffect(() => {
