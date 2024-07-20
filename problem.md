@@ -77,6 +77,7 @@
 ### 编辑器校验（schema 的校验函数）
 
 - states、events、refs 里 name 都不能重复，且都必须是 camelCase 风格
+- 匿名函数的参数不能和父级匿名函数参数、states 等重复
 - 鉴别循环依赖
 - compTreePaths 的路径都必须存在，且不能重复
 - 树结构改变时，compTreePaths 也要跟着改变
