@@ -23,18 +23,25 @@ export enum NodeType {
 }
 
 export const generateFields = ({
+  params: paramsNameList = [],
+  paramsValueList = [],
   dependences,
-  effectStates,
   getState,
+  effectStates,
   setState,
 }: StateGetSetType &
-  Pick<SchemaEffectItem, 'effectStates' | 'dependences'>) => {
-  const bindObj: Record<string, AnyType> = {};
+  Pick<SchemaEffectItem, 'effectStates' | 'dependences'> &
+  Pick<AnonymousFunctionNode, 'params'> & { paramsValueList?: AnyType[] }) => {
+  const fieldMap: Map<string, AnyType> = new Map();
+
   // 安全考虑，暴露特定的函数、状态
   dependences.forEach((name) => {
-    bindObj[name] = getState({ stateName: name });
+    fieldMap.set(name, getState({ stateName: name }));
   });
-  const setStateFuncList = effectStates.map((name) => {
+  paramsNameList.forEach((pName, index) => {
+    fieldMap.set(pName, paramsValueList[index]);
+  });
+  effectStates.forEach((name) => {
     const funcName = getSetStateFuncName({ stateName: name });
     const run = (v: AnyType) => {
       setState({
@@ -46,21 +53,20 @@ export const generateFields = ({
         ],
       });
     };
-    return { funcName, run };
-  });
-  setStateFuncList.forEach(({ funcName, run }) => {
-    bindObj[funcName] = run;
+    fieldMap.set(funcName, run);
   });
 
   return {
-    str: `
-    // 状态
-    ${dependences.map((name) => `const ${name} = this.${name}`)}
-    // 修改状态函数
-    ${setStateFuncList
-      .map(({ funcName }) => `const ${funcName} = this.${funcName};`)
-      .join('\n')}`,
-    bindObj,
+    // str: `
+    // // 状态
+    // ${dependences.map((name) => `const ${name} = this.${name}`)}
+    // // 修改状态函数
+    // ${setStateFuncList
+    //   .map(({ funcName }) => `const ${funcName} = this.${funcName};`)
+    //   .join('\n')}`,
+    // bindObj,
+    argNameList: Array.from(fieldMap.keys()),
+    argList: Array.from(fieldMap.keys()).map((k) => fieldMap.get(k)),
   };
 };
 
@@ -136,8 +142,8 @@ export const parseObj = <VNodeType>({
     // 匿名函数节点
     if (isAnonymousFunctionNode(cur)) {
       const parseCur = cur as AnonymousFunctionNode;
-      if (cur.isRenderFunc) {
-        cur.getTreeNode = () =>
+      if (parseCur.isCompTree) {
+        parseCur._getTreeNode = () =>
           deepRecursionParse({
             cur: parseCur.compTree,
             path: [...path, 'compTree'],
@@ -145,7 +151,7 @@ export const parseObj = <VNodeType>({
       }
       return parseAnonymousFunctionNode
         ? parseAnonymousFunctionNode({
-            curSchema: cur,
+            curSchema: parseCur,
             deepRecursionParse,
             path,
           })
@@ -204,42 +210,62 @@ export const generateNode = <VNodeType>({
         body = '',
         effectStates = [],
         IIFE = false,
-        isRenderFunc = false,
-        getTreeNode = () => {},
+        isCompTree = false,
+        _getTreeNode = () => {},
+        dependences = [],
       } = curSchema;
-      const { str, bindObj } = generateFields({
-        effectStates,
-        setState,
-        getState,
-        dependences: [],
-      });
 
-      const funcBind: {
-        [k in string]: AnyType;
-      } = {
-        ...bindObj,
-      };
+      // console.log(str);
 
-      let parseBody = body;
-      // TODO 提取出私有方法
-      const funcKey = '__peeto_getTreeNode__';
-      if (isRenderFunc) {
-        parseBody = `return this.${funcKey}()`;
-        funcBind[funcKey] = getTreeNode;
-      }
-
-      // TODO 箭头函数兼容性待验证
-      const res = new Function(`
-        ${str}
-        return (${params.join(',')})=>{
-          ${parseBody}
+      const res = (...paramsValueList: AnyType[]) => {
+        // 立即执行函数
+        let parseBody = body;
+        if (IIFE) {
+          parseBody = `return ${body}`;
         }
-      `).call({ ...funcBind });
+
+        // 表达式绑定this
+        const thisArg: Record<string, AnyType> = {};
+
+        // 融合函数参数
+        const { argList, argNameList } = generateFields({
+          params,
+          paramsValueList,
+          dependences,
+          getState,
+          effectStates,
+          setState,
+        });
+
+        // // TODO 提取出私有属性
+        // const ctxKey = '__peeto_ctx_';
+
+        // TODO 提取出私有方法
+        const funcKey = '__peeto_getTreeNode__';
+        if (isCompTree) {
+          parseBody = `return this.${funcKey}()`;
+          thisArg[funcKey] = _getTreeNode;
+        }
+
+        return new Function(...argNameList, parseBody).call(
+          thisArg,
+          ...argList
+        );
+      };
 
       if (IIFE) {
         return res();
       }
+
       return res;
+
+      // TODO 箭头函数兼容性待验证
+      // const res = new Function(`
+      //   ${str}
+      //   return (${params.join(',')})=>{
+      //     ${parseBody}
+      //   }
+      // `).call({ ...funcBind });
     },
     parseSchemaComp: ({ curSchema: obj, props }) => {
       const lib = libListMap.get(obj.packageName);
@@ -298,7 +324,7 @@ export const loadLibList = async (
     },
     parseAnonymousFunctionNode: ({ curSchema }) => {
       // 需要执行该函数，以递归遍历渲染函数的组件树
-      curSchema.getTreeNode?.();
+      curSchema._getTreeNode?.();
     },
   });
   // 后面可以从stat、event、ref提取

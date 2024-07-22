@@ -100,19 +100,14 @@ const Index: FC<SchemaCompProps> = ({
   schemaRootObj.effects?.forEach(({ effectStates, body, dependences }) => {
     createEffect(
       () => {
-        const { str, bindObj } = generateFields({
+        const { argList, argNameList } = generateFields({
           effectStates,
           setState: setStateRef.current,
           getState: getStateRef.current,
           dependences,
         });
 
-        new Function(`
-          ${str}
-          ${body}
-          `).call({
-          ...bindObj,
-        });
+        new Function(...argNameList, body).call({}, ...argList);
       },
       dependences.map((d) => stateMapRef.current.get(d)?.stateValue)
     );

@@ -65,7 +65,21 @@ export const state = createSchemaConfig({
           createCompNode('antd', 'Space', {
             children: [
               createCompNode('antd', 'Typography.Text', {
-                children: '字符长度：',
+                children: 'title值：',
+              }),
+              createCompNode('antd', 'Typography.Text', {
+                children: createStateNode({ stateName: 'title' }),
+              }),
+            ],
+          }),
+        ],
+      }),
+      createCompNode('antd', 'Row', {
+        children: [
+          createCompNode('antd', 'Space', {
+            children: [
+              createCompNode('antd', 'Typography.Text', {
+                children: 'titleLength(effect监听改变)：',
               }),
               createCompNode('antd', 'Typography.Text', {
                 children: createStateNode({ stateName: 'titleLength' }),
@@ -79,10 +93,14 @@ export const state = createSchemaConfig({
           createCompNode('antd', 'Space', {
             children: [
               createCompNode('antd', 'Typography.Text', {
-                children: '输入的值：',
+                children: 'title长度(表达式)：',
               }),
               createCompNode('antd', 'Typography.Text', {
-                children: createStateNode({ stateName: 'title' }),
+                children: createAnonymousFunction({
+                  IIFE: true,
+                  body: '(title || "").length',
+                  dependences: ['title'],
+                }),
               }),
             ],
           }),
@@ -140,7 +158,7 @@ export const table = createSchemaConfig({
             valueEnum: {
               all: {
                 text: createAnonymousFunction({
-                  body: 'return "表达式-".repeat(50)',
+                  body: '"表达式-".repeat(50)',
                   IIFE: true,
                 }),
               },
@@ -161,8 +179,18 @@ export const table = createSchemaConfig({
           },
           {
             disable: true,
-            title: '标签',
-            dataIndex: 'labels',
+            title: '渲染函数-字段',
+            dataIndex: '_renders',
+            search: false,
+            render: createAnonymousFunction({
+              params: ['_', 'record'],
+              body: 'return record.state',
+            }),
+          },
+          {
+            disable: true,
+            title: '渲染函数-组件树',
+            dataIndex: '_renders',
             search: false,
             renderFormItem: createAnonymousFunction({
               params: ['_', 'config'],
@@ -171,20 +199,53 @@ export const table = createSchemaConfig({
             render: createAnonymousFunction({
               params: ['_', 'record'],
               body: '',
-              isRenderFunc: true,
+              isCompTree: true,
               compTree: [
                 createCompNode('antd', 'Space', {
                   children: [
                     createCompNode('antd', 'Tag', {
                       color: 'red',
                       // TODO 上下文引用；渲染函数立即执行，支持条件判断，循环遍历
-                      children: 'aaa',
+                      // children: '默认字段',
+                      children: createAnonymousFunction({
+                        body: 'this.ctx.record.labels',
+                        IIFE: true,
+                      }),
                     }),
                   ],
                 }) as AnyType,
               ],
             }),
           },
+          // {
+          //   disable: true,
+          //   title: '渲染函数-（字段+组件树）',
+          //   dataIndex: '_renders',
+          //   search: false,
+          //   renderFormItem: createAnonymousFunction({
+          //     params: ['_', 'config'],
+          //     body: 'return config.defaultRender(_)',
+          //   }),
+          //   render: createAnonymousFunction({
+          //     params: ['_', 'record'],
+          //     body: '',
+          //     isCompTree: true,
+          //     compTree: [
+          //       createCompNode('antd', 'Space', {
+          //         children: [
+          //           createCompNode('antd', 'Tag', {
+          //             color: 'red',
+          //             // TODO 上下文引用；渲染函数立即执行，支持条件判断，循环遍历
+          //             children: createAnonymousFunction({
+          //               body: 'return record.labels',
+          //               IIFE: true,
+          //             }),
+          //           }),
+          //         ],
+          //       }) as AnyType,
+          //     ],
+          //   }),
+          // },
         ],
         dataSource: [
           {
@@ -192,12 +253,14 @@ export const table = createSchemaConfig({
             labels: 'aaa',
             name: '小小',
             state: 'open',
+            tagList: ['11', '22'],
           },
           {
             key: 222,
             labels: 'bbb',
             name: '大大',
             state: 'all',
+            tagList: ['33', '44'],
           },
         ],
       }),
