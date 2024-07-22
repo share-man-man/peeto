@@ -72,7 +72,7 @@ const toReactStr = (str: string) => {
   const {
     states = [],
     compTree = [],
-    compTreePaths = [],
+    schemaNodePaths = [],
     effects = [],
   } = JSON.parse(str || '{}') as SchemaRootObj;
 
@@ -80,7 +80,7 @@ const toReactStr = (str: string) => {
 
   const treeObj = parseObj({
     node: compTree,
-    nodePath: compTreePaths || [],
+    nodePath: schemaNodePaths || [],
     parseStateNode: ({ curSchema }) => {
       return {
         type: NodeType.STATE,

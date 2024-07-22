@@ -1,4 +1,3 @@
-import { AnyType } from '@peeto/core';
 import {
   createCompNode,
   createAnonymousFunction,
@@ -134,10 +133,10 @@ export const table = createSchemaConfig({
           },
           {
             title: '标题',
-            dataIndex: 'labels',
+            dataIndex: 'title',
             copyable: true,
             ellipsis: true,
-            tip: '标题过长会自动收缩',
+            tooltip: '标题过长会自动收缩',
             formItemProps: {
               rules: [
                 {
@@ -179,18 +178,8 @@ export const table = createSchemaConfig({
           },
           {
             disable: true,
-            title: '渲染函数-字段',
-            dataIndex: '_renders',
-            search: false,
-            render: createAnonymousFunction({
-              params: ['_', 'record'],
-              body: 'return record.state',
-            }),
-          },
-          {
-            disable: true,
-            title: '渲染函数-组件树',
-            dataIndex: '_renders',
+            title: '标签',
+            dataIndex: 'labels',
             search: false,
             renderFormItem: createAnonymousFunction({
               params: ['_', 'config'],
@@ -198,29 +187,24 @@ export const table = createSchemaConfig({
             }),
             render: createAnonymousFunction({
               params: ['_', 'record'],
-              body: '',
               isCompTree: true,
               compTree: [
                 createCompNode('antd', 'Space', {
                   children: [
                     createCompNode('antd', 'Tag', {
-                      color: 'red',
-                      // TODO 上下文引用；渲染函数立即执行，支持条件判断，循环遍历
-                      // children: '默认字段',
-                      children: createAnonymousFunction({
-                        body: 'this.ctx.record.labels',
-                        IIFE: true,
-                      }),
+                      color: 'warning',
+                      key: '1',
+                      children: 'aaa',
                     }),
                   ],
-                }) as AnyType,
+                }),
               ],
             }),
           },
           // {
           //   disable: true,
-          //   title: '渲染函数-（字段+组件树）',
-          //   dataIndex: '_renders',
+          //   title: '渲染函数-组件树',
+          //   dataIndex: '_renders2',
           //   search: false,
           //   renderFormItem: createAnonymousFunction({
           //     params: ['_', 'config'],
@@ -235,9 +219,9 @@ export const table = createSchemaConfig({
           //         children: [
           //           createCompNode('antd', 'Tag', {
           //             color: 'red',
-          //             // TODO 上下文引用；渲染函数立即执行，支持条件判断，循环遍历
+          //             // TODO 支持条件判断，循环遍历
           //             children: createAnonymousFunction({
-          //               body: 'return record.labels',
+          //               body: 'record.labels',
           //               IIFE: true,
           //             }),
           //           }),
@@ -246,21 +230,249 @@ export const table = createSchemaConfig({
           //     ],
           //   }),
           // },
+          // {
+          //   disable: true,
+          //   title: '渲染函数-复杂组件树',
+          //   dataIndex: 'name',
+          //   search: false,
+          //   renderFormItem: createAnonymousFunction({
+          //     params: ['_', 'config'],
+          //     body: 'return config.defaultRender(_)',
+          //   }),
+          //   render: createAnonymousFunction({
+          //     params: ['text', 'record'],
+          //     body: '',
+          //     isCompTree: true,
+          //     compTree: [
+          //       createCompNode('antd', 'Card', {
+          //         title: createAnonymousFunction({
+          //           IIFE: true,
+          //           body: 'record.name',
+          //         }),
+          //         children: [
+          //           createCompNode('antd', 'Collapse', {
+          //             defaultActiveKey: ['1', '3'],
+          //             children: [
+          //               createCompNode('antd', 'Collapse.Panel', {
+          //                 key: 1,
+          //                 header: 'This is panel header 1',
+          //                 children: createAnonymousFunction({
+          //                   IIFE: true,
+          //                   body: 'record.labels',
+          //                 }),
+          //               }),
+          //               createCompNode('antd', 'Collapse.Panel', {
+          //                 key: 2,
+          //                 header: 'This is panel header 2',
+          //                 children: '222',
+          //               }),
+          //             ],
+          //           }),
+          //         ],
+          //       }) as AnyType,
+          //     ],
+          //   }),
+          // },
         ],
+        // actionRef={actionRef}
+        cardBordered: true,
+        editable: {
+          type: 'multiple',
+        },
+        columnsState: {
+          persistenceKey: 'pro-table-singe-demos',
+          persistenceType: 'localStorage',
+          defaultValue: {
+            option: { fixed: 'right', disable: true },
+          },
+          onChange: createAnonymousFunction({
+            params: ['value'],
+            body: 'console.log("value: ", value)',
+          }),
+        },
+        rowKey: 'id',
+        search: {
+          labelWidth: 'auto',
+        },
+        options: {
+          setting: {
+            listsHeight: 400,
+          },
+        },
+        // form={{
+        //   // 由于配置了 transform，提交的参数与定义的不同这里需要转化一下
+        //   syncToUrl: (values, type) => {
+        //     if (type === 'get') {
+        //       return {
+        //         ...values,
+        //         created_at: [values.startTime, values.endTime],
+        //       };
+        //     }
+        //     return values;
+        //   },
+        // }}
+        // pagination={{
+        //   pageSize: 5,
+        //   onChange: (page) => console.log(page),
+        // }}
+        dateFormatter: 'string',
+        headerTitle: '高级表格',
+        // toolBarRender={() => [
+        //   <Button
+        //     key="button"
+        //     icon={<PlusOutlined />}
+        //     onClick={() => {
+        //       actionRef.current?.reload();
+        //     }}
+        //     type="primary"
+        //   >
+        //     新建
+        //   </Button>,
+        //   <Dropdown
+        //     key="menu"
+        //     menu={{
+        //       items: [
+        //         {
+        //           label: '1st item',
+        //           key: '1',
+        //         },
+        //         {
+        //           label: '2nd item',
+        //           key: '2',
+        //         },
+        //         {
+        //           label: '3rd item',
+        //           key: '3',
+        //         },
+        //       ],
+        //     }}
+        //   >
+        //     <Button>
+        //       <EllipsisOutlined />
+        //     </Button>
+        //   </Dropdown>,
+        // ]}
         dataSource: [
           {
-            key: 111,
-            labels: 'aaa',
-            name: '小小',
-            state: 'open',
-            tagList: ['11', '22'],
+            id: 624748504,
+            number: 6689,
+            title: '🐛 [BUG]yarn install命令 antd2.4.5会报错',
+            labels: [
+              {
+                name: 'success',
+                color: 'success',
+              },
+              {
+                name: 'processing',
+                color: 'processing ',
+              },
+              {
+                name: 'error',
+                color: 'error ',
+              },
+              {
+                name: 'default',
+                color: 'default ',
+              },
+              {
+                name: 'warning ',
+                color: 'warning ',
+              },
+            ],
+            state: 'all',
+            locked: false,
+            comments: 1,
+            created_at: '2020-05-26T09:42:56Z',
+            updated_at: '2020-05-26T10:03:02Z',
+            closed_at: null,
+            author_association: 'NONE',
+            user: 'chenshuai2144',
+            avatar:
+              'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png',
           },
           {
-            key: 222,
-            labels: 'bbb',
-            name: '大大',
-            state: 'all',
-            tagList: ['33', '44'],
+            id: 624691229,
+            number: 6688,
+            title: '🐛 [BUG]无法创建工程npm create umi',
+            labels: [
+              {
+                name: 'bug',
+                color: 'error',
+              },
+            ],
+            state: 'open',
+            locked: false,
+            comments: 0,
+            created_at: '2020-05-26T08:19:22Z',
+            updated_at: '2020-05-26T08:19:22Z',
+            closed_at: null,
+            author_association: 'NONE',
+            user: 'chenshuai2144',
+            avatar:
+              'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png',
+          },
+          {
+            id: 624674790,
+            number: 6685,
+            title: '🧐 [问题] build 后还存在 es6 的代码（Umi@2.13.13）',
+            labels: [
+              {
+                name: 'question',
+                color: 'success',
+              },
+            ],
+            state: 'closed',
+            locked: false,
+            comments: 0,
+            created_at: '2020-05-26T07:54:25Z',
+            updated_at: '2020-05-26T07:54:25Z',
+            closed_at: null,
+            author_association: 'NONE',
+            user: 'chenshuai2144',
+            avatar:
+              'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png',
+          },
+          {
+            id: 624620220,
+            number: 6683,
+            title: '2.3.1版本如何在业务页面修改头部状态',
+            labels: [
+              {
+                name: 'question',
+                color: 'success',
+              },
+            ],
+            state: 'processing',
+            locked: false,
+            comments: 2,
+            created_at: '2020-05-26T05:58:24Z',
+            updated_at: '2020-05-26T07:17:39Z',
+            closed_at: null,
+            author_association: 'NONE',
+            user: 'chenshuai2144',
+            avatar:
+              'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png',
+          },
+          {
+            id: 624592471,
+            number: 6682,
+            title: 'hideChildrenInMenu设置后，子路由找不到了',
+            labels: [
+              {
+                name: 'bug',
+                color: 'error',
+              },
+            ],
+            state: 'open',
+            locked: false,
+            comments: 2,
+            created_at: '2020-05-26T04:25:59Z',
+            updated_at: '2020-05-26T08:00:51Z',
+            closed_at: null,
+            author_association: 'NONE',
+            user: 'chenshuai2144',
+            avatar:
+              'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png',
           },
         ],
       }),
@@ -292,53 +504,53 @@ export const table = createSchemaConfig({
 //                     },
 //                   },
 //                   children: [
-//                     {
-//                       id: id(),
-//                       packageName: 'antd',
-//                       componentName: 'Collapse',
-//                       props: {
-//                         defaultActiveKey: ['1', '3'],
-//                       },
-//                       children: [
-//                         {
-//                           id: id(),
-//                           packageName: 'antd',
-//                           componentName: 'Collapse.Panel',
-//                           props: {
-//                             key: 1,
-//                             header: 'This is panel header 1',
-//                           },
-//                           children: {
-//                             type: 'JSExpression',
-//                             value: 'this.scope?.record?.name',
-//                           },
-//                         },
-//                         {
-//                           id: id(),
-//                           packageName: 'antd',
-//                           componentName: 'Collapse.Panel',
-//                           props: {
-//                             key: 2,
-//                             header: 'This is panel header 2',
-//                           },
-//                           children: '222',
-//                         },
-//                         {
-//                           id: id(),
-//                           packageName: 'antd',
-//                           componentName: 'Collapse.Panel',
-//                           props: {
-//                             key: 3,
-//                             header: 'This is panel header 3',
-//                           },
-//                           children: {
-//                             type: 'JSExpression',
-//                             value: 'this.scope?.text',
-//                           },
-//                         },
-//                       ],
-//                     },
-//                   ],
+// {
+//   id: id(),
+//   packageName: 'antd',
+//   componentName: 'Collapse',
+//   props: {
+//     defaultActiveKey: ['1', '3'],
+//   },
+//   children: [
+//     {
+//       id: id(),
+//       packageName: 'antd',
+//       componentName: 'Collapse.Panel',
+//       props: {
+//         key: 1,
+//         header: 'This is panel header 1',
+//       },
+//       children: {
+//         type: 'JSExpression',
+//         value: 'this.scope?.record?.name',
+//       },
+//     },
+//     {
+//       id: id(),
+//       packageName: 'antd',
+//       componentName: 'Collapse.Panel',
+//       props: {
+//         key: 2,
+//         header: 'This is panel header 2',
+//       },
+//       children: '222',
+//     },
+//     {
+//       id: id(),
+//       packageName: 'antd',
+//       componentName: 'Collapse.Panel',
+//       props: {
+//         key: 3,
+//         header: 'This is panel header 3',
+//       },
+//       children: {
+//         type: 'JSExpression',
+//         value: 'this.scope?.text',
+//       },
+//     },
+//   ],
+// },
+// ],
 //                 },
 //               ],
 //             },

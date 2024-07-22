@@ -19,6 +19,29 @@
     const package = import('antd');
     ```
 
+### 解析 json-schema 时，如何准确判断对象是否为 schema 节点
+
+- 通过 schemaNodePaths 指定路径，再根据节点类型做相应的处理
+
+### 渲染函数的子组件，又嵌套渲染函数，如何获取外层函数的参数
+
+```jsx
+render(_,record){
+  return <Table columns={
+    [
+      {
+        id:123,
+        r:(){
+          return record.name
+        }
+      }
+    ]
+  } />
+}
+```
+
+- 解析 schema 时，透传 ctx 对象，见代码：packages/core/src/root/index.ts/generateNode/nodeObj/parseAnonymousFunctionNode/ctx
+
 ## react-render
 
 ### 解析 schema 后，返回的 dom，不能用 setState，否则 input 的输入框，不能输入中文，需要用 useMemo
@@ -79,8 +102,8 @@
 - states、events、refs 里 name 都不能重复，且都必须是 camelCase 风格
 - 匿名函数的参数不能和父级匿名函数参数、states 等重复
 - 鉴别循环依赖
-- compTreePaths 的路径都必须存在，且不能重复
-- 树结构改变时，compTreePaths 也要跟着改变
+- schemaNodePaths 的路径都必须存在，且不能重复
+- 树结构改变时，schemaNodePaths 也要跟着改变
 - JSFunction 里，函数渲染的 params 在生成作用域时，需要校验 params 是否和上级、states、events、refs 等重名
 - schema 里 id 不能重复
 

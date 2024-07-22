@@ -29,7 +29,7 @@ export interface SchemaRootObj {
   /**
    * 需要特殊处理的节点路径
    */
-  compTreePaths?: SchemaCompTreePath[];
+  schemaNodePaths?: SchemaCompTreePath[];
   /**
    * 状态副作用
    */
@@ -123,8 +123,10 @@ export interface GenerateNodePropType<VNodeType>
   noMatchLibRender: (p: { schema: SchemaCompTreeItem }) => VNodeType;
 }
 
+export type ContextType = Record<string, AnyType>;
+
 export interface DeepRecursionParseType<VNodeType = AnyType> {
-  (p: { cur: JSONValue; path: SchemaCompTreePath }):
+  (p: { cur: JSONValue; path: SchemaCompTreePath; ctx: ContextType }):
     | VNodeType
     | JSONValue
     | AnyType;
@@ -134,4 +136,5 @@ export interface ParseNodeBaseProp<SchemaNodeType, VNodeType> {
   curSchema: SchemaNodeType;
   deepRecursionParse: DeepRecursionParseType<VNodeType>;
   path: SchemaCompTreePath;
+  ctx: ContextType;
 }

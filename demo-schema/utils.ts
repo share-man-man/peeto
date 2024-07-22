@@ -5,13 +5,23 @@ import { isBasicNode } from '../packages/core/src/component';
 import { AnonymousFunctionNode } from '../packages/core/src/event/type';
 import { StateNodeType } from 'packages/core/src/state/type';
 
+class SchemaNode {
+  schema: Record<string, AnyType> = {};
+  constructor(s: SchemaNode['schema']) {
+    this.schema = s;
+  }
+  getSchema() {
+    return this.schema;
+  }
+}
+
 export const createCompNode = (
   packageName: string,
   componentName: string,
   props: Record<string, AnyType> = {}
-): (() => AnyType) => {
+) => {
   const selfId = id();
-  return () => ({
+  return new SchemaNode({
     type: NodeType.COMPONENT,
     packageName,
     componentName,
@@ -21,16 +31,18 @@ export const createCompNode = (
 };
 
 export const createAnonymousFunction = (
-  p: Omit<AnonymousFunctionNode, 'type'>
+  p: Omit<AnonymousFunctionNode, 'type' | 'compTree'> & {
+    compTree?: SchemaNode[];
+  }
 ) => {
-  return () => ({
+  return new SchemaNode({
     ...p,
     type: NodeType.ANONYMOUSFUNCTION,
   });
 };
 
 export const createStateNode = (p: Omit<StateNodeType, 'type'>) => {
-  return () => ({
+  return new SchemaNode({
     ...p,
     type: NodeType.STATE,
   });
@@ -41,11 +53,11 @@ export const createSchemaConfig = ({
   schema,
 }: {
   desc: string;
-  schema: Omit<SchemaRootObj, 'compTree' | 'compTreePaths'> & {
+  schema: Omit<SchemaRootObj, 'compTree' | 'schemaNodePaths'> & {
     compTree: AnyType;
   };
 }): { desc: string; schema: SchemaRootObj } => {
-  const compTreePaths: SchemaRootObj['compTreePaths'] = [];
+  const schemaNodePaths: SchemaRootObj['schemaNodePaths'] = [];
   const deep = ({
     cur,
     path = [],
@@ -53,9 +65,10 @@ export const createSchemaConfig = ({
     cur: AnyType;
     path: AnyType[];
   }): AnyType => {
-    if (cur instanceof Function) {
-      compTreePaths.push(path);
-      const res = cur() as Record<string, AnyType>;
+    // SchemaNode创建的对象，需要添加path
+    if (cur && Object.getPrototypeOf(cur) === SchemaNode.prototype) {
+      schemaNodePaths.push(path);
+      const res = (cur as SchemaNode).getSchema();
       return Object.fromEntries(
         Object.keys(res).map((k) => {
           return [
@@ -95,7 +108,7 @@ export const createSchemaConfig = ({
     desc,
     schema: {
       ...schema,
-      compTreePaths,
+      schemaNodePaths,
       compTree,
     },
   };

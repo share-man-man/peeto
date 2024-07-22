@@ -37,10 +37,4 @@ export interface AnonymousFunctionNode {
    * 渲染函数返回的组件树
    */
   compTree?: SchemaCompTreeItem | SchemaCompTreeItem[];
-  /**
-   * 调用获取渲染函数节点
-   * @private
-   * @returns
-   */
-  _getTreeNode?: <VNodeType>() => VNodeType;
 }
