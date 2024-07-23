@@ -13,7 +13,7 @@ export const isBasicNode = (obj: AnyType): boolean => {
     '[object Number]',
     '[object Boolean]',
     '[object Undefined]',
-    null,
+    '[object Null]',
   ].includes(Object.prototype.toString.call(obj));
 };
 
