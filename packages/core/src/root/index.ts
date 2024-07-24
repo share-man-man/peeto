@@ -1,17 +1,17 @@
 import { isBasicNode, isSchemaCompTree } from '../component';
-import { SchemaCompTreeItem, SchemaCompTreePath } from '../component/type';
+import { SchemaCompTreePath } from '../component/type';
 import { SchemaEffectItem } from '../effect/type';
 import { getSetStateFuncName, isAnonymousFunctionNode } from '../event';
 import { AnonymousFunctionNode } from '../event/type';
 import { LibListMapType, LibListItem } from '../lib/type';
 import { isStateNode } from '../state';
-import { StateGetSetType, StateNodeType } from '../state/type';
-import { AnyType, JSONValue } from '../type';
+import { StateGetSetType } from '../state/type';
+import { AnyType } from '../type';
 import {
   ContextType,
   DeepRecursionParseType,
   GenerateNodePropType,
-  ParseNodeBaseProp,
+  ParseObjOptionType,
   SchemaRootObj,
 } from './type';
 
@@ -99,19 +99,8 @@ export const parseObj = <VNodeType>({
   parseStateNode,
   parseAnonymousFunctionNode,
   parseSchemaComp,
-}: {
-  node: JSONValue;
-  nodePath: SchemaCompTreePath[];
-  parseStateNode?: (p: ParseNodeBaseProp<StateNodeType, VNodeType>) => AnyType;
-  parseAnonymousFunctionNode?: (
-    p: ParseNodeBaseProp<AnonymousFunctionNode, VNodeType>
-  ) => AnyType;
-  parseSchemaComp?: (
-    p: ParseNodeBaseProp<SchemaCompTreeItem, VNodeType> & {
-      props: AnyType;
-    }
-  ) => AnyType;
-}) => {
+  customDeep = false,
+}: ParseObjOptionType<VNodeType>) => {
   const deepRecursionParse: DeepRecursionParseType<VNodeType> = ({
     cur,
     path,
@@ -150,14 +139,26 @@ export const parseObj = <VNodeType>({
     }
     // 匿名函数节点
     if (isAnonymousFunctionNode(cur)) {
-      return parseAnonymousFunctionNode
-        ? parseAnonymousFunctionNode({
-            curSchema: cur,
-            deepRecursionParse,
-            path,
-            ctx,
-          })
-        : cur;
+      const newCur = cur;
+      // 自动递归便利渲染函数的组件树结构
+      if (!customDeep && cur?.isCompTree) {
+        newCur.compTree = deepRecursionParse({
+          cur: cur.compTree,
+          path: [...path, 'compTree'],
+          ctx,
+        });
+      }
+
+      if (!parseAnonymousFunctionNode) {
+        return newCur;
+      }
+
+      return parseAnonymousFunctionNode({
+        curSchema: newCur,
+        deepRecursionParse,
+        path,
+        ctx,
+      });
     }
     // 组件节点
     if (isSchemaCompTree(cur)) {
@@ -204,6 +205,7 @@ export const generateNode = <VNodeType>({
   const { schemaNodePaths = [], compTree } = schemaRootObj;
   // 解析渲染组件
   const nodeObj = parseObj({
+    customDeep: true,
     node: compTree,
     nodePath: schemaNodePaths || [],
     parseStateNode: ({ curSchema }) =>
@@ -321,21 +323,6 @@ export const loadLibList = async (
     nodePath: obj.schemaNodePaths || [],
     parseSchemaComp: ({ curSchema }) => {
       nameList.push(curSchema.packageName);
-    },
-    parseAnonymousFunctionNode: ({
-      curSchema,
-      deepRecursionParse,
-      path,
-      ctx,
-    }) => {
-      // 需要执行该函数，以递归遍历渲染函数的组件树
-      if (curSchema.isCompTree) {
-        return deepRecursionParse({
-          cur: curSchema.compTree,
-          path: [...path, 'compTree'],
-          ctx,
-        });
-      }
     },
   });
   // 后面可以从stat、event、ref提取

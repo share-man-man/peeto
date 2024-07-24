@@ -123,6 +123,7 @@ export const table = createSchemaConfig({
   desc: '表格-表达式、渲染函数',
   schema: {
     compTree: [
+      123,
       createCompNode('@ant-design/pro-components', 'ProTable', {
         columns: [
           {
@@ -275,6 +276,7 @@ export const table = createSchemaConfig({
           // },
         ],
         // actionRef={actionRef}
+
         cardBordered: true,
         editable: {
           type: 'multiple',
@@ -299,59 +301,8 @@ export const table = createSchemaConfig({
             listsHeight: 400,
           },
         },
-        // form={{
-        //   // 由于配置了 transform，提交的参数与定义的不同这里需要转化一下
-        //   syncToUrl: (values, type) => {
-        //     if (type === 'get') {
-        //       return {
-        //         ...values,
-        //         created_at: [values.startTime, values.endTime],
-        //       };
-        //     }
-        //     return values;
-        //   },
-        // }}
-        // pagination={{
-        //   pageSize: 5,
-        //   onChange: (page) => console.log(page),
-        // }}
         dateFormatter: 'string',
         headerTitle: '高级表格',
-        // toolBarRender={() => [
-        //   <Button
-        //     key="button"
-        //     icon={<PlusOutlined />}
-        //     onClick={() => {
-        //       actionRef.current?.reload();
-        //     }}
-        //     type="primary"
-        //   >
-        //     新建
-        //   </Button>,
-        //   <Dropdown
-        //     key="menu"
-        //     menu={{
-        //       items: [
-        //         {
-        //           label: '1st item',
-        //           key: '1',
-        //         },
-        //         {
-        //           label: '2nd item',
-        //           key: '2',
-        //         },
-        //         {
-        //           label: '3rd item',
-        //           key: '3',
-        //         },
-        //       ],
-        //     }}
-        //   >
-        //     <Button>
-        //       <EllipsisOutlined />
-        //     </Button>
-        //   </Dropdown>,
-        // ]}
         dataSource: [
           {
             id: 624748504,
@@ -475,6 +426,57 @@ export const table = createSchemaConfig({
               'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png',
           },
         ],
+        // form={{
+        //   // 由于配置了 transform，提交的参数与定义的不同这里需要转化一下
+        //   syncToUrl: (values, type) => {
+        //     if (type === 'get') {
+        //       return {
+        //         ...values,
+        //         created_at: [values.startTime, values.endTime],
+        //       };
+        //     }
+        //     return values;
+        //   },
+        // }}
+        // pagination={{
+        //   pageSize: 5,
+        //   onChange: (page) => console.log(page),
+        // }}
+        // toolBarRender={() => [
+        //   <Button
+        //     key="button"
+        //     icon={<PlusOutlined />}
+        //     onClick={() => {
+        //       actionRef.current?.reload();
+        //     }}
+        //     type="primary"
+        //   >
+        //     新建
+        //   </Button>,
+        //   <Dropdown
+        //     key="menu"
+        //     menu={{
+        //       items: [
+        //         {
+        //           label: '1st item',
+        //           key: '1',
+        //         },
+        //         {
+        //           label: '2nd item',
+        //           key: '2',
+        //         },
+        //         {
+        //           label: '3rd item',
+        //           key: '3',
+        //         },
+        //       ],
+        //     }}
+        //   >
+        //     <Button>
+        //       <EllipsisOutlined />
+        //     </Button>
+        //   </Dropdown>,
+        // ]}
       }),
     ],
   },

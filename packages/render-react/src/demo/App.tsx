@@ -10,142 +10,21 @@ import {
   anonymousFunction,
   table,
 } from '../../../../demo-schema/react/basic';
-import { AnyType, NodeType, parseObj, SchemaRootObj } from '@peeto/core';
-import { getSetStateFuncName } from '../../../core/src/event';
+import { SchemaRootObj } from '@peeto/core';
 import SourceCode from './SourceCode';
-
-const funcName = '_getPeetoValue';
-const getPropStr = (v: AnyType): AnyType => {
-  if (!v?.[funcName]) {
-    return [
-      '[object String]',
-      // '[object Number]',
-      // '[object Boolean]',
-      // '[object Undefined]',
-      null,
-    ].includes(Object.prototype.toString.call(v))
-      ? `"${v}"`
-      : `{${v}}`;
-  }
-  if (
-    [
-      NodeType.REF,
-      NodeType.STATE,
-      NodeType.ANONYMOUSFUNCTION,
-      NodeType.EVENT,
-    ].includes(v.type)
-  ) {
-    return `{${v?.[funcName]?.()}}`;
-  }
-  return v?.[funcName]?.();
-};
-const getChildStr = (v: AnyType): AnyType => {
-  if (Array.isArray(v)) {
-    return v.map((i) => getChildStr(i)).join('\n');
-  }
-
-  if (!v?.[funcName]) {
-    return [
-      '[object String]',
-      // '[object Number]',
-      // '[object Boolean]',
-      // '[object Undefined]',
-      null,
-    ].includes(Object.prototype.toString.call(v))
-      ? `${v}`
-      : `{${v}}`;
-  }
-  if (
-    [
-      NodeType.REF,
-      NodeType.STATE,
-      NodeType.ANONYMOUSFUNCTION,
-      NodeType.EVENT,
-    ].includes(v.type)
-  ) {
-    return `{${v?.[funcName]?.()}}`;
-  }
-  return v?.[funcName]?.();
-};
+import { getStateStr } from './ToSource/state';
+import { getEffectStr } from './ToSource/effect';
+import { getCompTreeStr, recusionCompTree } from './ToSource/compTree';
+import { getLibStr } from './ToSource/lib';
 
 const toReactStr = (str: string) => {
-  const {
-    states = [],
-    compTree = [],
-    schemaNodePaths = [],
-    effects = [],
-  } = JSON.parse(str || '{}') as SchemaRootObj;
+  const schemaRootObj = JSON.parse(str || '{}') as SchemaRootObj;
 
-  const libList: { [key: string]: Set<string> } = {};
-
-  const treeObj = parseObj({
-    node: compTree,
-    nodePath: schemaNodePaths || [],
-    parseStateNode: ({ curSchema }) => {
-      return {
-        type: NodeType.STATE,
-        [funcName]: () => curSchema.stateName,
-      };
-    },
-    parseAnonymousFunctionNode: ({ curSchema }) => {
-      return {
-        type: NodeType.ANONYMOUSFUNCTION,
-        [funcName]: () => `(${(curSchema.params || []).join(',')})=>{
-        ${curSchema.body}
-      }`,
-      };
-    },
-    parseSchemaComp: ({ curSchema, props }) => {
-      const { packageName: pName, componentName } = curSchema;
-      const cName = componentName.split('.')[0];
-
-      if (!libList[pName]) {
-        libList[pName] = new Set();
-      }
-      libList[pName].add(cName);
-
-      const { children, ...newProps } = props || {};
-
-      return {
-        type: NodeType.COMPONENT,
-        [funcName]: () => `<${componentName}\n${Object.keys(newProps)
-          .map((k) => `${k}=${getPropStr(newProps[k])}`)
-          .join('\n')}${
-          !children
-            ? ` />`
-            : `
->
-${getChildStr(children)}
-</${curSchema.componentName}>`
-        }
-
-      `,
-      };
-    },
-  });
-
-  const libStr = Object.keys(libList)
-    .map((k) => `import { ${Array.from(libList[k]).join(',')} } from '${k}';`)
-    .join('\n');
-
-  const treeStr = getChildStr(treeObj);
-
-  const stateStr = states
-    ?.map(
-      (s) =>
-        `const [${s.name},${getSetStateFuncName({
-          stateName: s.name,
-        })}] = useState(${JSON.stringify(s.initialValue)});`
-    )
-    .join('\n');
-
-  const effectsStr = effects
-    .map(
-      ({ dependences, body }) => `useEffect(()=>{
-    ${body}
-    },[${dependences.join(',')}]);`
-    )
-    .join('\n');
+  const stateStr = getStateStr(schemaRootObj);
+  const effectsStr = getEffectStr(schemaRootObj);
+  const { libList, treeObj } = recusionCompTree(schemaRootObj);
+  const libStr = getLibStr(libList);
+  const treeStr = getCompTreeStr(treeObj, { parentNode: 'comp' });
 
   return `import { useState, useEffect } from "react";
 ${libStr}

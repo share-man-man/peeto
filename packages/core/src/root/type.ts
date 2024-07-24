@@ -1,6 +1,6 @@
 import { SchemaCompTreeItem, SchemaCompTreePath } from '../component/type';
-import { SchemaEventItem } from '../event/type';
-import { SchemaStateItem, StateGetSetType } from '../state/type';
+import { AnonymousFunctionNode, SchemaEventItem } from '../event/type';
+import { SchemaStateItem, StateGetSetType, StateNodeType } from '../state/type';
 import { SchemaRefItem } from '../ref/type';
 import { AnyType, JSONValue } from '../type';
 import { LibListMapType } from '../lib/type';
@@ -137,4 +137,19 @@ export interface ParseNodeBaseProp<SchemaNodeType, VNodeType> {
   deepRecursionParse: DeepRecursionParseType<VNodeType>;
   path: SchemaCompTreePath;
   ctx: ContextType;
+}
+
+export interface ParseObjOptionType<VNodeType> {
+  node: JSONValue;
+  nodePath: SchemaCompTreePath[];
+  parseStateNode?: (p: ParseNodeBaseProp<StateNodeType, VNodeType>) => AnyType;
+  parseAnonymousFunctionNode?: (
+    p: ParseNodeBaseProp<AnonymousFunctionNode, VNodeType>
+  ) => AnyType;
+  customDeep?: boolean;
+  parseSchemaComp?: (
+    p: ParseNodeBaseProp<SchemaCompTreeItem, VNodeType> & {
+      props: AnyType;
+    }
+  ) => AnyType;
 }
