@@ -7,7 +7,7 @@
     "build": "lerna run build",
     "clean": "lerna clean -y && rm -rf node_modules && rm -rf packages/*/dist",
     "create-changelog": "lerna version --conventional-commits --no-push --yes",
-    "cz": "lint-staged && git cz"
+    "gc": "lint-staged && git cz"
   },
   "devDependencies": {
     "@ant-design/pro-components": "^2.6.49",
