@@ -140,7 +140,7 @@ render(_,record){
 
 - 解决方案
 
-  > 此方法是兜底方案，不符合低代码**所见即所得**的设计思路，尽量少用
+  > 此方法是兜底方案，不符合低代码**所见即所得**的设计思路，暂未实现该方案
 
   具有开发能力的人可手写函数
 
@@ -161,19 +161,21 @@ render(_,record){
   `).call({ library, createNode });
   ```
 
-### react 自定义 hooks 问题
+### 渲染函数：组件
 
 - 示例
 
   ```jsx
-  const [form] = Form.useForm();
-  const { scrollOffset, isBottom } = useScroll();
+  const render = () => {
+    return <Tag color="error">ErrorTag</Tag>;
+  };
   ```
 
 - 解决方案
-  - 暂无
 
-### 条件渲染：for 循环，三元表达式等
+  - 匿名函数通过`funcType`字段，判断是否为渲染函数
+
+### 复杂的渲染函数：for 循环，三元表达式等
 
 - 示例
 
@@ -185,6 +187,21 @@ render(_,record){
       return <div key={i.id}>{i.text}</div>;
     })}
   </div>
+  ```
+
+- 解决方案
+
+  - 通过`renderFunc.conditionType`用相应的策略渲染
+  - 目前支持的：数组、boolean、三元（可用 boolean 代替）
+  - 递归解析 renderFunc.compTree
+
+### react 自定义 hooks 问题
+
+- 示例
+
+  ```jsx
+  const [form] = Form.useForm();
+  const { scrollOffset, isBottom } = useScroll();
   ```
 
 - 解决方案

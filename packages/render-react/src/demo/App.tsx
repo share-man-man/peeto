@@ -9,6 +9,8 @@ import {
   state,
   anonymousFunction,
   table,
+  listLoop,
+  conditionBool,
 } from '../../../../demo-schema/react/basic';
 import { SchemaRootObj } from '@peeto/core';
 import SourceCode from './SourceCode';
@@ -75,6 +77,16 @@ const enumOp: {
     str: JSON.stringify(state.schema),
   },
   {
+    key: 'listLoop',
+    label: listLoop.desc,
+    str: JSON.stringify(listLoop.schema),
+  },
+  {
+    key: 'conditionBool',
+    label: conditionBool.desc,
+    str: JSON.stringify(conditionBool.schema),
+  },
+  {
     key: 'table',
     label: table.desc,
     str: JSON.stringify(table.schema),
@@ -82,7 +94,8 @@ const enumOp: {
 ];
 
 function App() {
-  const [key, setKey] = useState('table');
+  const [key, setKey] = useState('conditionBool');
+
   const [str, setStr] = useState('');
 
   useEffect(() => {

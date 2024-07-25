@@ -27,7 +27,7 @@ export const createCompNode = (
     componentName,
     id: selfId,
     props,
-  });
+  }) as unknown as AnyType;
 };
 
 export const createAnonymousFunction = (
@@ -38,14 +38,14 @@ export const createAnonymousFunction = (
   return new SchemaNode({
     ...p,
     type: NodeType.ANONYMOUSFUNCTION,
-  });
+  }) as unknown as AnyType;
 };
 
 export const createStateNode = (p: Omit<StateNodeType, 'type'>) => {
   return new SchemaNode({
     ...p,
     type: NodeType.STATE,
-  });
+  }) as unknown as AnyType;
 };
 
 export const createSchemaConfig = ({

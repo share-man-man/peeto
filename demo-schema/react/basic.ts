@@ -27,7 +27,9 @@ export const anonymousFunction = createSchemaConfig({
         type: 'primary',
         onClick: createAnonymousFunction({
           params: ['e'],
-          body: 'alert("点击了按钮")',
+          func: {
+            body: 'alert("点击了按钮")',
+          },
         }),
         children: '点击弹出提示框',
       }),
@@ -97,8 +99,10 @@ export const state = createSchemaConfig({
               createCompNode('antd', 'Typography.Text', {
                 children: createAnonymousFunction({
                   IIFE: true,
-                  body: '(title || "").length',
                   dependences: ['title'],
+                  func: {
+                    body: '(title || "").length',
+                  },
                 }),
               }),
             ],
@@ -111,9 +115,130 @@ export const state = createSchemaConfig({
         }),
         onChange: createAnonymousFunction({
           params: ['v'],
-          body: `setTitle(v.target.value)`,
           effectStates: ['title'],
+          func: {
+            body: `setTitle(v.target.value)`,
+          },
         }),
+      }),
+    ],
+  },
+});
+
+export const listLoop = createSchemaConfig({
+  desc: '基础-数组渲染',
+  schema: {
+    states: [
+      {
+        name: 'record',
+        initialValue: {
+          title: '🐛 [BUG]yarn install命令 antd2.4.5会报错',
+          labels: [
+            {
+              name: 'error',
+              color: 'error',
+            },
+            {
+              name: 'success',
+              color: 'success',
+            },
+            {
+              name: 'processing',
+              color: 'processing',
+            },
+            {
+              name: 'default',
+              color: 'default',
+            },
+            {
+              name: 'warning ',
+              color: 'warning',
+            },
+          ],
+        },
+      },
+    ],
+    compTree: [
+      createCompNode('antd', 'Space', {
+        children: [
+          createAnonymousFunction({
+            IIFE: true,
+            funcType: 'renderFunc',
+            renderFunc: {
+              conditionType: 'listLoop',
+              listLoop: {
+                data: createAnonymousFunction({
+                  IIFE: true,
+                  dependences: ['record'],
+                  func: {
+                    body: 'record.labels',
+                  },
+                }),
+                mapParams: ['lablesItem', 'lablesIndex'],
+              },
+              compTree: [
+                createCompNode('antd', 'Tag', {
+                  key: createAnonymousFunction({
+                    IIFE: true,
+                    func: {
+                      body: 'lablesItem.name',
+                    },
+                  }),
+                  color: createAnonymousFunction({
+                    IIFE: true,
+                    func: {
+                      body: 'lablesItem.color',
+                    },
+                  }),
+                  children: createAnonymousFunction({
+                    IIFE: true,
+                    func: {
+                      body: 'lablesItem.color',
+                    },
+                  }),
+                }),
+              ],
+            },
+          }),
+        ],
+      }),
+    ],
+  },
+});
+
+export const conditionBool = createSchemaConfig({
+  desc: '基础-是否渲染',
+  schema: {
+    states: [
+      {
+        name: 'visible',
+        initialValue: false,
+      },
+    ],
+    compTree: [
+      createCompNode('antd', 'Switch', {
+        checked: createStateNode({ stateName: 'visible' }),
+        onChange: createAnonymousFunction({
+          params: ['checked'],
+          dependences: ['visible'],
+          effectStates: ['visible'],
+          func: {
+            body: 'setVisible(!visible)',
+          },
+        }),
+      }),
+      createAnonymousFunction({
+        IIFE: true,
+        funcType: 'renderFunc',
+        renderFunc: {
+          conditionType: 'boolean',
+          boolean: {
+            data: createStateNode({ stateName: 'visible' }),
+          },
+          compTree: createCompNode('antd', 'Typography.Text', {
+            children: '===条件展示===',
+          }),
+        },
       }),
     ],
   },
@@ -158,8 +283,10 @@ export const table = createSchemaConfig({
             valueEnum: {
               all: {
                 text: createAnonymousFunction({
-                  body: '"表达式-".repeat(50)',
                   IIFE: true,
+                  func: {
+                    body: '"表达式-".repeat(50)',
+                  },
                 }),
               },
               open: {
@@ -184,53 +311,88 @@ export const table = createSchemaConfig({
             search: false,
             renderFormItem: createAnonymousFunction({
               params: ['_', 'config'],
-              body: 'return config.defaultRender(_)',
+              func: {
+                body: 'return config.defaultRender(_)',
+              },
             }),
             render: createAnonymousFunction({
               params: ['_', 'record'],
-              isCompTree: true,
-              compTree: [
-                createCompNode('antd', 'Space', {
-                  children: [
-                    createCompNode('antd', 'Tag', {
-                      color: 'warning',
-                      key: '1',
-                      children: 'aaa',
-                    }),
-                  ],
-                }),
-              ],
+              funcType: 'renderFunc',
+              renderFunc: {
+                compTree: [
+                  createCompNode('antd', 'Space', {
+                    children: [
+                      createCompNode('antd', 'Tag', {
+                        color: 'warning',
+                        key: '1',
+                        children: 'aaa',
+                      }),
+                    ],
+                  }),
+                ],
+              },
             }),
           },
-          // {
-          //   disable: true,
-          //   title: '渲染函数-组件树',
-          //   dataIndex: '_renders2',
-          //   search: false,
-          //   renderFormItem: createAnonymousFunction({
-          //     params: ['_', 'config'],
-          //     body: 'return config.defaultRender(_)',
-          //   }),
-          //   render: createAnonymousFunction({
-          //     params: ['_', 'record'],
-          //     body: '',
-          //     isCompTree: true,
-          //     compTree: [
-          //       createCompNode('antd', 'Space', {
-          //         children: [
-          //           createCompNode('antd', 'Tag', {
-          //             color: 'red',
-          //             // TODO 支持条件判断，循环遍历
-          //             children: createAnonymousFunction({
-          //               body: 'record.labels',
-          //               IIFE: true,
-          //             }),
-          //           }),
-          //         ],
-          //       }) as AnyType,
-          //     ],
-          //   }),
-          // },
+          {
+            disable: true,
+            title: '渲染函数-组件树',
+            dataIndex: '_renders2',
+            search: false,
+            renderFormItem: createAnonymousFunction({
+              params: ['_', 'config'],
+              func: {
+                body: 'return config.defaultRender(_)',
+              },
+            }),
+            render: createAnonymousFunction({
+              params: ['_', 'record'],
+              funcType: 'renderFunc',
+              renderFunc: {
+                compTree: [
+                  createCompNode('antd', 'Space', {
+                    children: [
+                      createAnonymousFunction({
+                        IIFE: true,
+                        funcType: 'renderFunc',
+                        renderFunc: {
+                          conditionType: 'listLoop',
+                          listLoop: {
+                            data: createAnonymousFunction({
+                              IIFE: true,
+                              func: {
+                                body: 'record.labels',
+                              },
+                            }),
+                            mapParams: ['lablesItem', 'lablesIndex'],
+                          },
+                          compTree: createCompNode('antd', 'Tag', {
+                            key: createAnonymousFunction({
+                              IIFE: true,
+                              func: {
+                                body: 'lablesItem.color',
+                              },
+                            }),
+                            color: createAnonymousFunction({
+                              IIFE: true,
+                              func: {
+                                body: 'lablesItem.color',
+                              },
+                            }),
+                            children: createAnonymousFunction({
+                              IIFE: true,
+                              func: {
+                                body: 'lablesItem.color',
+                              },
+                            }),
+                          }),
+                        },
+                      }),
+                    ],
+                  }),
+                ],
+              },
+            }),
+          },
           // {
           //   disable: true,
           //   title: '渲染函数-复杂组件树',
@@ -289,7 +451,9 @@ export const table = createSchemaConfig({
           },
           onChange: createAnonymousFunction({
             params: ['value'],
-            body: 'console.log("value: ", value)',
+            func: {
+              body: 'console.log("value: ", value)',
+            },
           }),
         },
         rowKey: 'id',
@@ -310,24 +474,24 @@ export const table = createSchemaConfig({
             title: '🐛 [BUG]yarn install命令 antd2.4.5会报错',
             labels: [
               {
+                name: 'error',
+                color: 'error',
+              },
+              {
                 name: 'success',
                 color: 'success',
               },
               {
                 name: 'processing',
-                color: 'processing ',
-              },
-              {
-                name: 'error',
-                color: 'error ',
+                color: 'processing',
               },
               {
                 name: 'default',
-                color: 'default ',
+                color: 'default',
               },
               {
                 name: 'warning ',
-                color: 'warning ',
+                color: 'warning',
               },
             ],
             state: 'all',

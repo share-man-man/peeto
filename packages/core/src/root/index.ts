@@ -65,14 +65,6 @@ export const generateFields = ({
   });
 
   return {
-    // str: `
-    // // 状态
-    // ${dependences.map((name) => `const ${name} = this.${name}`)}
-    // // 修改状态函数
-    // ${setStateFuncList
-    //   .map(({ funcName }) => `const ${funcName} = this.${funcName};`)
-    //   .join('\n')}`,
-    // bindObj,
     argNameList: Array.from(fieldMap.keys()),
     argList: Array.from(fieldMap.keys()).map((k) => fieldMap.get(k)),
   };
@@ -141,10 +133,14 @@ export const parseObj = <VNodeType>({
     if (isAnonymousFunctionNode(cur)) {
       const newCur = cur;
       // 自动递归便利渲染函数的组件树结构
-      if (!customDeep && cur?.isCompTree) {
-        newCur.compTree = deepRecursionParse({
-          cur: cur.compTree,
-          path: [...path, 'compTree'],
+      if (
+        !customDeep &&
+        newCur?.funcType === 'renderFunc' &&
+        newCur?.renderFunc?.compTree
+      ) {
+        newCur.renderFunc.compTree = deepRecursionParse({
+          cur: newCur.renderFunc.compTree,
+          path: [...path, 'renderFunc', 'compTree'],
           ctx,
         });
       }
@@ -208,8 +204,11 @@ export const generateNode = <VNodeType>({
     customDeep: true,
     node: compTree,
     nodePath: schemaNodePaths || [],
-    parseStateNode: ({ curSchema }) =>
-      getState?.({ stateName: curSchema.stateName }),
+    parseStateNode: ({ curSchema }) => {
+      const curState = getState?.({ stateName: curSchema.stateName });
+      return curState;
+    },
+
     parseAnonymousFunctionNode: ({
       curSchema,
       ctx,
@@ -218,38 +217,98 @@ export const generateNode = <VNodeType>({
     }) => {
       const {
         params = [],
-        body = '',
-        effectStates = [],
         IIFE = false,
-        isCompTree = false,
+        effectStates = [],
         dependences = [],
+        funcType = 'func',
       } = curSchema;
 
       // console.log(str);
 
       const res = (...paramsValueList: AnyType[]) => {
-        // 立即执行函数
-        let parseBody = body;
-        if (IIFE) {
-          parseBody = `return ${body}`;
-        }
+        // TODO 转为switch case
+        if (funcType === 'func') {
+          const { body = '' } = curSchema.func || {};
+          // 立即执行函数
+          let parseBody = body;
+          if (IIFE) {
+            parseBody = `
+            return ${body}`;
+          }
+          // 融合函数参数
+          const { argList, argNameList } = generateFields({
+            params,
+            paramsValueList,
+            dependences,
+            getState,
+            effectStates,
+            setState,
+            ctx,
+          });
+          return new Function(...argNameList, parseBody).call({}, ...argList);
+        } else if (funcType === 'renderFunc') {
+          const {
+            compTree: renderCompTree,
+            conditionType = 'default',
+            listLoop,
+            boolean,
+          } = curSchema.renderFunc || {};
+          // 融合函数参数
+          const { argList, argNameList } = generateFields({
+            params,
+            paramsValueList,
+            dependences: [],
+            getState,
+            effectStates: [],
+            setState,
+            ctx,
+          });
+          // TODO 转为switch -case
+          if (conditionType === 'listLoop') {
+            const { data = '', mapParams = [] } = listLoop || {};
+            // 获取数组数据
+            const listData = deepRecursionParse({
+              cur: data,
+              path: [...path, 'renderFunc', 'listMap', 'data'],
+              ctx,
+            });
 
-        // 融合函数参数
-        const { argList, argNameList } = generateFields({
-          params,
-          paramsValueList,
-          dependences,
-          getState,
-          effectStates,
-          setState,
-          ctx,
-        });
+            return (listData as AnyType[]).map((...mapParamsValueList) => {
+              // 将map的渲染函数放入上下文
+              const newCtx = {
+                ...ctx,
+                // 将函数参数传入下级的上下文
+                ...Object.fromEntries([
+                  ...argNameList.map((n, index) => [n, argList[index]]),
+                  ...mapParams.map((mapParamItem, mapParamItemIndex) => [
+                    mapParamItem,
+                    mapParamsValueList[mapParamItemIndex],
+                  ]),
+                ]),
+              };
+              const r = deepRecursionParse({
+                cur: renderCompTree,
+                path: [...path, 'renderFunc', 'compTree'],
+                ctx: newCtx,
+              });
+              return r;
+            });
+          } else if (conditionType === 'boolean') {
+            const { data = '' } = boolean || {};
+            // 获取数组数据
+            const booleanData = deepRecursionParse({
+              cur: data,
+              path: [...path, 'renderFunc', 'boolean', 'data'],
+              ctx,
+            });
+            if (!booleanData) {
+              return undefined;
+            }
+          }
 
-        // 是否为组件树
-        if (isCompTree) {
           return deepRecursionParse({
-            cur: curSchema.compTree,
-            path: [...path, 'compTree'],
+            cur: renderCompTree,
+            path: [...path, 'renderFunc', 'compTree'],
             ctx: {
               ...ctx,
               // 讲函数参数传入下级的上下文
@@ -259,12 +318,11 @@ export const generateNode = <VNodeType>({
             },
           });
         }
-
-        return new Function(...argNameList, parseBody).call({}, ...argList);
       };
 
       if (IIFE) {
-        return res();
+        const funcRes = res();
+        return funcRes;
       }
 
       return res;
