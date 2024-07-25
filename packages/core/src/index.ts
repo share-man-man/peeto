@@ -3,12 +3,12 @@ export type { SchemaStateItem } from './state/type';
 export type { SchemaCompTreeItem } from './component/type';
 export type { GenerateNodePropType, ParseObjOptionType } from './root/type';
 export type { AnyType, PickRequired, SchemaRootObj, JSONValue } from './type';
+export { NodeType } from './root';
 export {
-  NodeType,
   parseObj,
   getSchemaObjFromStr,
   loadLibList,
-  generateFields,
-} from './root';
+  generateArguments,
+} from './root/utils';
 export { generateNode } from './root';
-export { getSetStateFuncName } from './event';
+export { getSetStateFuncName } from './func';

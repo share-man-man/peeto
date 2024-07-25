@@ -94,7 +94,7 @@ const enumOp: {
 ];
 
 function App() {
-  const [key, setKey] = useState('conditionBool');
+  const [key, setKey] = useState('table');
 
   const [str, setStr] = useState('');
 
@@ -195,13 +195,14 @@ function App() {
         出码
         <Button
           style={{ marginLeft: 20 }}
+          type="primary"
           size="small"
           onClick={() => {
             navigator.clipboard.writeText(toReactStr(str));
-            message.success('复制成功，请粘贴到SourceCode.tsx');
+            message.success('复制成功，请粘贴到SourceCode.tsx以验证');
           }}
         >
-          复制
+          复制代码
         </Button>
       </Typography.Title>
       <pre>{str && toReactStr(str)}</pre>

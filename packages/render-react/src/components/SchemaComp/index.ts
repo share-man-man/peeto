@@ -5,7 +5,7 @@ import {
   PickRequired,
   LibListMapType,
   GenerateNodePropType,
-  generateFields,
+  generateArguments,
 } from '@peeto/core';
 import {
   useEffect,
@@ -100,11 +100,12 @@ const Index: FC<SchemaCompProps> = ({
   schemaRootObj.effects?.forEach(({ effectStates, body, dependences }) => {
     createEffect(
       () => {
-        const { argList, argNameList } = generateFields({
+        const { argList, argNameList } = generateArguments({
           effectStates,
           setState: setStateRef.current,
           getState: getStateRef.current,
           dependences,
+          ctx: {},
         });
 
         new Function(...argNameList, body).call({}, ...argList);

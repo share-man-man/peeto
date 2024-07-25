@@ -1,10 +1,11 @@
 import { SchemaCompTreeItem, SchemaCompTreePath } from '../component/type';
-import { AnonymousFunctionNode, SchemaEventItem } from '../event/type';
+import { SchemaEventItem } from '../event/type';
 import { SchemaStateItem, StateGetSetType, StateNodeType } from '../state/type';
 import { SchemaRefItem } from '../ref/type';
 import { AnyType, JSONValue } from '../type';
 import { LibListMapType } from '../lib/type';
 import { SchemaEffectItem } from '../effect/type';
+import { AnonymousFunctionNode } from '../func/type';
 
 /**
  * schema根对象
@@ -34,59 +35,6 @@ export interface SchemaRootObj {
    * 状态副作用
    */
   effects?: SchemaEffectItem[];
-  // /**
-  //  * 组件-lib包映射
-  //  * 一对多
-  //  */
-  // compTreeLibMap?: CompTreeLibMapItem[];
-  // /**
-  //  * 状态-组件树映射
-  //  * 一对多
-  //  */
-  // stateCompTreeeMap?: {
-  //   stateName: SchemaStateItem['name'];
-  //   paths: SchemaCompTreePath[];
-  // }[];
-  // /**
-  //  * 事件-组件树映射
-  //  * 一对多
-  //  */
-  // eventCompTreeeMap?: {
-  //   eventName: SchemaEventItem['name'];
-  //   paths: SchemaCompTreePath[];
-  // }[];
-  // /**
-  //  * 匿名函数路径
-  //  */
-  // anonymousFunctionList: {
-  //   path: SchemaCompTreePath;
-  // }[];
-  // /**
-  //  * 引用-组件树映射
-  //  * 一对一
-  //  */
-  // refCompTreeeMap?: {
-  //   refName: SchemaRefItem['name'];
-  //   paths: SchemaCompTreePath[];
-  // }[];
-  // /**
-  //  * 状态-事件映射
-  //  * 多对一
-  //  */
-  // stateEventMap?: {
-  //   /**
-  //    * 监听状态变更
-  //    */
-  //   dependences: SchemaStateItem['name'][];
-  //   /**
-  //    * 状态改变后的执行函数
-  //    */
-  //   eventName: SchemaEventItem['name'];
-  //   /**
-  //    * 描述
-  //    */
-  //   desc?: string;
-  // }[];
 }
 
 /**
@@ -139,7 +87,7 @@ export interface ParseNodeBaseProp<SchemaNodeType, VNodeType> {
   ctx: ContextType;
 }
 
-export interface ParseObjOptionType<VNodeType> {
+export interface ParseObjOptionType<VNodeType = AnyType> {
   node: JSONValue;
   nodePath: SchemaCompTreePath[];
   parseStateNode?: (p: ParseNodeBaseProp<StateNodeType, VNodeType>) => AnyType;

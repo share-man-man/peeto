@@ -212,7 +212,7 @@ export const conditionBool = createSchemaConfig({
     states: [
       {
         name: 'visible',
-        initialValue: false,
+        initialValue: true,
       },
     ],
     compTree: [
