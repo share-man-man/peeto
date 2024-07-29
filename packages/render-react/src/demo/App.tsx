@@ -155,6 +155,10 @@ function App() {
               };
             },
           },
+          {
+            name: 'umi-request',
+            load: async () => import('umi-request'),
+          },
         ]}
         noMatchLibRender={({ schema }) => {
           const { id: componentId, packageName } = schema;

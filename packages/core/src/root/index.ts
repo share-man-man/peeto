@@ -10,6 +10,7 @@ export enum NodeType {
   COMPONENT = 'component',
   REF = 'ref',
   ANONYMOUSFUNCTION = 'anonymous-function',
+  LIB = 'lib',
 }
 
 /**
@@ -19,6 +20,7 @@ export enum NodeType {
 export const generateNode = <VNodeType>({
   schemaRootObj,
   getState,
+  getRef,
   onCreateCompNode,
   libListMap,
   noMatchCompRender,
@@ -35,6 +37,10 @@ export const generateNode = <VNodeType>({
       const curState = getState?.({ stateName: curSchema.stateName });
       return curState;
     },
+    parseRefNode: ({ curSchema }) => {
+      const { refName } = curSchema;
+      return getRef?.({ refName });
+    },
     parseAnonymousFunctionNode: ({
       curSchema,
       ctx,
@@ -44,6 +50,7 @@ export const generateNode = <VNodeType>({
       const {
         params = [],
         IIFE = false,
+        isPromise = false,
         effectStates = [],
         dependences = [],
         funcType = 'func',
@@ -60,7 +67,10 @@ export const generateNode = <VNodeType>({
           effectStates,
           setState,
           ctx,
+          libListMap,
+          getRef,
         });
+
         //
         const mergeFuncParams: GenerateFuncBaseOptionType<VNodeType> = {
           curSchema,
@@ -85,6 +95,10 @@ export const generateNode = <VNodeType>({
               res = null;
             }
             break;
+        }
+
+        if (isPromise) {
+          return Promise.resolve(res);
         }
 
         return res;

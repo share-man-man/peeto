@@ -1,8 +1,10 @@
+import { NodeType } from '../../packages/core/src/root';
 import {
   createCompNode,
   createAnonymousFunction,
   createStateNode,
   createSchemaConfig,
+  createRefNode,
 } from '../utils';
 
 export const basic = createSchemaConfig({
@@ -54,7 +56,7 @@ export const state = createSchemaConfig({
     ],
     effects: [
       {
-        dependences: ['title'],
+        dependences: [{ type: NodeType.STATE, stateName: 'title' }],
         effectStates: ['titleLength'],
         body: `
         setTitleLength(title.length)`,
@@ -99,7 +101,7 @@ export const state = createSchemaConfig({
               createCompNode('antd', 'Typography.Text', {
                 children: createAnonymousFunction({
                   IIFE: true,
-                  dependences: ['title'],
+                  dependences: [{ type: NodeType.STATE, stateName: 'title' }],
                   func: {
                     body: '(title || "").length',
                   },
@@ -169,7 +171,7 @@ export const listLoop = createSchemaConfig({
               listLoop: {
                 data: createAnonymousFunction({
                   IIFE: true,
-                  dependences: ['record'],
+                  dependences: [{ type: NodeType.STATE, stateName: 'record' }],
                   func: {
                     body: 'record.labels',
                   },
@@ -220,7 +222,7 @@ export const conditionBool = createSchemaConfig({
         checked: createStateNode({ stateName: 'visible' }),
         onChange: createAnonymousFunction({
           params: ['checked'],
-          dependences: ['visible'],
+          dependences: [{ type: NodeType.STATE, stateName: 'visible' }],
           effectStates: ['visible'],
           func: {
             body: 'setVisible(!visible)',
@@ -247,6 +249,7 @@ export const conditionBool = createSchemaConfig({
 export const table = createSchemaConfig({
   desc: '表格-表达式、渲染函数',
   schema: {
+    refs: [{ name: 'actionRef', desc: '表格ref' }],
     compTree: [
       123,
       createCompNode('@ant-design/pro-components', 'ProTable', {
@@ -369,7 +372,7 @@ export const table = createSchemaConfig({
                             key: createAnonymousFunction({
                               IIFE: true,
                               func: {
-                                body: 'lablesItem.color',
+                                body: 'lablesItem.name',
                               },
                             }),
                             color: createAnonymousFunction({
@@ -381,7 +384,7 @@ export const table = createSchemaConfig({
                             children: createAnonymousFunction({
                               IIFE: true,
                               func: {
-                                body: 'lablesItem.color',
+                                body: 'lablesItem.name',
                               },
                             }),
                           }),
@@ -393,53 +396,108 @@ export const table = createSchemaConfig({
               },
             }),
           },
-          // {
-          //   disable: true,
-          //   title: '渲染函数-复杂组件树',
-          //   dataIndex: 'name',
-          //   search: false,
-          //   renderFormItem: createAnonymousFunction({
-          //     params: ['_', 'config'],
-          //     body: 'return config.defaultRender(_)',
-          //   }),
-          //   render: createAnonymousFunction({
-          //     params: ['text', 'record'],
-          //     body: '',
-          //     isCompTree: true,
-          //     compTree: [
-          //       createCompNode('antd', 'Card', {
-          //         title: createAnonymousFunction({
-          //           IIFE: true,
-          //           body: 'record.name',
-          //         }),
-          //         children: [
-          //           createCompNode('antd', 'Collapse', {
-          //             defaultActiveKey: ['1', '3'],
-          //             children: [
-          //               createCompNode('antd', 'Collapse.Panel', {
-          //                 key: 1,
-          //                 header: 'This is panel header 1',
-          //                 children: createAnonymousFunction({
-          //                   IIFE: true,
-          //                   body: 'record.labels',
-          //                 }),
-          //               }),
-          //               createCompNode('antd', 'Collapse.Panel', {
-          //                 key: 2,
-          //                 header: 'This is panel header 2',
-          //                 children: '222',
-          //               }),
-          //             ],
-          //           }),
-          //         ],
-          //       }) as AnyType,
-          //     ],
-          //   }),
-          // },
+          {
+            title: '创建时间',
+            key: 'showTime',
+            dataIndex: 'created_at',
+            valueType: 'date',
+            sorter: true,
+            hideInSearch: true,
+          },
+          {
+            title: '创建时间',
+            dataIndex: 'created_at',
+            valueType: 'dateRange',
+            hideInTable: true,
+            search: {
+              transform: createAnonymousFunction({
+                params: ['value'],
+                func: {
+                  body: `return {
+                  startTime: value[0],
+                  endTime: value[1],
+                  }`,
+                },
+              }),
+            },
+          },
+          {
+            title: '操作',
+            valueType: 'option',
+            key: 'option',
+            render: createAnonymousFunction({
+              params: ['text', 'record', '_', 'action'],
+              funcType: 'renderFunc',
+              renderFunc: {
+                compTree: [
+                  createCompNode('antd', 'Button', {
+                    key: 'editable',
+                    type: 'link',
+                    onClick: createAnonymousFunction({
+                      func: {
+                        body: 'action?.startEditable?.(record.id);',
+                      },
+                    }),
+                    children: '编辑',
+                  }),
+                  createCompNode('antd', 'Button', {
+                    key: 'view',
+                    type: 'link',
+                    href: createAnonymousFunction({
+                      IIFE: true,
+                      func: {
+                        body: 'record.url',
+                      },
+                    }),
+                    rel: 'noopener noreferrer',
+                    children: '查看',
+                  }),
+                  createCompNode(
+                    '@ant-design/pro-components',
+                    'TableDropdown',
+                    {
+                      key: 'actionGroup',
+                      onSelect: createAnonymousFunction({
+                        func: {
+                          body: 'action?.reload()',
+                        },
+                      }),
+                      menus: [
+                        { key: 'copy', name: '复制' },
+                        { key: 'delete', name: '删除' },
+                      ],
+                    }
+                  ),
+                ],
+              },
+            }),
+          },
         ],
-        // actionRef={actionRef}
-
+        actionRef: createRefNode({ refName: 'actionRef' }),
         cardBordered: true,
+        request: createAnonymousFunction({
+          dependences: [
+            {
+              type: NodeType.LIB,
+              libName: 'umi-request',
+              alias: 'request',
+              subName: 'default',
+            },
+          ],
+          params: ['params', 'sort', 'filter'],
+          isPromise: true,
+          func: {
+            body: `return new Promise((resolve)=>{
+            setTimeout(()=>{
+              request('https://proapi.azurewebsites.net/github/issues', {
+                params,
+              }).then((res)=>{
+                resolve(res)
+              })
+            },500)
+            })`,
+          },
+        }),
         editable: {
           type: 'multiple',
         },
@@ -465,182 +523,74 @@ export const table = createSchemaConfig({
             listsHeight: 400,
           },
         },
+        form: {
+          ignoreRules: false,
+          syncToUrl: createAnonymousFunction({
+            params: ['values', 'type'],
+            func: {
+              body: `if (type === 'get') {
+              return {
+                ...values,
+                created_at: [values.startTime, values.endTime],
+              };
+            }
+            return values;`,
+            },
+          }),
+        },
+        pagination: {
+          pageSize: 5,
+        },
         dateFormatter: 'string',
         headerTitle: '高级表格',
-        dataSource: [
-          {
-            id: 624748504,
-            number: 6689,
-            title: '🐛 [BUG]yarn install命令 antd2.4.5会报错',
-            labels: [
-              {
-                name: 'error',
-                color: 'error',
-              },
-              {
-                name: 'success',
-                color: 'success',
-              },
-              {
-                name: 'processing',
-                color: 'processing',
-              },
-              {
-                name: 'default',
-                color: 'default',
-              },
-              {
-                name: 'warning ',
-                color: 'warning',
-              },
+        toolBarRender: createAnonymousFunction({
+          funcType: 'renderFunc',
+          renderFunc: {
+            conditionType: 'default',
+            compTree: [
+              createCompNode('antd', 'Button', {
+                key: 'button',
+                // icon: createCompNode('@ant-design/icons', 'PlusOutlined'),
+                onClick: createAnonymousFunction({
+                  dependences: [
+                    {
+                      type: NodeType.REF,
+                      refName: 'actionRef',
+                    },
+                  ],
+                  func: {
+                    body: `
+                    actionRef.current?.reload()`,
+                  },
+                }),
+                type: 'primary',
+                children: '新建',
+              }),
+              createCompNode('antd', 'Dropdown', {
+                key: 'menu',
+                menu: {
+                  items: [
+                    {
+                      label: '1st item',
+                      key: '1',
+                    },
+                    {
+                      label: '2nd item',
+                      key: '2',
+                    },
+                    {
+                      label: '3rd item',
+                      key: '3',
+                    },
+                  ],
+                },
+                children: createCompNode('antd', 'Button', {
+                  children: '...',
+                }),
+              }),
             ],
-            state: 'all',
-            locked: false,
-            comments: 1,
-            created_at: '2020-05-26T09:42:56Z',
-            updated_at: '2020-05-26T10:03:02Z',
-            closed_at: null,
-            author_association: 'NONE',
-            user: 'chenshuai2144',
-            avatar:
-              'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png',
           },
-          {
-            id: 624691229,
-            number: 6688,
-            title: '🐛 [BUG]无法创建工程npm create umi',
-            labels: [
-              {
-                name: 'bug',
-                color: 'error',
-              },
-            ],
-            state: 'open',
-            locked: false,
-            comments: 0,
-            created_at: '2020-05-26T08:19:22Z',
-            updated_at: '2020-05-26T08:19:22Z',
-            closed_at: null,
-            author_association: 'NONE',
-            user: 'chenshuai2144',
-            avatar:
-              'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png',
-          },
-          {
-            id: 624674790,
-            number: 6685,
-            title: '🧐 [问题] build 后还存在 es6 的代码（Umi@2.13.13）',
-            labels: [
-              {
-                name: 'question',
-                color: 'success',
-              },
-            ],
-            state: 'closed',
-            locked: false,
-            comments: 0,
-            created_at: '2020-05-26T07:54:25Z',
-            updated_at: '2020-05-26T07:54:25Z',
-            closed_at: null,
-            author_association: 'NONE',
-            user: 'chenshuai2144',
-            avatar:
-              'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png',
-          },
-          {
-            id: 624620220,
-            number: 6683,
-            title: '2.3.1版本如何在业务页面修改头部状态',
-            labels: [
-              {
-                name: 'question',
-                color: 'success',
-              },
-            ],
-            state: 'processing',
-            locked: false,
-            comments: 2,
-            created_at: '2020-05-26T05:58:24Z',
-            updated_at: '2020-05-26T07:17:39Z',
-            closed_at: null,
-            author_association: 'NONE',
-            user: 'chenshuai2144',
-            avatar:
-              'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png',
-          },
-          {
-            id: 624592471,
-            number: 6682,
-            title: 'hideChildrenInMenu设置后，子路由找不到了',
-            labels: [
-              {
-                name: 'bug',
-                color: 'error',
-              },
-            ],
-            state: 'open',
-            locked: false,
-            comments: 2,
-            created_at: '2020-05-26T04:25:59Z',
-            updated_at: '2020-05-26T08:00:51Z',
-            closed_at: null,
-            author_association: 'NONE',
-            user: 'chenshuai2144',
-            avatar:
-              'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png',
-          },
-        ],
-        // form={{
-        //   // 由于配置了 transform，提交的参数与定义的不同这里需要转化一下
-        //   syncToUrl: (values, type) => {
-        //     if (type === 'get') {
-        //       return {
-        //         ...values,
-        //         created_at: [values.startTime, values.endTime],
-        //       };
-        //     }
-        //     return values;
-        //   },
-        // }}
-        // pagination={{
-        //   pageSize: 5,
-        //   onChange: (page) => console.log(page),
-        // }}
-        // toolBarRender={() => [
-        //   <Button
-        //     key="button"
-        //     icon={<PlusOutlined />}
-        //     onClick={() => {
-        //       actionRef.current?.reload();
-        //     }}
-        //     type="primary"
-        //   >
-        //     新建
-        //   </Button>,
-        //   <Dropdown
-        //     key="menu"
-        //     menu={{
-        //       items: [
-        //         {
-        //           label: '1st item',
-        //           key: '1',
-        //         },
-        //         {
-        //           label: '2nd item',
-        //           key: '2',
-        //         },
-        //         {
-        //           label: '3rd item',
-        //           key: '3',
-        //         },
-        //       ],
-        //     }}
-        //   >
-        //     <Button>
-        //       <EllipsisOutlined />
-        //     </Button>
-        //   </Dropdown>,
-        // ]}
+        }),
       }),
     ],
   },

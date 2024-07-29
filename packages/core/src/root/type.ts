@@ -1,7 +1,7 @@
 import { SchemaCompTreeItem, SchemaCompTreePath } from '../component/type';
 import { SchemaEventItem } from '../event/type';
 import { SchemaStateItem, StateGetSetType, StateNodeType } from '../state/type';
-import { SchemaRefItem } from '../ref/type';
+import { RefGetSetType, RefNodeType, SchemaRefItem } from '../ref/type';
 import { AnyType, JSONValue } from '../type';
 import { LibListMapType } from '../lib/type';
 import { SchemaEffectItem } from '../effect/type';
@@ -37,11 +37,13 @@ export interface SchemaRootObj {
   effects?: SchemaEffectItem[];
 }
 
+type StateRefGetSetType = Pick<StateGetSetType, 'getState' | 'setState'> &
+  Pick<RefGetSetType, 'getRef'>;
+
 /**
  * 生成节点
  */
-export interface GenerateNodePropType<VNodeType>
-  extends Pick<StateGetSetType, 'getState' | 'setState'> {
+export interface GenerateNodePropType<VNodeType> extends StateRefGetSetType {
   /**
    * schema对象
    */
@@ -91,6 +93,7 @@ export interface ParseObjOptionType<VNodeType = AnyType> {
   node: JSONValue;
   nodePath: SchemaCompTreePath[];
   parseStateNode?: (p: ParseNodeBaseProp<StateNodeType, VNodeType>) => AnyType;
+  parseRefNode?: (p: ParseNodeBaseProp<RefNodeType, VNodeType>) => AnyType;
   parseAnonymousFunctionNode?: (
     p: ParseNodeBaseProp<AnonymousFunctionNode, VNodeType>
   ) => AnyType;

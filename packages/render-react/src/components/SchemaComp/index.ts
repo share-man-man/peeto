@@ -4,8 +4,9 @@ import {
   generateNode,
   PickRequired,
   LibListMapType,
-  GenerateNodePropType,
   generateArguments,
+  StateGetSetType,
+  RefGetSetType,
 } from '@peeto/core';
 import {
   useEffect,
@@ -16,12 +17,14 @@ import {
   useMemo,
   FC,
   useCallback,
+  MutableRefObject,
 } from 'react';
 import { ReactRenderProps } from '../../type';
 
 // 避免lint检测到条件判断里的useState、useEffect等
 const createState = useState;
 const createEffect = useEffect;
+const createRef = useRef;
 
 export type SchemaCompProps = {
   libListMap: LibListMapType;
@@ -60,6 +63,8 @@ const Index: FC<SchemaCompProps> = ({
       }
     >
   >(new Map());
+  // ref集合
+  const refMapRef = useRef<Map<string, MutableRefObject<AnyType>>>(new Map());
 
   const schemaRootObj = getSchemaObjFromStr(schemaStr);
 
@@ -73,17 +78,20 @@ const Index: FC<SchemaCompProps> = ({
     });
   });
 
-  const getState = useCallback<
-    GenerateNodePropType<ReturnType<typeof onCreateCompNode>>['getState']
-  >(({ stateName }) => {
+  // 使用自带的ref管理
+  const schemaObjRefs = schemaRootObj.refs;
+  schemaObjRefs?.forEach((r) => {
+    const customRef = createRef(r.initialValue);
+    refMapRef.current.set(r.name, customRef);
+  });
+
+  const getState = useCallback<StateGetSetType['getState']>(({ stateName }) => {
     return stateMapRef.current.get(stateName)?.stateValue;
   }, []);
   const getStateRef = useRef(getState);
   getStateRef.current = getState;
 
-  const setState = useCallback<
-    GenerateNodePropType<ReturnType<typeof onCreateCompNode>>['setState']
-  >(
+  const setState = useCallback<StateGetSetType['setState']>(
     ({ fieldList = [] }) => {
       fieldList.forEach(({ name, value }) => {
         stateMapRef.current.get(name)?.setStateValue(value);
@@ -96,6 +104,12 @@ const Index: FC<SchemaCompProps> = ({
   const setStateRef = useRef(setState);
   setStateRef.current = setState;
 
+  const getRef = useCallback<RefGetSetType['getRef']>(({ refName }) => {
+    return refMapRef.current.get(refName);
+  }, []);
+  const getRefRef = useRef(getRef);
+  getRefRef.current = getRef;
+
   // 使用自带的依赖管理函数
   schemaRootObj.effects?.forEach(({ effectStates, body, dependences }) => {
     createEffect(
@@ -106,11 +120,15 @@ const Index: FC<SchemaCompProps> = ({
           getState: getStateRef.current,
           dependences,
           ctx: {},
+          libListMap,
+          getRef: getRefRef.current,
         });
 
         new Function(...argNameList, body).call({}, ...argList);
       },
-      dependences.map((d) => stateMapRef.current.get(d)?.stateValue)
+      dependences
+        .filter((d) => d.type === 'state')
+        .map((d) => stateMapRef.current.get(d.stateName)?.stateValue)
     );
   });
 
@@ -127,6 +145,7 @@ const Index: FC<SchemaCompProps> = ({
       libListMap: libListMapRef.current,
       noMatchCompRender: noMatchCompRenderRef.current,
       noMatchLibRender: noMatchLibRenderRef.current,
+      getRef: getRefRef.current,
     });
 
     return res;

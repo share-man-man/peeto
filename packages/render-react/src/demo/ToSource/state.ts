@@ -4,7 +4,9 @@ export const getStateStr = (schema: SchemaRootObj) => {
   return (schema.states || [])
     .map(
       (s) =>
-        `const [${s.name},${getSetStateFuncName({
+        `
+      // ${s.desc}
+      const [${s.name},${getSetStateFuncName({
           stateName: s.name,
         })}] = useState(${JSON.stringify(s.initialValue)});`
     )

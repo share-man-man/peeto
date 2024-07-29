@@ -2,8 +2,9 @@ import { v4 as id } from 'uuid';
 
 import { AnyType, NodeType, SchemaRootObj } from '../packages/core/src';
 import { isBasicNode } from '../packages/core/src/component';
-import { AnonymousFunctionNode } from '../packages/core/src/event/type';
 import { StateNodeType } from 'packages/core/src/state/type';
+import { AnonymousFunctionNode } from 'packages/core/src/func/type';
+import { RefNodeType } from 'packages/core/src/ref/type';
 
 class SchemaNode {
   schema: Record<string, AnyType> = {};
@@ -45,6 +46,13 @@ export const createStateNode = (p: Omit<StateNodeType, 'type'>) => {
   return new SchemaNode({
     ...p,
     type: NodeType.STATE,
+  }) as unknown as AnyType;
+};
+
+export const createRefNode = (p: Omit<RefNodeType, 'type'>) => {
+  return new SchemaNode({
+    ...p,
+    type: NodeType.REF,
   }) as unknown as AnyType;
 };
 

@@ -11,7 +11,7 @@ export default defineConfig({
       entry: resolve(__dirname, 'src/index.ts'),
       name: packageConfig.RENDER_REACT.libName,
       fileName: 'index',
-      formats: ['es', 'umd', 'cjs', 'iife'],
+      // formats: ['es', 'umd', 'cjs', 'iife'],
     },
     rollupOptions: {
       external: ['react', packageConfig.CORE.packageName],

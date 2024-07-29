@@ -1,5 +1,7 @@
 import { SchemaCompTreeItem } from '../component/type';
 import { SchemaEffectItem } from '../effect/type';
+import { LibListMapType } from '../lib/type';
+import { RefGetSetType } from '../ref/type';
 import { NodeType } from '../root';
 import { ContextType, ParseObjOptionType } from '../root/type';
 import { StateGetSetType } from '../state/type';
@@ -16,6 +18,10 @@ export interface AnonymousFunctionNode {
    * https://developer.mozilla.org/en-US/docs/Glossary/IIFE
    */
   IIFE?: boolean;
+  /**
+   * 是否是promise
+   */
+  isPromise?: boolean;
   /**
    * 影响的状态，使得在方法体内部可修改状态，以追踪哪那些函数修改了状态
    */
@@ -79,10 +85,13 @@ export interface AnonymousFunctionNode {
 export interface GenerateArgumentsType {
   (
     option: StateGetSetType &
+      RefGetSetType &
       Pick<SchemaEffectItem, 'effectStates' | 'dependences'> &
       Pick<AnonymousFunctionNode, 'params'> & {
         paramsValueList?: AnyType[];
         ctx: ContextType;
+      } & {
+        libListMap: LibListMapType;
       }
   ): {
     argNameList: string[];

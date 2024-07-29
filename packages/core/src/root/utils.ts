@@ -1,8 +1,10 @@
+import { NodeType } from '.';
 import { isBasicNode, isSchemaCompTree } from '../component';
 import { SchemaCompTreePath } from '../component/type';
 import { getSetStateFuncName, isAnonymousFunctionNode } from '../func';
 import { GenerateArgumentsType } from '../func/type';
 import { LibListItem, LibListMapType } from '../lib/type';
+import { isRefNode } from '../ref';
 import { isStateNode } from '../state';
 import { AnyType } from '../type';
 import {
@@ -37,6 +39,7 @@ export const parseObj = <VNodeType>({
   node,
   nodePath = [],
   parseStateNode,
+  parseRefNode,
   parseAnonymousFunctionNode,
   parseSchemaComp,
   customDeep = false,
@@ -75,6 +78,12 @@ export const parseObj = <VNodeType>({
     if (isStateNode(cur)) {
       return parseStateNode
         ? parseStateNode({ curSchema: cur, deepRecursionParse, path, ctx })
+        : cur;
+    }
+    // ref节点
+    if (isRefNode(cur)) {
+      return parseRefNode
+        ? parseRefNode({ curSchema: cur, deepRecursionParse, path, ctx })
         : cur;
     }
     // 匿名函数节点
@@ -159,18 +168,26 @@ export const loadLibList = async (
 ): Promise<LibListMapType> => {
   // 1、分析依赖包
   const packageMap: LibListMapType = new Map();
-  const nameList: string[] = [];
+  const nameSet: Set<string> = new Set();
   // 组件树所用到的组件
   parseObj({
     node: obj.compTree,
     nodePath: obj.schemaNodePaths || [],
     parseSchemaComp: ({ curSchema }) => {
-      nameList.push(curSchema.packageName);
+      nameSet.add(curSchema.packageName);
+    },
+    parseAnonymousFunctionNode: ({ curSchema }) => {
+      const { dependences } = curSchema;
+      dependences?.forEach((d) => {
+        if (d.type === 'lib') {
+          nameSet.add(d.libName);
+        }
+      });
     },
   });
   // 后面可以从stat、event、ref提取
   // 2、异步加载依赖包
-  const loadList = Array.from(new Set(nameList)).map((name) => {
+  const loadList = Array.from(nameSet).map((name) => {
     return (
       libList.find((p) => p.name === name)?.load?.() || Promise.resolve()
     ).then((res) => {
@@ -185,6 +202,22 @@ export const loadLibList = async (
   return packageMap;
 };
 
+const getLibValue = ({
+  libName,
+  subName,
+  libListMap,
+}: {
+  libName: string;
+  subName?: string;
+  libListMap: LibListMapType;
+}) => {
+  let curLib = libListMap.get(libName);
+  if (subName) {
+    curLib = curLib[subName];
+  }
+  return curLib;
+};
+
 /**
  * 生成new Function()时所需的参数名、参数值
  * @returns
@@ -197,11 +230,38 @@ export const generateArguments: GenerateArgumentsType = ({
   effectStates,
   setState,
   ctx = {},
+  libListMap,
+  getRef,
 }) => {
   const fieldMap: Map<string, AnyType> = new Map();
   // 安全考虑，暴露特定的函数、状态
-  dependences.forEach((name) => {
-    fieldMap.set(name, getState({ stateName: name }));
+  dependences.forEach((d) => {
+    const { type } = d;
+    let neverRes: never;
+    switch (type) {
+      case NodeType.STATE:
+        fieldMap.set(d.stateName, getState({ stateName: d.stateName }));
+        break;
+      case NodeType.LIB:
+        fieldMap.set(
+          d.alias,
+          getLibValue({
+            libListMap,
+            libName: d.libName,
+            subName: d.subName,
+          })
+        );
+        break;
+      case NodeType.REF:
+        fieldMap.set(d.refName, getRef({ refName: d.refName }));
+        break;
+      default:
+        neverRes = type;
+        if (neverRes) {
+          //
+        }
+        break;
+    }
   });
   paramsNameList.forEach((pName, index) => {
     fieldMap.set(pName, paramsValueList[index]);
