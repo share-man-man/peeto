@@ -12,23 +12,27 @@ import {
   listLoop,
   conditionBool,
 } from '../../../../demo-schema/react/basic';
-import { SchemaRootObj } from '@peeto/core';
+import { getLibInRoot, SchemaRootObj } from '@peeto/core';
 import SourceCode from './SourceCode';
 import { getStateStr } from './ToSource/state';
 import { getEffectStr } from './ToSource/effect';
 import { getCompTreeStr, recusionCompTree } from './ToSource/compTree';
 import { getLibStr } from './ToSource/lib';
+import { getRefStr } from './ToSource/ref';
 
 const toReactStr = (str: string) => {
-  const schemaRootObj = JSON.parse(str || '{}') as SchemaRootObj;
-
-  const stateStr = getStateStr(schemaRootObj);
-  const effectsStr = getEffectStr(schemaRootObj);
-  const { libList, treeObj } = recusionCompTree(schemaRootObj);
-  const libStr = getLibStr(libList);
+  const libStr = getLibStr(
+    getLibInRoot({ obj: JSON.parse(str || '{}') as SchemaRootObj })
+  );
+  const stateStr = getStateStr(JSON.parse(str || '{}') as SchemaRootObj);
+  const refStr = getRefStr(JSON.parse(str || '{}') as SchemaRootObj);
+  const effectsStr = getEffectStr(JSON.parse(str || '{}') as SchemaRootObj);
+  const { treeObj } = recusionCompTree(
+    JSON.parse(str || '{}') as SchemaRootObj
+  );
   const treeStr = getCompTreeStr(treeObj, { parentNode: 'comp' });
 
-  return `import { useState, useEffect } from "react";
+  return `import { useState, useEffect, useRef } from "react";
 ${libStr}
 
 const Index = () => {
@@ -38,6 +42,7 @@ const Index = () => {
   ${stateStr}
 
   // ref
+  ${refStr}
 
   // 事件
 

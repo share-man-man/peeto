@@ -5,7 +5,10 @@ export const getEffectStr = (schema: SchemaRootObj) => {
     .map(
       ({ dependences, body }) => `useEffect(()=>{
     ${body}
-    },[${dependences.filter((d) => d.type === 'state').join(',')}]);`
+    },[${dependences
+      .filter((d) => d.type === 'state')
+      .map((d) => d.stateName)
+      .join(',')}]);`
     )
     .join('\n');
 };

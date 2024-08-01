@@ -1,5 +1,15 @@
 import { AnyType } from '../type';
 
+// export interface SchemaLibModulesItem {
+//   libName: string;
+//   subModules: {
+//     name: string;
+//     alias: string;
+//   }[];
+//   // subName: string;
+//   // alias?: string;
+// }
+
 export interface LibListItem {
   /**
    * 组件库名称

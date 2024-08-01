@@ -3,6 +3,17 @@ import { SchemaStateItem } from '../state/type';
 import { AnyType } from '../type';
 import { AnonymousFunctionNode, GenerateFuncBaseOptionType } from './type';
 
+export enum FuncTypeEnum {
+  FUNC = 'func',
+  RENDERFUNC = 'renderFunc',
+}
+
+export enum ConditionTypeEnum {
+  DEFAULT = 'default',
+  LISTLOOP = 'listLoop',
+  BOOLEAN = 'boolean',
+}
+
 /**
  * 生成setState函数名
  * @returns
@@ -142,17 +153,18 @@ export const generateRenderFuncListLoop = <VNodeType>({
 export const generateRenderFuncRes = <VNodeType>(
   p: GenerateFuncBaseOptionType<VNodeType>
 ) => {
-  const { conditionType = 'default' } = p.curSchema.renderFunc || {};
+  const { conditionType = ConditionTypeEnum.DEFAULT } =
+    p.curSchema.renderFunc || {};
   let res = null;
   let neverRes: never;
   switch (conditionType) {
-    case 'listLoop':
+    case ConditionTypeEnum.LISTLOOP:
       res = generateRenderFuncListLoop(p);
       break;
-    case 'boolean':
+    case ConditionTypeEnum.BOOLEAN:
       res = generateRenderFuncBoolean(p);
       break;
-    case 'default':
+    case ConditionTypeEnum.DEFAULT:
       res = generateRenderFuncDefaultRes(p);
       break;
     default:

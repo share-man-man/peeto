@@ -10,6 +10,7 @@ export {
   getSchemaObjFromStr,
   loadLibList,
   generateArguments,
+  getLibInRoot,
 } from './root/utils';
 export { generateNode } from './root';
 export { getSetStateFuncName } from './func';

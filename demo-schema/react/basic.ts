@@ -1,3 +1,4 @@
+import { ConditionTypeEnum, FuncTypeEnum } from '../../packages/core/src/func';
 import { NodeType } from '../../packages/core/src/root';
 import {
   createCompNode,
@@ -7,9 +8,18 @@ import {
   createRefNode,
 } from '../utils';
 
+// export const libModules: SchemaRootObj['libModules'] = [
+//   { libName: 'antd', subName: '' },
+//   {
+//     libName: '@ant-design/pro-components',
+//     subName: '',
+//   },
+// ];
+
 export const basic = createSchemaConfig({
   desc: '基础-自定义包',
   schema: {
+    // libModules,
     compTree: [
       createCompNode('antd', 'Card', {
         title: 'antd.Card',
@@ -24,6 +34,7 @@ export const basic = createSchemaConfig({
 export const anonymousFunction = createSchemaConfig({
   desc: '基础-匿名函数',
   schema: {
+    // libModules,
     compTree: [
       createCompNode('antd', 'Button', {
         type: 'primary',
@@ -42,6 +53,7 @@ export const anonymousFunction = createSchemaConfig({
 export const state = createSchemaConfig({
   desc: '基础-状态响应式',
   schema: {
+    // libModules,
     states: [
       {
         desc: '响应式状态',
@@ -130,6 +142,7 @@ export const state = createSchemaConfig({
 export const listLoop = createSchemaConfig({
   desc: '基础-数组渲染',
   schema: {
+    // libModules,
     states: [
       {
         name: 'record',
@@ -165,9 +178,9 @@ export const listLoop = createSchemaConfig({
         children: [
           createAnonymousFunction({
             IIFE: true,
-            funcType: 'renderFunc',
+            funcType: FuncTypeEnum.RENDERFUNC,
             renderFunc: {
-              conditionType: 'listLoop',
+              conditionType: ConditionTypeEnum.LISTLOOP,
               listLoop: {
                 data: createAnonymousFunction({
                   IIFE: true,
@@ -211,6 +224,7 @@ export const listLoop = createSchemaConfig({
 export const conditionBool = createSchemaConfig({
   desc: '基础-是否渲染',
   schema: {
+    // libModules,
     states: [
       {
         name: 'visible',
@@ -231,9 +245,9 @@ export const conditionBool = createSchemaConfig({
       }),
       createAnonymousFunction({
         IIFE: true,
-        funcType: 'renderFunc',
+        funcType: FuncTypeEnum.RENDERFUNC,
         renderFunc: {
-          conditionType: 'boolean',
+          conditionType: ConditionTypeEnum.BOOLEAN,
           boolean: {
             data: createStateNode({ stateName: 'visible' }),
           },
@@ -249,6 +263,7 @@ export const conditionBool = createSchemaConfig({
 export const table = createSchemaConfig({
   desc: '表格-表达式、渲染函数',
   schema: {
+    // libModules,
     refs: [{ name: 'actionRef', desc: '表格ref' }],
     compTree: [
       123,
@@ -320,7 +335,7 @@ export const table = createSchemaConfig({
             }),
             render: createAnonymousFunction({
               params: ['_', 'record'],
-              funcType: 'renderFunc',
+              funcType: FuncTypeEnum.RENDERFUNC,
               renderFunc: {
                 compTree: [
                   createCompNode('antd', 'Space', {
@@ -349,16 +364,16 @@ export const table = createSchemaConfig({
             }),
             render: createAnonymousFunction({
               params: ['_', 'record'],
-              funcType: 'renderFunc',
+              funcType: FuncTypeEnum.RENDERFUNC,
               renderFunc: {
                 compTree: [
                   createCompNode('antd', 'Space', {
                     children: [
                       createAnonymousFunction({
                         IIFE: true,
-                        funcType: 'renderFunc',
+                        funcType: FuncTypeEnum.RENDERFUNC,
                         renderFunc: {
-                          conditionType: 'listLoop',
+                          conditionType: ConditionTypeEnum.LISTLOOP,
                           listLoop: {
                             data: createAnonymousFunction({
                               IIFE: true,
@@ -427,7 +442,7 @@ export const table = createSchemaConfig({
             key: 'option',
             render: createAnonymousFunction({
               params: ['text', 'record', '_', 'action'],
-              funcType: 'renderFunc',
+              funcType: FuncTypeEnum.RENDERFUNC,
               renderFunc: {
                 compTree: [
                   createCompNode('antd', 'Button', {
@@ -544,9 +559,9 @@ export const table = createSchemaConfig({
         dateFormatter: 'string',
         headerTitle: '高级表格',
         toolBarRender: createAnonymousFunction({
-          funcType: 'renderFunc',
+          funcType: FuncTypeEnum.RENDERFUNC,
           renderFunc: {
-            conditionType: 'default',
+            conditionType: ConditionTypeEnum.DEFAULT,
             compTree: [
               createCompNode('antd', 'Button', {
                 key: 'button',

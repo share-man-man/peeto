@@ -1,4 +1,4 @@
-import { generateFuncRes, generateRenderFuncRes } from '../func';
+import { FuncTypeEnum, generateFuncRes, generateRenderFuncRes } from '../func';
 import { GenerateFuncBaseOptionType } from '../func/type';
 import { AnyType } from '../type';
 import { GenerateNodePropType } from './type';
@@ -30,7 +30,7 @@ export const generateNode = <VNodeType>({
   const { schemaNodePaths = [], compTree } = schemaRootObj;
   // 解析渲染组件
   const nodeObj = parseObj({
-    customDeep: true,
+    // customDeep: true,
     node: compTree,
     nodePath: schemaNodePaths || [],
     parseStateNode: ({ curSchema }) => {
@@ -53,7 +53,7 @@ export const generateNode = <VNodeType>({
         isPromise = false,
         effectStates = [],
         dependences = [],
-        funcType = 'func',
+        funcType = FuncTypeEnum.FUNC,
       } = curSchema;
 
       // 创建匿名函数
@@ -83,10 +83,10 @@ export const generateNode = <VNodeType>({
         let res = null;
         let neverRes: never;
         switch (funcType) {
-          case 'func':
+          case FuncTypeEnum.FUNC:
             res = generateFuncRes(mergeFuncParams);
             break;
-          case 'renderFunc':
+          case FuncTypeEnum.RENDERFUNC:
             res = generateRenderFuncRes(mergeFuncParams);
             break;
           default:

@@ -16,8 +16,8 @@ export interface SchemaEffectItem {
     | {
         type: NodeType.LIB;
         libName: LibListItem['name'];
-        alias: string;
-        subName?: string;
+        alias?: string;
+        subName: string;
       }
     | {
         type: NodeType.REF;

@@ -6,6 +6,7 @@ import { NodeType } from '../root';
 import { ContextType, ParseObjOptionType } from '../root/type';
 import { StateGetSetType } from '../state/type';
 import { AnyType, JSONValue, PickRequired } from '../type';
+import type { FuncTypeEnum, ConditionTypeEnum } from './';
 
 export interface AnonymousFunctionNode {
   type: NodeType.ANONYMOUSFUNCTION;
@@ -35,7 +36,7 @@ export interface AnonymousFunctionNode {
    * func：普通匿名函数
    * renderFunc：渲染函数
    */
-  funcType?: 'func' | 'renderFunc';
+  funcType?: FuncTypeEnum;
   /**
    * 普通函数配置
    */
@@ -55,7 +56,7 @@ export interface AnonymousFunctionNode {
      * listLoop list.map(item=><div>{item.name}</div>)
      * boolean：flag && <div>111</div>
      */
-    conditionType?: 'default' | 'listLoop' | 'boolean';
+    conditionType?: ConditionTypeEnum;
     /**
      * 渲染函数返回的组件树
      */

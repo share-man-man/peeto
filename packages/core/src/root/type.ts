@@ -11,6 +11,12 @@ import { AnonymousFunctionNode } from '../func/type';
  * schema根对象
  */
 export interface SchemaRootObj {
+  // TODO 组件树、渲染函数里，只能从这里获取相关组件、函数，SchemaCompTreeItem.packageName、SchemaEventItem.libName应该删掉
+  // /**
+  //  * 引入的包
+  //  */
+  // libModules: SchemaLibModulesItem[];
+  // props参数
   /**
    * 状态集合
    */
@@ -97,7 +103,7 @@ export interface ParseObjOptionType<VNodeType = AnyType> {
   parseAnonymousFunctionNode?: (
     p: ParseNodeBaseProp<AnonymousFunctionNode, VNodeType>
   ) => AnyType;
-  customDeep?: boolean;
+  // customDeep?: boolean;
   parseSchemaComp?: (
     p: ParseNodeBaseProp<SchemaCompTreeItem, VNodeType> & {
       props: AnyType;

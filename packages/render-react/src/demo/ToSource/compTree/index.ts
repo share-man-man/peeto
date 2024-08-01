@@ -4,6 +4,10 @@ import {
   ParseObjOptionType,
   SchemaRootObj,
 } from '@peeto/core';
+import { FuncTypeEnum } from '../../../../../../packages/core/src/func';
+// import { GenerateFuncBaseOptionType } from '../../../../../../packages/core/src/func/type';
+// import { ReactNode } from 'react';
+import { generateFuncRes, generateRenderFuncRes } from '../func';
 
 export class StateNode {
   config: AnyType = null;
@@ -11,6 +15,14 @@ export class StateNode {
     this.config = c;
   }
 }
+
+export class RefNode {
+  config: AnyType = null;
+  constructor(c: AnyType) {
+    this.config = c;
+  }
+}
+
 export class AnonymousFunctionNode {
   config: AnyType = null;
   constructor(c: AnyType) {
@@ -39,37 +51,67 @@ export const getCompTreeStr = (
     }
     return res;
   }
+  // ref
+  if (v && Object.getPrototypeOf(v) === RefNode.prototype) {
+    const { curSchema } = v.config as Parameters<
+      Required<ParseObjOptionType<AnyType>>['parseRefNode']
+    >[0];
+    let res = curSchema.refName;
+    if (parentNode === 'prop' || parentNode === 'comp') {
+      res = `{${res}}`;
+    }
+    return res;
+  }
   // 函数
   if (v && Object.getPrototypeOf(v) === AnonymousFunctionNode.prototype) {
-    const { curSchema, deepRecursionParse, path, ctx } = v.config as Parameters<
+    const { curSchema } = v.config as Parameters<
       Required<ParseObjOptionType<AnyType>>['parseAnonymousFunctionNode']
     >[0];
-    const { params = [], body = '', isCompTree = false, compTree } = curSchema;
-    let funcBody = body;
-    if (isCompTree) {
-      const renderCompObj = deepRecursionParse({
-        cur: curSchema.compTree,
-        path: [...path, 'compTree'],
-        ctx,
-      });
-      funcBody = getCompTreeStr(renderCompObj, {
-        parentNode: 'comp',
-      });
 
-      if (Array.isArray(compTree) && compTree.length > 1) {
-        funcBody = `<>${funcBody}</>`;
-      }
-      funcBody = `return ${funcBody}`;
+    const { params = [], funcType = FuncTypeEnum.FUNC } = curSchema;
+
+    const mergeFuncParams = {
+      curSchema,
+      // argList: [],
+      // argNameList: [],
+      // ctx,
+      // path,
+      deepRecursionParse: (
+        d: AnyType,
+        op: Parameters<typeof getCompTreeStr>[1]
+      ): AnyType => {
+        return getCompTreeStr(d, op || { parentNode });
+      },
+    };
+
+    let res: string = '';
+    let neverRes: never;
+    switch (funcType) {
+      case FuncTypeEnum.FUNC:
+        res = generateFuncRes(mergeFuncParams);
+        break;
+      case FuncTypeEnum.RENDERFUNC:
+        res = generateRenderFuncRes(mergeFuncParams);
+        break;
+      default:
+        neverRes = funcType;
+        if (neverRes) {
+          res = '';
+        }
+        break;
     }
-    let res = `(${(params || []).join(',')})=>{
-        ${curSchema.IIFE ? 'return' : ''} ${funcBody}
+
+    if (!curSchema.IIFE) {
+      // res = `(${res})()`;
+      res = `(${params.join(',')})=>{
+        ${res}
       }`;
-    if (curSchema.IIFE) {
-      res = `(${res})()`;
     }
+
     if (parentNode === 'comp' || parentNode === 'prop') {
       res = `{${res}}`;
     }
+
     return res;
   }
   // 组件
@@ -102,7 +144,11 @@ export const getCompTreeStr = (
   // 其他类型
   if (Array.isArray(v)) {
     let res = v
-      .map((i) => getCompTreeStr(i, { parentNode: 'object' }))
+      .map((i) =>
+        getCompTreeStr(i, {
+          parentNode: parentNode === 'comp' ? 'comp' : 'object',
+        })
+      )
       .join(parentNode === 'comp' ? '\n' : ',');
 
     if (parentNode === 'prop') {
@@ -132,10 +178,13 @@ export const getCompTreeStr = (
       '[object Undefined]',
     ].includes(Object.prototype.toString.call(v))
   ) {
-    if (parentNode === 'object') {
-      return `${v}`;
+    if (parentNode === 'prop') {
+      return `{${v}}`;
     }
-    return `{${v}}`;
+    if (parentNode === 'comp') {
+      return `{${v}}`;
+    }
+    return `${v}`;
   }
 
   if (['[object Object]'].includes(Object.prototype.toString.call(v))) {
@@ -147,6 +196,9 @@ export const getCompTreeStr = (
     if (parentNode === 'prop') {
       res = `{${res}}`;
     }
+    if (parentNode === 'comp') {
+      res = `{${res}}`;
+    }
     return res;
   }
 
@@ -154,33 +206,36 @@ export const getCompTreeStr = (
 };
 
 /**
- * 处理组件树的属性
+ * 处理组件树的属性，用特定的类包装，以便后面识别
  * @param schemaRootObj
  * @returns
  */
 export const recusionCompTree = (schemaRootObj: SchemaRootObj) => {
-  const libList: { [key: string]: Set<string> } = {};
+  // const libList: { [key: string]: Set<string> } = {};
   const treeObj = parseObj({
     node: schemaRootObj.compTree,
     nodePath: schemaRootObj.schemaNodePaths || [],
     parseStateNode: (p) => new StateNode(p),
     parseAnonymousFunctionNode: (p) => {
+      Object.keys(p.curSchema).forEach((k) => {
+        p.curSchema[k] = p.deepRecursionParse({
+          cur: p.curSchema[k as keyof typeof p.curSchema],
+          ctx: p.ctx,
+          path: [...p.path, k],
+        });
+      });
       return new AnonymousFunctionNode(p);
     },
     parseSchemaComp: (p) => {
-      const { curSchema } = p;
-      const { packageName: pName, componentName } = curSchema;
-      const cName = componentName.split('.')[0];
-      if (!libList[pName]) {
-        libList[pName] = new Set();
-      }
-      libList[pName].add(cName);
       return new CompNode(p);
+    },
+    parseRefNode: (p) => {
+      return new RefNode(p);
     },
   });
 
   return {
-    libList,
+    // libList,
     treeObj,
   };
 };
