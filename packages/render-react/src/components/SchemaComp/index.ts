@@ -2,8 +2,6 @@ import {
   AnyType,
   getSchemaObjFromStr,
   generateNode,
-  PickRequired,
-  LibListMapType,
   generateArguments,
   StateGetSetType,
   RefGetSetType,
@@ -19,39 +17,19 @@ import {
   useCallback,
   MutableRefObject,
 } from 'react';
-import { ReactRenderProps } from '../../type';
+import { SchemaCompProps } from '../../type';
 
 // 避免lint检测到条件判断里的useState、useEffect等
 const createState = useState;
 const createEffect = useEffect;
 const createRef = useRef;
 
-export type SchemaCompProps = {
-  libListMap: LibListMapType;
-} & PickRequired<
-  ReactRenderProps,
-  'onCreateCompNode' | 'noMatchCompRender' | 'noMatchLibRender'
->;
-
-const Index: FC<SchemaCompProps> = ({
-  schemaStr,
-  onCreateCompNode,
-  onNodeChange,
-  libListMap,
-  noMatchCompRender,
-  noMatchLibRender,
-}) => {
-  const [renderTimes, setRenderTimes] = useState(1);
-
+const Index: FC<SchemaCompProps> = ({ schemaStr, ...props }) => {
   // 避免react多次渲染
-  const libListMapRef = useRef(libListMap);
-  libListMapRef.current = libListMap;
-  const onCreateCompNodeRef = useRef(onCreateCompNode);
-  onCreateCompNodeRef.current = onCreateCompNode;
-  const noMatchCompRenderRef = useRef(noMatchCompRender);
-  noMatchCompRenderRef.current = noMatchCompRender;
-  const noMatchLibRenderRef = useRef(noMatchLibRender);
-  noMatchLibRenderRef.current = noMatchLibRender;
+  const propsRef = useRef(props);
+  propsRef.current = props;
+
+  const [renderTimes, setRenderTimes] = useState<boolean | null>(true);
 
   // 状态集合
   const stateMapRef = useRef<
@@ -97,9 +75,9 @@ const Index: FC<SchemaCompProps> = ({
         stateMapRef.current.get(name)?.setStateValue(value);
       });
       // state改变后，通知react重新渲染state
-      setRenderTimes(renderTimes + 1);
+      setRenderTimes((prev) => !prev);
     },
-    [renderTimes]
+    []
   );
   const setStateRef = useRef(setState);
   setStateRef.current = setState;
@@ -120,7 +98,7 @@ const Index: FC<SchemaCompProps> = ({
           getState: getStateRef.current,
           dependences,
           ctx: {},
-          libListMap,
+          modulesMap: props.modulesMap,
           getRef: getRefRef.current,
         });
 
@@ -133,29 +111,23 @@ const Index: FC<SchemaCompProps> = ({
   });
 
   const dom = useMemo(() => {
-    if (!renderTimes) {
+    if (renderTimes === null) {
       return null;
     }
     const obj = getSchemaObjFromStr(schemaStr);
     const res = generateNode({
       schemaRootObj: obj,
+      getRef: getRefRef.current,
       getState: getStateRef.current,
       setState: setStateRef.current,
-      onCreateCompNode: onCreateCompNodeRef.current,
-      libListMap: libListMapRef.current,
-      noMatchCompRender: noMatchCompRenderRef.current,
-      noMatchLibRender: noMatchLibRenderRef.current,
-      getRef: getRefRef.current,
+      ...propsRef.current,
     });
 
     return res;
   }, [renderTimes, schemaStr]);
 
-  const onNodeChangeRef = useRef(onNodeChange);
-  onNodeChangeRef.current = onNodeChange;
-
   useEffect(() => {
-    onNodeChangeRef.current?.(dom);
+    propsRef.current?.onNodeChange?.(dom);
   }, [dom]);
 
   return dom;

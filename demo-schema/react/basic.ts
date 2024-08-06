@@ -1,3 +1,4 @@
+import { SchemaRootObj } from '@peeto/core';
 import { ConditionTypeEnum, FuncTypeEnum } from '../../packages/core/src/func';
 import { NodeType } from '../../packages/core/src/root';
 import {
@@ -8,18 +9,65 @@ import {
   createRefNode,
 } from '../utils';
 
-// export const libModules: SchemaRootObj['libModules'] = [
-//   { libName: 'antd', subName: '' },
-//   {
-//     libName: '@ant-design/pro-components',
-//     subName: '',
-//   },
-// ];
+export const libModules: SchemaRootObj['libModules'] = [
+  {
+    name: 'antd',
+    subs: [
+      {
+        name: 'Button',
+      },
+      {
+        name: 'Card',
+      },
+      {
+        name: 'Typography',
+      },
+      {
+        name: 'Row',
+      },
+      {
+        name: 'Input',
+      },
+      {
+        name: 'Space',
+      },
+      {
+        name: 'Tag',
+      },
+      {
+        name: 'Switch',
+      },
+      {
+        name: 'Dropdown',
+      },
+    ],
+  },
+  {
+    name: '@ant-design/pro-components',
+    subs: [
+      {
+        name: 'ProTable',
+      },
+      {
+        name: 'TableDropdown',
+      },
+    ],
+  },
+  {
+    name: 'umi-request',
+    subs: [
+      {
+        name: 'default',
+        alias: 'request',
+      },
+    ],
+  },
+];
 
 export const basic = createSchemaConfig({
   desc: '基础-自定义包',
   schema: {
-    // libModules,
+    libModules,
     compTree: [
       createCompNode('antd', 'Card', {
         title: 'antd.Card',
@@ -34,7 +82,7 @@ export const basic = createSchemaConfig({
 export const anonymousFunction = createSchemaConfig({
   desc: '基础-匿名函数',
   schema: {
-    // libModules,
+    libModules,
     compTree: [
       createCompNode('antd', 'Button', {
         type: 'primary',
@@ -53,7 +101,7 @@ export const anonymousFunction = createSchemaConfig({
 export const state = createSchemaConfig({
   desc: '基础-状态响应式',
   schema: {
-    // libModules,
+    libModules,
     states: [
       {
         desc: '响应式状态',
@@ -142,7 +190,7 @@ export const state = createSchemaConfig({
 export const listLoop = createSchemaConfig({
   desc: '基础-数组渲染',
   schema: {
-    // libModules,
+    libModules,
     states: [
       {
         name: 'record',
@@ -224,7 +272,7 @@ export const listLoop = createSchemaConfig({
 export const conditionBool = createSchemaConfig({
   desc: '基础-是否渲染',
   schema: {
-    // libModules,
+    libModules,
     states: [
       {
         name: 'visible',
@@ -263,7 +311,7 @@ export const conditionBool = createSchemaConfig({
 export const table = createSchemaConfig({
   desc: '表格-表达式、渲染函数',
   schema: {
-    // libModules,
+    libModules,
     refs: [{ name: 'actionRef', desc: '表格ref' }],
     compTree: [
       123,
@@ -493,10 +541,11 @@ export const table = createSchemaConfig({
         request: createAnonymousFunction({
           dependences: [
             {
-              type: NodeType.LIB,
-              libName: 'umi-request',
-              alias: 'request',
-              subName: 'default',
+              type: NodeType.MODULE,
+              name: 'request',
+              // libName: 'umi-request',
+              // alias: 'request',
+              // subName: 'default',
             },
           ],
           params: ['params', 'sort', 'filter'],

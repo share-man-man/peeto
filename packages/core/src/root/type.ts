@@ -3,7 +3,7 @@ import { SchemaEventItem } from '../event/type';
 import { SchemaStateItem, StateGetSetType, StateNodeType } from '../state/type';
 import { RefGetSetType, RefNodeType, SchemaRefItem } from '../ref/type';
 import { AnyType, JSONValue } from '../type';
-import { LibListMapType } from '../lib/type';
+import { ModulesMapType, SchemaLibItem } from '../lib/type';
 import { SchemaEffectItem } from '../effect/type';
 import { AnonymousFunctionNode } from '../func/type';
 
@@ -12,10 +12,10 @@ import { AnonymousFunctionNode } from '../func/type';
  */
 export interface SchemaRootObj {
   // TODO 组件树、渲染函数里，只能从这里获取相关组件、函数，SchemaCompTreeItem.packageName、SchemaEventItem.libName应该删掉
-  // /**
-  //  * 引入的包
-  //  */
-  // libModules: SchemaLibModulesItem[];
+  /**
+   * 引入的包
+   */
+  libModules?: SchemaLibItem[];
   // props参数
   /**
    * 状态集合
@@ -64,19 +64,19 @@ export interface GenerateNodePropType<VNodeType> extends StateRefGetSetType {
   /**
    * 依赖包集合
    */
-  libListMap: LibListMapType;
+  modulesMap: ModulesMapType;
   /**
    * 没有找到组件
    * @param obj
    * @returns
    */
   noMatchCompRender: (p: { schema: SchemaCompTreeItem }) => VNodeType;
-  /**
-   * 没有找到包
-   * @param obj
-   * @returns
-   */
-  noMatchLibRender: (p: { schema: SchemaCompTreeItem }) => VNodeType;
+  // /**
+  //  * 没有找到包
+  //  * @param obj
+  //  * @returns
+  //  */
+  // noMatchLibRender: (p: { schema: SchemaCompTreeItem }) => VNodeType;
 }
 
 export type ContextType = Record<string, AnyType>;

@@ -1,4 +1,4 @@
-export type { LibListItem, LibListMapType } from './lib/type';
+export type { LibListItem, ModulesMapType } from './lib/type';
 export type { SchemaStateItem, StateGetSetType } from './state/type';
 export type { RefGetSetType } from './ref/type';
 export type { SchemaCompTreeItem } from './component/type';

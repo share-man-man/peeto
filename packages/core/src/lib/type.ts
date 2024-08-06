@@ -1,14 +1,14 @@
 import { AnyType } from '../type';
 
-// export interface SchemaLibModulesItem {
-//   libName: string;
-//   subModules: {
-//     name: string;
-//     alias: string;
-//   }[];
-//   // subName: string;
-//   // alias?: string;
-// }
+export interface SchemaLibItem {
+  name: string;
+  subs: SchemaLibItemSubsItem[];
+}
+
+export interface SchemaLibItemSubsItem {
+  name: string;
+  alias?: string;
+}
 
 export interface LibListItem {
   /**
@@ -22,4 +22,4 @@ export interface LibListItem {
   load: () => Promise<AnyType>;
 }
 
-export type LibListMapType = Map<string, AnyType>;
+export type ModulesMapType = Map<string, AnyType>;

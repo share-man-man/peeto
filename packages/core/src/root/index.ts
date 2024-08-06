@@ -10,7 +10,7 @@ export enum NodeType {
   COMPONENT = 'component',
   REF = 'ref',
   ANONYMOUSFUNCTION = 'anonymous-function',
-  LIB = 'lib',
+  MODULE = 'module',
 }
 
 /**
@@ -22,9 +22,9 @@ export const generateNode = <VNodeType>({
   getState,
   getRef,
   onCreateCompNode,
-  libListMap,
+  modulesMap,
   noMatchCompRender,
-  noMatchLibRender,
+  // noMatchLibRender,
   setState,
 }: GenerateNodePropType<VNodeType>) => {
   const { schemaNodePaths = [], compTree } = schemaRootObj;
@@ -67,7 +67,7 @@ export const generateNode = <VNodeType>({
           effectStates,
           setState,
           ctx,
-          libListMap,
+          modulesMap,
           getRef,
         });
 
@@ -112,21 +112,22 @@ export const generateNode = <VNodeType>({
       return func;
     },
     parseSchemaComp: ({ curSchema: obj, props }) => {
-      const lib = libListMap.get(obj.packageName);
-      // 没有找到包
-      if (!lib) {
-        return noMatchLibRender({
-          schema: obj,
-        });
-      }
+      // const lib = modulesMap.get(obj.componentName);
+      // // 没有找到包
+      // if (!lib) {
+      //   return noMatchLibRender({
+      //     schema: obj,
+      //   });
+      // }
 
       const { componentName } = obj;
       // 组件可能包含子组件，比如Form.Item,Radio.Group
       const compPath = componentName.split('.');
-      let matchComp = lib;
+      let matchComp = { [compPath[0]]: modulesMap.get(compPath[0]) };
       compPath.forEach((name) => {
         matchComp = (matchComp || {})[name];
       });
+
       // 没找到组件
       if (!matchComp) {
         return noMatchCompRender({

@@ -3,7 +3,7 @@ import { isBasicNode, isSchemaCompTree } from '../component';
 import { SchemaCompTreePath } from '../component/type';
 import { getSetStateFuncName, isAnonymousFunctionNode } from '../func';
 import { GenerateArgumentsType } from '../func/type';
-import { LibListItem, LibListMapType } from '../lib/type';
+import { LibListItem, ModulesMapType } from '../lib/type';
 import { isRefNode } from '../ref';
 import { isStateNode } from '../state';
 import { AnyType } from '../type';
@@ -171,46 +171,46 @@ export const isPathEqual = (p1: SchemaCompTreePath, p2: SchemaCompTreePath) => {
  */
 export const getLibInRoot = ({ obj }: { obj: SchemaRootObj }) => {
   const libList: Record<string, Map<string, string>> = {};
-  const toAdd = ({
-    libName,
-    subName,
-    alias,
-  }: {
-    libName: string;
-    subName: string;
-    alias?: string;
-  }) => {
-    if (!libList[libName]) {
-      libList[libName] = new Map();
-    }
-    libList[libName].set(subName, alias || subName);
-  };
+  // const toAdd = ({
+  //   libName,
+  //   subName,
+  //   alias,
+  // }: {
+  //   libName: string;
+  //   subName: string;
+  //   alias?: string;
+  // }) => {
+  //   if (!libList[libName]) {
+  //     libList[libName] = new Map();
+  //   }
+  //   libList[libName].set(subName, alias || subName);
+  // };
   // 组件树所用到的组件
   // 后面可以从stat、event、ref提取
   parseObj({
     node: obj.compTree,
     nodePath: obj.schemaNodePaths || [],
-    parseSchemaComp: ({ curSchema }) => {
-      const { packageName: pName, componentName } = curSchema;
-      const cName = componentName.split('.')[0];
-      toAdd({ libName: pName, subName: cName });
-    },
-    parseAnonymousFunctionNode: (p) => {
-      Object.keys(p.curSchema).forEach((k) => {
-        p.deepRecursionParse({
-          cur: p.curSchema[k as keyof typeof p.curSchema],
-          ctx: p.ctx,
-          path: [...p.path, k],
-        });
-      });
-      const { curSchema } = p;
-      const { dependences } = curSchema;
-      dependences?.forEach((d) => {
-        if (d.type === 'lib') {
-          toAdd({ libName: d.libName, subName: d.subName, alias: d.alias });
-        }
-      });
-    },
+    // parseSchemaComp: ({ curSchema }) => {
+    //   const { packageName: pName, componentName } = curSchema;
+    //   const cName = componentName.split('.')[0];
+    //   toAdd({ libName: pName, subName: cName });
+    // },
+    // parseAnonymousFunctionNode: (p) => {
+    //   Object.keys(p.curSchema).forEach((k) => {
+    //     p.deepRecursionParse({
+    //       cur: p.curSchema[k as keyof typeof p.curSchema],
+    //       ctx: p.ctx,
+    //       path: [...p.path, k],
+    //     });
+    //   });
+    //   const { curSchema } = p;
+    //   const { dependences } = curSchema;
+    //   dependences?.forEach((d) => {
+    //     if (d.type === 'lib') {
+    //       toAdd({ libName: d.libName, subName: d.subName, alias: d.alias });
+    //     }
+    //   });
+    // },
   });
 
   return libList;
@@ -225,38 +225,35 @@ export const getLibInRoot = ({ obj }: { obj: SchemaRootObj }) => {
 export const loadLibList = async (
   obj: SchemaRootObj,
   libList: LibListItem[]
-): Promise<LibListMapType> => {
+): Promise<ModulesMapType> => {
   // 1、分析依赖包
-  const libMap: LibListMapType = new Map();
-  const schemaLibObj = getLibInRoot({ obj });
+  const map: ModulesMapType = new Map();
+  // const schemaLibObj = getLibInRoot({ obj });
+  const { libModules = [] } = obj;
+  const nameList = libModules.map((l) => l.name);
   // 2、异步加载依赖包
-  const loadList = Object.keys(schemaLibObj).map((name) => {
+  const loadList = nameList.map((name) => {
     return (
       libList.find((p) => p.name === name)?.load?.() || Promise.resolve()
     ).then((res) => {
       if (res) {
-        libMap.set(name, res);
+        // libMap.set(name, res);
+        // console.log(11, res);
+
+        libModules.forEach((l) => {
+          if (l.name === name) {
+            l.subs.forEach((s) => {
+              map.set(s.alias || s.name, res[s.name]);
+            });
+          }
+        });
       }
     });
   });
 
   await Promise.all(loadList);
 
-  return libMap;
-};
-
-const getLibValue = ({
-  libName,
-  subName,
-  libListMap,
-}: {
-  libName: string;
-  subName: string;
-  libListMap: LibListMapType;
-}) => {
-  let curLib = libListMap.get(libName);
-  curLib = curLib[subName];
-  return curLib;
+  return map;
 };
 
 /**
@@ -271,7 +268,7 @@ export const generateArguments: GenerateArgumentsType = ({
   effectStates,
   setState,
   ctx = {},
-  libListMap,
+  modulesMap,
   getRef,
 }) => {
   const fieldMap: Map<string, AnyType> = new Map();
@@ -283,15 +280,8 @@ export const generateArguments: GenerateArgumentsType = ({
       case NodeType.STATE:
         fieldMap.set(d.stateName, getState({ stateName: d.stateName }));
         break;
-      case NodeType.LIB:
-        fieldMap.set(
-          d.alias || d.subName,
-          getLibValue({
-            libListMap,
-            libName: d.libName,
-            subName: d.subName,
-          })
-        );
+      case NodeType.MODULE:
+        fieldMap.set(d.name, modulesMap.get(d.name));
         break;
       case NodeType.REF:
         fieldMap.set(d.refName, getRef({ refName: d.refName }));

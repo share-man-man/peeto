@@ -1,5 +1,5 @@
 // import { SchemaRefItem } from '../ref/type';
-import { LibListItem } from '../lib/type';
+import { SchemaLibItemSubsItem } from '../lib/type';
 import { SchemaRefItem } from '../ref/type';
 import { NodeType } from '../root';
 import { SchemaStateItem } from '../state/type';
@@ -14,10 +14,11 @@ export interface SchemaEffectItem {
         stateName: SchemaStateItem['name'];
       }
     | {
-        type: NodeType.LIB;
-        libName: LibListItem['name'];
-        alias?: string;
-        subName: string;
+        type: NodeType.MODULE;
+        name: SchemaLibItemSubsItem['name'];
+        // libName: LibListItem['name'];
+        // alias?: string;
+        // subName: string;
       }
     | {
         type: NodeType.REF;

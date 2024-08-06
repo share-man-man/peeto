@@ -1,6 +1,6 @@
 import { SchemaCompTreeItem } from '../component/type';
 import { SchemaEffectItem } from '../effect/type';
-import { LibListMapType } from '../lib/type';
+import { ModulesMapType } from '../lib/type';
 import { RefGetSetType } from '../ref/type';
 import { NodeType } from '../root';
 import { ContextType, ParseObjOptionType } from '../root/type';
@@ -92,7 +92,7 @@ export interface GenerateArgumentsType {
         paramsValueList?: AnyType[];
         ctx: ContextType;
       } & {
-        libListMap: LibListMapType;
+        modulesMap: ModulesMapType;
       }
   ): {
     argNameList: string[];

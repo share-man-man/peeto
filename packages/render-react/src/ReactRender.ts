@@ -2,53 +2,63 @@ import { useState, useEffect } from 'react';
 import {
   defaultLoading,
   defaultNoMatchCompRender,
-  defaultNoMatchLibRender,
+  // defaultNoMatchLibRender,
 } from './utils';
-import SchemaComp, { SchemaCompProps } from './components/SchemaComp';
-import { ReactRenderProps } from './type';
+import SchemaComp from './components/SchemaComp';
+import { ReactRenderProps, SchemaCompProps } from './type';
 import useCreateNodeFunc from './hooks/useCreateNodeFunc';
 import { getSchemaObjFromStr, loadLibList } from '@peeto/core';
 
-const ReactRender = (props: ReactRenderProps) => {
+const ReactRender = ({
+  schemaStr: prevSchemaStr,
+  libList,
+  loadingRender,
+  onCreateCompNode,
+  noMatchCompRender = defaultNoMatchCompRender,
+  // noMatchLibRender = defaultNoMatchLibRender,
+  ...props
+}: ReactRenderProps) => {
   const [loading, setLoading] = useState(true);
   const [schemaStr, setSchemaStr] = useState<string>();
   // 包集合
-  const [libListMap, setLibListMap] = useState<SchemaCompProps['libListMap']>(
+  const [modulesMap, setModulesMap] = useState<SchemaCompProps['modulesMap']>(
     new Map()
   );
 
-  const onCreateCompNode = useCreateNodeFunc(props);
+  const curOnCreateCompNode = useCreateNodeFunc({ onCreateCompNode });
 
   useEffect(() => {
-    if (schemaStr !== props?.schemaStr) {
+    if (schemaStr !== prevSchemaStr) {
       setLoading(true);
-      const schemaObj = getSchemaObjFromStr(props?.schemaStr);
+      const schemaObj = getSchemaObjFromStr(prevSchemaStr);
       // 加载依赖包
-      loadLibList(schemaObj, props?.libList).then((res) => {
-        setLibListMap(res);
-        setSchemaStr(props?.schemaStr);
+      loadLibList(schemaObj, libList).then((res) => {
+        setModulesMap(res);
+        setSchemaStr(prevSchemaStr);
         setLoading(false);
       });
     }
-  }, [props?.libList, props?.schemaStr, schemaStr]);
+  }, [libList, prevSchemaStr, schemaStr]);
 
   // schema变化，重置渲染节点，避免状态管理出现混乱的问题
-  if (loading || schemaStr !== props?.schemaStr) {
+  if (loading || schemaStr !== prevSchemaStr) {
     return onCreateCompNode({
-      comp: props?.loadingRender || defaultLoading,
+      comp: loadingRender || defaultLoading,
       props: undefined,
     });
   }
 
+  // console.log(22, modulesMap, schemaStr);
+
   const res = onCreateCompNode({
     comp: SchemaComp,
     props: {
+      modulesMap,
       schemaStr,
-      onCreateCompNode,
-      onNodeChange: props.onNodeChange,
-      libListMap,
-      noMatchCompRender: props.noMatchCompRender || defaultNoMatchCompRender,
-      noMatchLibRender: props.noMatchLibRender || defaultNoMatchLibRender,
+      onCreateCompNode: curOnCreateCompNode,
+      noMatchCompRender,
+      // noMatchLibRender,
+      ...props,
     },
   });
 

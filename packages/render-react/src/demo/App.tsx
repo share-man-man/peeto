@@ -99,13 +99,16 @@ const enumOp: {
 ];
 
 function App() {
-  const [key, setKey] = useState('table');
+  const [key, setKey] = useState(
+    localStorage.getItem('_test_cur_key') || 'state'
+  );
 
   const [str, setStr] = useState('');
 
   useEffect(() => {
     if (key) {
       setStr(enumOp.find((e) => e.key === key)?.str || '');
+      localStorage.setItem('_test_cur_key', key);
     }
   }, [key]);
 
@@ -165,25 +168,25 @@ function App() {
             load: async () => import('umi-request'),
           },
         ]}
-        noMatchLibRender={({ schema }) => {
-          const { id: componentId, packageName } = schema;
-          return (
-            <div
-              key={`nomatch-package-${componentId}`}
-              style={{
-                color: 'red',
-                borderWidth: 2,
-                borderStyle: 'solid',
-                borderColor: 'red',
-                padding: 12,
-              }}
-            >
-              没有找到包:{packageName}
-            </div>
-          );
-        }}
+        // noMatchLibRender={({ schema }) => {
+        //   const { id: componentId, packageName } = schema;
+        //   return (
+        //     <div
+        //       key={`nomatch-package-${componentId}`}
+        //       style={{
+        //         color: 'red',
+        //         borderWidth: 2,
+        //         borderStyle: 'solid',
+        //         borderColor: 'red',
+        //         padding: 12,
+        //       }}
+        //     >
+        //       没有找到包:{packageName}
+        //     </div>
+        //   );
+        // }}
         noMatchCompRender={({ schema }) => {
-          const { id: componentId, componentName, packageName } = schema;
+          const { id: componentId, componentName } = schema;
           return (
             <div
               key={`nomatch-package-component-${componentId}`}
@@ -195,7 +198,7 @@ function App() {
                 padding: 12,
               }}
             >
-              包:{packageName}里没有找到组件:{componentName}
+              没有找到组件:{componentName}
             </div>
           );
         }}
