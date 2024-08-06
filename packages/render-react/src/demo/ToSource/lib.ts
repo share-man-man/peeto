@@ -1,16 +1,17 @@
-export const getLibStr = (libList: Record<string, Map<string, string>>) => {
-  return Object.keys(libList)
+import { SchemaRootObj } from '@peeto/core';
+
+export const getLibStr = (schema: SchemaRootObj) => {
+  return (schema.libModules || [])
     .map(
-      (k) =>
-        `import { ${Array.from(libList[k].keys())
-          .map((subName) => {
-            const alias = libList[k].get(subName);
+      ({ name, subs }) =>
+        `import { ${subs
+          .map(({ name: subName, alias }) => {
             if (alias) {
               return `${subName} as ${alias}`;
             }
             return subName;
           })
-          .join(',')} } from '${k}';`
+          .join(',')} } from '${name}';`
     )
     .join('\n');
 };

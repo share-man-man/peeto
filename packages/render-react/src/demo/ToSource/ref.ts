@@ -5,7 +5,7 @@ export const getRefStr = (schema: SchemaRootObj) => {
     .map(
       (s) =>
         `${s.desc ? `// ${s.desc}` : ''}
-        const ${s.name} = useRef(${s.initialValue})
+        const ${s.name} = useRef(${s.initialValue || 'null'})
       `
     )
     .join('\n');

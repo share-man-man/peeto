@@ -1,16 +1,19 @@
-import { AnyType } from '../../../../../../packages/core/src/type';
-import { GenerateFuncBaseOptionType } from '../../../../../../packages/core/src/func/type';
-import { ConditionTypeEnum } from '../../../../../../packages/core/src/func';
+import { AnonymousFunctionNode, AnyType, ConditionTypeEnum } from '@peeto/core';
+import { getCompTreeStr } from '../comp-tree';
+
+export type GenerateFuncBaseOptionType = {
+  curSchema: AnonymousFunctionNode;
+  deepRecursionParse: (
+    d: AnyType,
+    op: Parameters<typeof getCompTreeStr>[1]
+  ) => AnyType;
+};
 
 /**
  * 执行普通函数执行结果
  * @returns
  */
-export const generateFuncRes = <VNodeType>({
-  curSchema,
-}: //   argList,
-//   argNameList,
-GenerateFuncBaseOptionType<VNodeType>) => {
+export const generateFuncRes = ({ curSchema }: GenerateFuncBaseOptionType) => {
   const { body = '' } = curSchema.func || {};
   // 立即执行函数
   let parseBody = body;
@@ -24,14 +27,10 @@ GenerateFuncBaseOptionType<VNodeType>) => {
  * 渲染函数执行结果
  * @returns
  */
-export const generateRenderFuncDefaultRes = <VNodeType>({
+export const generateRenderFuncDefaultRes = ({
   curSchema,
   deepRecursionParse,
-  path,
-  argList,
-  argNameList,
-  ctx,
-}: GenerateFuncBaseOptionType<VNodeType>) => {
+}: GenerateFuncBaseOptionType) => {
   const { compTree } = curSchema.renderFunc || {};
   return `${deepRecursionParse(compTree, { parentNode: 'object' })}`;
 };
@@ -40,10 +39,8 @@ export const generateRenderFuncDefaultRes = <VNodeType>({
  * 布尔渲染
  * @returns
  */
-export const generateRenderFuncBoolean = <VNodeType>(
-  p: GenerateFuncBaseOptionType<VNodeType>
-) => {
-  const { curSchema, deepRecursionParse, path, ctx } = p;
+export const generateRenderFuncBoolean = (p: GenerateFuncBaseOptionType) => {
+  const { curSchema, deepRecursionParse /* path, ctx  */ } = p;
   const { boolean } = curSchema.renderFunc || {};
 
   const { data = '' } = boolean || {};
@@ -57,14 +54,10 @@ export const generateRenderFuncBoolean = <VNodeType>(
  * 数组渲染
  * @returns
  */
-export const generateRenderFuncListLoop = <VNodeType>({
+export const generateRenderFuncListLoop = ({
   curSchema,
   deepRecursionParse,
-  path,
-  ctx,
-  argList,
-  argNameList,
-}: GenerateFuncBaseOptionType<VNodeType>) => {
+}: GenerateFuncBaseOptionType) => {
   const { listLoop, compTree } = curSchema.renderFunc || {};
   const { data, mapParams = [] } = listLoop || {};
   const mapData = deepRecursionParse(data, { parentNode: 'object' });
@@ -76,39 +69,16 @@ export const generateRenderFuncListLoop = <VNodeType>({
   return `${mapData}.map((${mapParams.join(',')})=>{
     return ${listData}
 })`;
-
-  // return listData.map((...mapParamsValueList) => {
-  //   // 将map的渲染函数放入上下文
-  //   const newCtx = {
-  //     ...ctx,
-  //     // 将函数参数传入下级的上下文
-  //     ...Object.fromEntries([
-  //       ...argNameList.map((n, index) => [n, argList[index]]),
-  //       ...mapParams.map((mapParamItem, mapParamItemIndex) => [
-  //         mapParamItem,
-  //         mapParamsValueList[mapParamItemIndex],
-  //       ]),
-  //     ]),
-  //   };
-  //   const r = deepRecursionParse({
-  //     cur: compTree,
-  //     path: [...path, 'renderFunc', 'compTree'],
-  //     ctx: newCtx,
-  //   });
-  //   return r;
-  // });
 };
 
 /**
  * 渲染函数
  * @returns
  */
-export const generateRenderFuncRes = <VNodeType>(
-  p: GenerateFuncBaseOptionType<VNodeType>
-) => {
+export const generateRenderFuncRes = (p: GenerateFuncBaseOptionType) => {
   const { conditionType = ConditionTypeEnum.DEFAULT } =
     p.curSchema.renderFunc || {};
-  let res = null;
+  let res = '';
   let neverRes: never;
   switch (conditionType) {
     case ConditionTypeEnum.LISTLOOP:
@@ -123,7 +93,7 @@ export const generateRenderFuncRes = <VNodeType>(
     default:
       neverRes = conditionType;
       if (neverRes) {
-        res = null;
+        res = '';
       }
       break;
   }

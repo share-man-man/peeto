@@ -1,6 +1,6 @@
 import ReactRender from '../ReactRender';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { Button, message, Radio, Row, Typography } from 'antd';
 
@@ -12,54 +12,8 @@ import {
   listLoop,
   conditionBool,
 } from '../../../../demo-schema/react/basic';
-import { getLibInRoot, SchemaRootObj } from '@peeto/core';
 import SourceCode from './SourceCode';
-import { getStateStr } from './ToSource/state';
-import { getEffectStr } from './ToSource/effect';
-import { getCompTreeStr, recusionCompTree } from './ToSource/compTree';
-import { getLibStr } from './ToSource/lib';
-import { getRefStr } from './ToSource/ref';
-
-const toReactStr = (str: string) => {
-  const libStr = getLibStr(
-    getLibInRoot({ obj: JSON.parse(str || '{}') as SchemaRootObj })
-  );
-  const stateStr = getStateStr(JSON.parse(str || '{}') as SchemaRootObj);
-  const refStr = getRefStr(JSON.parse(str || '{}') as SchemaRootObj);
-  const effectsStr = getEffectStr(JSON.parse(str || '{}') as SchemaRootObj);
-  const { treeObj } = recusionCompTree(
-    JSON.parse(str || '{}') as SchemaRootObj
-  );
-  const treeStr = getCompTreeStr(treeObj, { parentNode: 'comp' });
-
-  return `import { useState, useEffect, useRef } from "react";
-${libStr}
-
-const Index = () => {
-  // 引入依赖包
-
-  // 状态
-  ${stateStr}
-
-  // ref
-  ${refStr}
-
-  // 事件
-
-  // 副作用
-  ${effectsStr}
-
-  // 组件树
-  return (
-    <>
-      ${treeStr}
-    </>
-  );
-};
-
-export default Index
-`;
-};
+import { toReactStr } from './ToSource';
 
 const enumOp: {
   key: string;
@@ -104,6 +58,13 @@ function App() {
   );
 
   const [str, setStr] = useState('');
+
+  const reactCode = useMemo(() => {
+    if (!str) {
+      return '';
+    }
+    return toReactStr(str);
+  }, [str]);
 
   useEffect(() => {
     if (key) {
@@ -210,14 +171,14 @@ function App() {
           type="primary"
           size="small"
           onClick={() => {
-            navigator.clipboard.writeText(toReactStr(str));
+            navigator.clipboard.writeText(reactCode);
             message.success('复制成功，请粘贴到SourceCode.tsx以验证');
           }}
         >
           复制代码
         </Button>
       </Typography.Title>
-      <pre>{str && toReactStr(str)}</pre>
+      <pre>{reactCode}</pre>
       <Typography.Title level={2}>出码渲染验证</Typography.Title>
       <SourceCode />
     </div>

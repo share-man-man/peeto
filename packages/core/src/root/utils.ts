@@ -166,57 +166,6 @@ export const isPathEqual = (p1: SchemaCompTreePath, p2: SchemaCompTreePath) => {
 };
 
 /**
- * 获取schema中用到的包
- * @returns
- */
-export const getLibInRoot = ({ obj }: { obj: SchemaRootObj }) => {
-  const libList: Record<string, Map<string, string>> = {};
-  // const toAdd = ({
-  //   libName,
-  //   subName,
-  //   alias,
-  // }: {
-  //   libName: string;
-  //   subName: string;
-  //   alias?: string;
-  // }) => {
-  //   if (!libList[libName]) {
-  //     libList[libName] = new Map();
-  //   }
-  //   libList[libName].set(subName, alias || subName);
-  // };
-  // 组件树所用到的组件
-  // 后面可以从stat、event、ref提取
-  parseObj({
-    node: obj.compTree,
-    nodePath: obj.schemaNodePaths || [],
-    // parseSchemaComp: ({ curSchema }) => {
-    //   const { packageName: pName, componentName } = curSchema;
-    //   const cName = componentName.split('.')[0];
-    //   toAdd({ libName: pName, subName: cName });
-    // },
-    // parseAnonymousFunctionNode: (p) => {
-    //   Object.keys(p.curSchema).forEach((k) => {
-    //     p.deepRecursionParse({
-    //       cur: p.curSchema[k as keyof typeof p.curSchema],
-    //       ctx: p.ctx,
-    //       path: [...p.path, k],
-    //     });
-    //   });
-    //   const { curSchema } = p;
-    //   const { dependences } = curSchema;
-    //   dependences?.forEach((d) => {
-    //     if (d.type === 'lib') {
-    //       toAdd({ libName: d.libName, subName: d.subName, alias: d.alias });
-    //     }
-    //   });
-    // },
-  });
-
-  return libList;
-};
-
-/**
  * 解析对象，加载实际用到的依赖包，配合懒加载，尽量剔除无用的资源
  * @param obj
  * @param packageList
@@ -228,7 +177,6 @@ export const loadLibList = async (
 ): Promise<ModulesMapType> => {
   // 1、分析依赖包
   const map: ModulesMapType = new Map();
-  // const schemaLibObj = getLibInRoot({ obj });
   const { libModules = [] } = obj;
   const nameList = libModules.map((l) => l.name);
   // 2、异步加载依赖包

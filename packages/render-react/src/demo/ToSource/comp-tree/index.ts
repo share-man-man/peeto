@@ -1,13 +1,15 @@
 import {
   AnyType,
+  FuncTypeEnum,
   parseObj,
   ParseObjOptionType,
   SchemaRootObj,
 } from '@peeto/core';
-import { FuncTypeEnum } from '../../../../../../packages/core/src/func';
-// import { GenerateFuncBaseOptionType } from '../../../../../../packages/core/src/func/type';
-// import { ReactNode } from 'react';
-import { generateFuncRes, generateRenderFuncRes } from '../func';
+import {
+  GenerateFuncBaseOptionType,
+  generateFuncRes,
+  generateRenderFuncRes,
+} from '../func';
 
 export class StateNode {
   config: AnyType = null;
@@ -70,16 +72,9 @@ export const getCompTreeStr = (
 
     const { params = [], funcType = FuncTypeEnum.FUNC } = curSchema;
 
-    const mergeFuncParams = {
+    const mergeFuncParams: GenerateFuncBaseOptionType = {
       curSchema,
-      // argList: [],
-      // argNameList: [],
-      // ctx,
-      // path,
-      deepRecursionParse: (
-        d: AnyType,
-        op: Parameters<typeof getCompTreeStr>[1]
-      ): AnyType => {
+      deepRecursionParse: (d, op) => {
         return getCompTreeStr(d, op || { parentNode });
       },
     };
@@ -102,7 +97,6 @@ export const getCompTreeStr = (
     }
 
     if (!curSchema.IIFE) {
-      // res = `(${res})()`;
       res = `(${params.join(',')})=>{
         ${res}
       }`;
@@ -218,7 +212,7 @@ export const recusionCompTree = (schemaRootObj: SchemaRootObj) => {
     parseStateNode: (p) => new StateNode(p),
     parseAnonymousFunctionNode: (p) => {
       Object.keys(p.curSchema).forEach((k) => {
-        p.curSchema[k] = p.deepRecursionParse({
+        (p.curSchema as AnyType)[k] = p.deepRecursionParse({
           cur: p.curSchema[k as keyof typeof p.curSchema],
           ctx: p.ctx,
           path: [...p.path, k],

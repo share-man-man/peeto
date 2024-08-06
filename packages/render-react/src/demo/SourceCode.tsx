@@ -1,9 +1,21 @@
-import { Typography as Typography, Card as Card } from 'antd';
+import { useState } from 'react';
+import { Space, Tag } from 'antd';
 
 const Index = () => {
   // 引入依赖包
 
   // 状态
+
+  const [record] = useState({
+    title: '🐛 [BUG]yarn install命令 antd2.4.5会报错',
+    labels: [
+      { name: 'error', color: 'error' },
+      { name: 'success', color: 'success' },
+      { name: 'processing', color: 'processing' },
+      { name: 'default', color: 'default' },
+      { name: 'warning ', color: 'warning' },
+    ],
+  });
 
   // ref
 
@@ -14,11 +26,15 @@ const Index = () => {
   // 组件树
   return (
     <>
-      <Card key="b945448a-a0a2-4b8c-80a9-09a804200664" title="antd.Card">
-        <Typography.Text key="ee241269-e8ce-4548-9cb3-dc52365df855">
-          包：my-custom 组件：Text
-        </Typography.Text>
-      </Card>
+      <Space key="fcb947a7-89a3-442c-b7e5-a23f4edd7c82">
+        {record.labels.map((lablesItem) => {
+          return [
+            <Tag key={lablesItem.name} color={lablesItem.color}>
+              {lablesItem.color}
+            </Tag>,
+          ];
+        })}
+      </Space>
     </>
   );
 };
