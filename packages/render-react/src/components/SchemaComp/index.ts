@@ -14,7 +14,6 @@ import {
   useRef,
   useMemo,
   FC,
-  useCallback,
   MutableRefObject,
 } from 'react';
 import { SchemaCompProps } from '../../type';
@@ -26,65 +25,52 @@ const createEffect = useEffect;
 const createRef = useRef;
 
 const Index: FC<SchemaCompProps> = ({ schemaStr, ctx = {}, ...props }) => {
+  // 触发重新渲染
+  const [renderFlag, setRenderFlag] = useState<boolean | null>(true);
   // 避免react多次渲染
   const propsRef = useRef(props);
   propsRef.current = props;
+  // 上下文
   const ctxRef = useRef<ContextType>(ctx);
-  const [renderFlag, setRenderFlag] = useState<boolean | null>(true);
-
   // 状态集合
   const stateMapRef = useRef(new StateMap());
-  // ref集合
-  const refMapRef = useRef<Map<string, MutableRefObject<AnyType>>>(new Map());
-  // hook集合
-  const hookMapRef = useRef(new Map<string, AnyType>());
-
-  const schemaRootObj = getSchemaObjFromStr(schemaStr);
-
-  // 使用自带的状态管理
-  const schemaObjStates = schemaRootObj.states;
-  schemaObjStates?.forEach((s) => {
-    const [stateValue, setStateValue] = createState(s.initialValue);
-    stateMapRef.current.addState(s.name, stateValue, setStateValue);
-  });
-
-  // 使用自带的ref管理
-  const schemaObjRefs = schemaRootObj.refs;
-  schemaObjRefs?.forEach((r) => {
-    const customRef = createRef(r.initialValue);
-    refMapRef.current.set(r.name, customRef);
-  });
-
-  const getState = useCallback<StateGetSetType['getState']>(({ stateName }) => {
+  const getStateRef = useRef<StateGetSetType['getState']>(({ stateName }) => {
     return stateMapRef.current.get(stateName);
-  }, []);
-  const getStateRef = useRef(getState);
-  getStateRef.current = getState;
-
-  const setState = useCallback<StateGetSetType['setState']>(
+  });
+  const setStateRef = useRef<StateGetSetType['setState']>(
     ({ fieldList = [] }) => {
       fieldList.forEach(({ name, value }) => {
         stateMapRef.current.set(name, value);
       });
       // state改变后，通知react重新渲染state
       setRenderFlag((prev) => !prev);
-    },
-    []
+    }
   );
-  const setStateRef = useRef(setState);
-  setStateRef.current = setState;
-
-  const getRef = useCallback<RefGetSetType['getRef']>(({ refName }) => {
+  // ref集合
+  const refMapRef = useRef<Map<string, MutableRefObject<AnyType>>>(new Map());
+  const getRefRef = useRef<RefGetSetType['getRef']>(({ refName }) => {
     return refMapRef.current.get(refName);
-  }, []);
-  const getRefRef = useRef(getRef);
-  getRefRef.current = getRef;
-
-  const getHook = useCallback<HookGetSetType['getHook']>(({ hookName }) => {
+  });
+  // hook集合
+  const hookMapRef = useRef(new Map<string, AnyType>());
+  const getHookRef = useRef<HookGetSetType['getHook']>(({ hookName }) => {
     return hookMapRef.current.get(hookName);
-  }, []);
-  const getHookRef = useRef(getHook);
-  getHookRef.current = getHook;
+  });
+
+  // schema对象
+  const schemaRootObj = getSchemaObjFromStr(schemaStr);
+
+  // 使用自带的状态管理
+  schemaRootObj.states?.forEach((s) => {
+    const [stateValue, setStateValue] = createState(s.initialValue);
+    stateMapRef.current.addState(s.name, stateValue, setStateValue);
+  });
+
+  // 使用自带的ref管理
+  schemaRootObj.refs?.forEach((r) => {
+    const customRef = createRef(r.initialValue);
+    refMapRef.current.set(r.name, customRef);
+  });
 
   // 自定义hooks
   schemaRootObj.customHooks?.forEach(
