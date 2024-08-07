@@ -6,6 +6,7 @@ import {
   StateGetSetType,
   RefGetSetType,
   StateMap,
+  ContextType,
 } from '@peeto/core';
 import {
   useEffect,
@@ -17,23 +18,26 @@ import {
   MutableRefObject,
 } from 'react';
 import { SchemaCompProps } from '../../type';
+import { HookGetSetType } from 'packages/core/src/hook/type';
 
 // 避免lint检测到条件判断里的useState、useEffect等
 const createState = useState;
 const createEffect = useEffect;
 const createRef = useRef;
 
-const Index: FC<SchemaCompProps> = ({ schemaStr, ...props }) => {
+const Index: FC<SchemaCompProps> = ({ schemaStr, ctx = {}, ...props }) => {
   // 避免react多次渲染
   const propsRef = useRef(props);
   propsRef.current = props;
-
+  const ctxRef = useRef<ContextType>(ctx);
   const [renderFlag, setRenderFlag] = useState<boolean | null>(true);
 
   // 状态集合
   const stateMapRef = useRef(new StateMap());
   // ref集合
   const refMapRef = useRef<Map<string, MutableRefObject<AnyType>>>(new Map());
+  // hook集合
+  const hookMapRef = useRef(new Map<string, AnyType>());
 
   const schemaRootObj = getSchemaObjFromStr(schemaStr);
 
@@ -76,8 +80,44 @@ const Index: FC<SchemaCompProps> = ({ schemaStr, ...props }) => {
   const getRefRef = useRef(getRef);
   getRefRef.current = getRef;
 
+  const getHook = useCallback<HookGetSetType['getHook']>(({ hookName }) => {
+    return hookMapRef.current.get(hookName);
+  }, []);
+  const getHookRef = useRef(getHook);
+  getHookRef.current = getHook;
+
+  // 自定义hooks
+  schemaRootObj.customHooks?.forEach(
+    ({ name, arrDestructs, objDestructs, effect }) => {
+      const { body, dependences = [], effectStates = [] } = effect;
+      const { argList, argNameList } = generateArguments({
+        effectStates,
+        setState: setStateRef.current,
+        getState: getStateRef.current,
+        dependences,
+        ctx: ctxRef.current,
+        modulesMap: props.modulesMap,
+        getRef: getRefRef.current,
+        getHook: getHookRef.current,
+      });
+
+      const res = new Function(...argNameList, body).call({}, ...argList);
+      if (name) {
+        hookMapRef.current.set(name, res);
+      } else if (arrDestructs) {
+        arrDestructs.forEach((n, index) => {
+          hookMapRef.current.set(n, res[index]);
+        });
+      } else if (objDestructs) {
+        objDestructs.forEach(({ alias, name: n }) => {
+          hookMapRef.current.set(alias || n, res[n]);
+        });
+      }
+    }
+  );
+
   // 使用自带的依赖管理函数
-  schemaRootObj.effects?.forEach(({ effectStates, body, dependences }) => {
+  schemaRootObj.effects?.forEach(({ effectStates, body, dependences = [] }) => {
     createEffect(
       () => {
         const { argList, argNameList } = generateArguments({
@@ -85,9 +125,10 @@ const Index: FC<SchemaCompProps> = ({ schemaStr, ...props }) => {
           setState: setStateRef.current,
           getState: getStateRef.current,
           dependences,
-          ctx: {},
+          ctx: ctxRef.current,
           modulesMap: props.modulesMap,
           getRef: getRefRef.current,
+          getHook: getHookRef.current,
         });
 
         new Function(...argNameList, body).call({}, ...argList);
@@ -108,6 +149,8 @@ const Index: FC<SchemaCompProps> = ({ schemaStr, ...props }) => {
       getRef: getRefRef.current,
       getState: getStateRef.current,
       setState: setStateRef.current,
+      getHook: getHookRef.current,
+      ctx: ctxRef.current,
       ...propsRef.current,
     });
 

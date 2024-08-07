@@ -11,6 +11,7 @@ import {
   table,
   listLoop,
   conditionBool,
+  form,
 } from '../../../../demo-schema/react/basic';
 import SourceCode from './SourceCode';
 import { toReactStr } from './ToSource';
@@ -49,6 +50,11 @@ const enumOp: {
     key: 'table',
     label: table.desc,
     str: JSON.stringify(table.schema),
+  },
+  {
+    key: 'form',
+    label: form.desc,
+    str: JSON.stringify(form.schema),
   },
 ];
 

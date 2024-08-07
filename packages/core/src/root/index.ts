@@ -7,6 +7,7 @@ import { generateArguments, parseObj } from './utils';
 export enum NodeType {
   STATE = 'state',
   EVENT = 'event',
+  HOOK = 'hook',
   COMPONENT = 'component',
   REF = 'ref',
   ANONYMOUSFUNCTION = 'anonymous-function',
@@ -21,16 +22,19 @@ export const generateNode = <VNodeType>({
   schemaRootObj,
   getState,
   getRef,
+  getHook,
   onCreateCompNode,
   modulesMap,
   noMatchCompRender,
   // noMatchLibRender,
   setState,
+  ...rest
 }: GenerateNodePropType<VNodeType>) => {
   const { schemaNodePaths = [], compTree } = schemaRootObj;
   // 解析渲染组件
   const nodeObj = parseObj({
     // customDeep: true,
+    ...rest,
     node: compTree,
     nodePath: schemaNodePaths || [],
     parseStateNode: ({ curSchema }) => {
@@ -40,6 +44,10 @@ export const generateNode = <VNodeType>({
     parseRefNode: ({ curSchema }) => {
       const { refName } = curSchema;
       return getRef?.({ refName });
+    },
+    parseHookNode: ({ curSchema }) => {
+      const { hookName } = curSchema;
+      return getHook({ hookName });
     },
     parseAnonymousFunctionNode: ({
       curSchema,
@@ -69,9 +77,10 @@ export const generateNode = <VNodeType>({
           ctx,
           modulesMap,
           getRef,
+          getHook,
         });
 
-        //
+        // 合并所需参数
         const mergeFuncParams: GenerateFuncBaseOptionType<VNodeType> = {
           curSchema,
           argList,
@@ -112,14 +121,6 @@ export const generateNode = <VNodeType>({
       return func;
     },
     parseSchemaComp: ({ curSchema: obj, props }) => {
-      // const lib = modulesMap.get(obj.componentName);
-      // // 没有找到包
-      // if (!lib) {
-      //   return noMatchLibRender({
-      //     schema: obj,
-      //   });
-      // }
-
       const { componentName } = obj;
       // 组件可能包含子组件，比如Form.Item,Radio.Group
       const compPath = componentName.split('.');

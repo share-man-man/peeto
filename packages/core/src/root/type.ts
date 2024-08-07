@@ -6,6 +6,7 @@ import { AnyType, JSONValue } from '../type';
 import { ModulesMapType, SchemaLibItem } from '../lib/type';
 import { SchemaEffectItem } from '../effect/type';
 import { AnonymousFunctionNode } from '../func/type';
+import { HookGetSetType, HookNodeType, SchemaHookItem } from '../hook/type';
 
 /**
  * schema根对象
@@ -29,6 +30,10 @@ export interface SchemaRootObj {
    */
   refs?: SchemaRefItem[];
   /**
+   * 自定义钩子函数
+   */
+  customHooks?: SchemaHookItem[];
+  /**
    * 组件树
    */
   compTree?: SchemaCompTreeItem[];
@@ -42,13 +47,18 @@ export interface SchemaRootObj {
   effects?: SchemaEffectItem[];
 }
 
-type StateRefGetSetType = Pick<StateGetSetType, 'getState' | 'setState'> &
-  Pick<RefGetSetType, 'getRef'>;
+export type StateRefHookGetSetType = Pick<
+  StateGetSetType,
+  'getState' | 'setState'
+> &
+  Pick<RefGetSetType, 'getRef'> &
+  Pick<HookGetSetType, 'getHook'>;
 
 /**
  * 生成节点
  */
-export interface GenerateNodePropType<VNodeType> extends StateRefGetSetType {
+export interface GenerateNodePropType<VNodeType>
+  extends StateRefHookGetSetType {
   /**
    * schema对象
    */
@@ -70,6 +80,7 @@ export interface GenerateNodePropType<VNodeType> extends StateRefGetSetType {
    * @returns
    */
   noMatchCompRender: (p: { schema: SchemaCompTreeItem }) => VNodeType;
+  ctx?: ContextType;
   // /**
   //  * 没有找到包
   //  * @param obj
@@ -99,6 +110,7 @@ export interface ParseObjOptionType<VNodeType = AnyType> {
   nodePath: SchemaCompTreePath[];
   parseStateNode?: (p: ParseNodeBaseProp<StateNodeType, VNodeType>) => AnyType;
   parseRefNode?: (p: ParseNodeBaseProp<RefNodeType, VNodeType>) => AnyType;
+  parseHookNode?: (p: ParseNodeBaseProp<HookNodeType, VNodeType>) => AnyType;
   parseAnonymousFunctionNode?: (
     p: ParseNodeBaseProp<AnonymousFunctionNode, VNodeType>
   ) => AnyType;
@@ -108,4 +120,5 @@ export interface ParseObjOptionType<VNodeType = AnyType> {
       props: AnyType;
     }
   ) => AnyType;
+  ctx?: ContextType;
 }

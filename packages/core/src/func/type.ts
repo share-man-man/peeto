@@ -1,10 +1,12 @@
 import { SchemaCompTreeItem } from '../component/type';
 import { SchemaEffectItem } from '../effect/type';
 import { ModulesMapType } from '../lib/type';
-import { RefGetSetType } from '../ref/type';
 import { NodeType } from '../root';
-import { ContextType, ParseObjOptionType } from '../root/type';
-import { StateGetSetType } from '../state/type';
+import {
+  ContextType,
+  ParseObjOptionType,
+  StateRefHookGetSetType,
+} from '../root/type';
 import { AnyType, JSONValue, PickRequired } from '../type';
 import type { FuncTypeEnum, ConditionTypeEnum } from './';
 
@@ -82,8 +84,7 @@ export interface AnonymousFunctionNode {
 
 export interface GenerateArgumentsType {
   (
-    option: StateGetSetType &
-      RefGetSetType &
+    option: StateRefHookGetSetType &
       Pick<SchemaEffectItem, 'effectStates' | 'dependences'> &
       Pick<AnonymousFunctionNode, 'params'> & {
         paramsValueList?: AnyType[];

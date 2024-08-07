@@ -7,6 +7,7 @@ import {
   createStateNode,
   createSchemaConfig,
   createRefNode,
+  createHookNode,
 } from '../utils';
 
 export const libModules: SchemaRootObj['libModules'] = [
@@ -40,6 +41,15 @@ export const libModules: SchemaRootObj['libModules'] = [
       {
         name: 'Dropdown',
       },
+      {
+        name: 'Form',
+      },
+      {
+        name: 'Modal',
+      },
+      {
+        name: 'Checkbox',
+      },
     ],
   },
   {
@@ -69,9 +79,9 @@ export const basic = createSchemaConfig({
   schema: {
     libModules,
     compTree: [
-      createCompNode('antd', 'Card', {
+      createCompNode('Card', {
         title: 'antd.Card',
-        children: createCompNode('antd', 'Typography.Text', {
+        children: createCompNode('Typography.Text', {
           children: '包：my-custom  组件：Text',
         }),
       }),
@@ -84,7 +94,7 @@ export const anonymousFunction = createSchemaConfig({
   schema: {
     libModules,
     compTree: [
-      createCompNode('antd', 'Button', {
+      createCompNode('Button', {
         type: 'primary',
         onClick: createAnonymousFunction({
           params: ['e'],
@@ -123,42 +133,42 @@ export const state = createSchemaConfig({
       },
     ],
     compTree: [
-      createCompNode('antd', 'Row', {
+      createCompNode('Row', {
         children: [
-          createCompNode('antd', 'Space', {
+          createCompNode('Space', {
             children: [
-              createCompNode('antd', 'Typography.Text', {
+              createCompNode('Typography.Text', {
                 children: 'title值：',
               }),
-              createCompNode('antd', 'Typography.Text', {
+              createCompNode('Typography.Text', {
                 children: createStateNode({ stateName: 'title' }),
               }),
             ],
           }),
         ],
       }),
-      createCompNode('antd', 'Row', {
+      createCompNode('Row', {
         children: [
-          createCompNode('antd', 'Space', {
+          createCompNode('Space', {
             children: [
-              createCompNode('antd', 'Typography.Text', {
+              createCompNode('Typography.Text', {
                 children: 'titleLength(effect监听改变)：',
               }),
-              createCompNode('antd', 'Typography.Text', {
+              createCompNode('Typography.Text', {
                 children: createStateNode({ stateName: 'titleLength' }),
               }),
             ],
           }),
         ],
       }),
-      createCompNode('antd', 'Row', {
+      createCompNode('Row', {
         children: [
-          createCompNode('antd', 'Space', {
+          createCompNode('Space', {
             children: [
-              createCompNode('antd', 'Typography.Text', {
+              createCompNode('Typography.Text', {
                 children: 'title长度(表达式)：',
               }),
-              createCompNode('antd', 'Typography.Text', {
+              createCompNode('Typography.Text', {
                 children: createAnonymousFunction({
                   IIFE: true,
                   dependences: [{ type: NodeType.STATE, stateName: 'title' }],
@@ -171,7 +181,7 @@ export const state = createSchemaConfig({
           }),
         ],
       }),
-      createCompNode('antd', 'Input', {
+      createCompNode('Input', {
         value: createStateNode({
           stateName: 'title',
         }),
@@ -222,7 +232,7 @@ export const listLoop = createSchemaConfig({
       },
     ],
     compTree: [
-      createCompNode('antd', 'Space', {
+      createCompNode('Space', {
         children: [
           createAnonymousFunction({
             IIFE: true,
@@ -240,7 +250,7 @@ export const listLoop = createSchemaConfig({
                 mapParams: ['lablesItem', 'lablesIndex'],
               },
               compTree: [
-                createCompNode('antd', 'Tag', {
+                createCompNode('Tag', {
                   key: createAnonymousFunction({
                     IIFE: true,
                     func: {
@@ -280,7 +290,7 @@ export const conditionBool = createSchemaConfig({
       },
     ],
     compTree: [
-      createCompNode('antd', 'Switch', {
+      createCompNode('Switch', {
         checked: createStateNode({ stateName: 'visible' }),
         onChange: createAnonymousFunction({
           params: ['checked'],
@@ -299,7 +309,7 @@ export const conditionBool = createSchemaConfig({
           boolean: {
             data: createStateNode({ stateName: 'visible' }),
           },
-          compTree: createCompNode('antd', 'Typography.Text', {
+          compTree: createCompNode('Typography.Text', {
             children: '===条件展示===',
           }),
         },
@@ -315,7 +325,7 @@ export const table = createSchemaConfig({
     refs: [{ name: 'actionRef', desc: '表格ref' }],
     compTree: [
       123,
-      createCompNode('@ant-design/pro-components', 'ProTable', {
+      createCompNode('ProTable', {
         columns: [
           {
             title: '序号',
@@ -386,9 +396,9 @@ export const table = createSchemaConfig({
               funcType: FuncTypeEnum.RENDERFUNC,
               renderFunc: {
                 compTree: [
-                  createCompNode('antd', 'Space', {
+                  createCompNode('Space', {
                     children: [
-                      createCompNode('antd', 'Tag', {
+                      createCompNode('Tag', {
                         color: 'warning',
                         key: '1',
                         children: 'aaa',
@@ -415,7 +425,7 @@ export const table = createSchemaConfig({
               funcType: FuncTypeEnum.RENDERFUNC,
               renderFunc: {
                 compTree: [
-                  createCompNode('antd', 'Space', {
+                  createCompNode('Space', {
                     children: [
                       createAnonymousFunction({
                         IIFE: true,
@@ -431,7 +441,7 @@ export const table = createSchemaConfig({
                             }),
                             mapParams: ['lablesItem', 'lablesIndex'],
                           },
-                          compTree: createCompNode('antd', 'Tag', {
+                          compTree: createCompNode('Tag', {
                             key: createAnonymousFunction({
                               IIFE: true,
                               func: {
@@ -493,7 +503,7 @@ export const table = createSchemaConfig({
               funcType: FuncTypeEnum.RENDERFUNC,
               renderFunc: {
                 compTree: [
-                  createCompNode('antd', 'Button', {
+                  createCompNode('Button', {
                     key: 'editable',
                     type: 'link',
                     onClick: createAnonymousFunction({
@@ -503,7 +513,7 @@ export const table = createSchemaConfig({
                     }),
                     children: '编辑',
                   }),
-                  createCompNode('antd', 'Button', {
+                  createCompNode('Button', {
                     key: 'view',
                     type: 'link',
                     href: createAnonymousFunction({
@@ -515,22 +525,18 @@ export const table = createSchemaConfig({
                     rel: 'noopener noreferrer',
                     children: '查看',
                   }),
-                  createCompNode(
-                    '@ant-design/pro-components',
-                    'TableDropdown',
-                    {
-                      key: 'actionGroup',
-                      onSelect: createAnonymousFunction({
-                        func: {
-                          body: 'action?.reload()',
-                        },
-                      }),
-                      menus: [
-                        { key: 'copy', name: '复制' },
-                        { key: 'delete', name: '删除' },
-                      ],
-                    }
-                  ),
+                  createCompNode('TableDropdown', {
+                    key: 'actionGroup',
+                    onSelect: createAnonymousFunction({
+                      func: {
+                        body: 'action?.reload()',
+                      },
+                    }),
+                    menus: [
+                      { key: 'copy', name: '复制' },
+                      { key: 'delete', name: '删除' },
+                    ],
+                  }),
                 ],
               },
             }),
@@ -612,7 +618,7 @@ export const table = createSchemaConfig({
           renderFunc: {
             conditionType: ConditionTypeEnum.DEFAULT,
             compTree: [
-              createCompNode('antd', 'Button', {
+              createCompNode('Button', {
                 key: 'button',
                 // icon: createCompNode('@ant-design/icons', 'PlusOutlined'),
                 onClick: createAnonymousFunction({
@@ -630,7 +636,7 @@ export const table = createSchemaConfig({
                 type: 'primary',
                 children: '新建',
               }),
-              createCompNode('antd', 'Dropdown', {
+              createCompNode('Dropdown', {
                 key: 'menu',
                 menu: {
                   items: [
@@ -648,7 +654,7 @@ export const table = createSchemaConfig({
                     },
                   ],
                 },
-                children: createCompNode('antd', 'Button', {
+                children: createCompNode('Button', {
                   children: '...',
                 }),
               }),
@@ -660,285 +666,154 @@ export const table = createSchemaConfig({
   },
 });
 
-// const testObj: SchemaRootObj = {
-//   compTree: [
-//     {
-//       id: id(),
-//       // packageName: '@ant-design/pro-components',
-//       // componentName: 'ProTable',
-//       props: {
-//         columns: [
-//           {
-//             render: {
-//               type: 'JSFunction',
-//               params: ['text', 'record'],
-//               children: [
-//                 {
-//                   id: id(),
-//                   packageName: 'antd',
-//                   componentName: 'Card',
-//                   props: {
-//                     title: {
-//                       type: 'JSExpression',
-//                       value: 'this.scope?.text',
-//                     },
-//                   },
-//                   children: [
-// {
-//   id: id(),
-//   packageName: 'antd',
-//   componentName: 'Collapse',
-//   props: {
-//     defaultActiveKey: ['1', '3'],
-//   },
-//   children: [
-//     {
-//       id: id(),
-//       packageName: 'antd',
-//       componentName: 'Collapse.Panel',
-//       props: {
-//         key: 1,
-//         header: 'This is panel header 1',
-//       },
-//       children: {
-//         type: 'JSExpression',
-//         value: 'this.scope?.record?.name',
-//       },
-//     },
-//     {
-//       id: id(),
-//       packageName: 'antd',
-//       componentName: 'Collapse.Panel',
-//       props: {
-//         key: 2,
-//         header: 'This is panel header 2',
-//       },
-//       children: '222',
-//     },
-//     {
-//       id: id(),
-//       packageName: 'antd',
-//       componentName: 'Collapse.Panel',
-//       props: {
-//         key: 3,
-//         header: 'This is panel header 3',
-//       },
-//       children: {
-//         type: 'JSExpression',
-//         value: 'this.scope?.text',
-//       },
-//     },
-//   ],
-// },
-// ],
-//                 },
-//               ],
-//             },
-//           },
-//         ],
-//         dataSource: [
-//           {
-//             key: 123,
-//             labels: '测试标签231312',
-//             name: '小小',
-//             state: 'open',
-//           },
-//         ],
-//       },
-//       children: [],
-//     },
-//   ],
-// };
-
-// const modalForm: SchemaRootObj = {
-//   states: [
-//     {
-//       name: 'visible',
-//       desc: '弹框可见',
-//       initialValue: false,
-//     },
-//     {
-//       name: 'loading',
-//       desc: '加载中状态',
-//       initialValue: false,
-//     },
-//     {
-//       name: 'form',
-//       desc: '表单ref',
-//       initialValue: {
-//         type: 'JSExpression',
-//         packages: ['antd'],
-//         value: `(function(){
-//           return this.antd.Form.useForm()[0]
-//         }).call(this)`,
-//       },
-//     },
-//   ],
-//   anonymousFunctionList: [],
-//   events: [],
-//   compTreeLibMap: [],
-//   compTree: [
-//     {
-//       id: id(),
-//       packageName: 'antd',
-//       componentName: 'Modal',
-//       props: {
-//         title: '测试表单',
-//         open: {
-//           type: 'JSExpression',
-//           state: 'visible',
-//         },
-//         onCancel: {
-//           type: 'JSFunction',
-//           effects: ['visible'],
-//           value: `this.onChangeState([['visible',false]])`,
-//         },
-//         confirmLoading: {
-//           type: 'JSExpression',
-//           state: 'loading',
-//         },
-//         maskClosable: false,
-//         destroyOnClose: true,
-//         bodyStyle: { display: 'flex', justifyContent: 'center' },
-//       },
-//       children: [
-//         {
-//           id: id(),
-//           packageName: 'antd',
-//           componentName: 'Form',
-//           props: {
-//             form: {
-//               type: 'JSExpression',
-//               state: 'form',
-//             },
-//             name: 'basic',
-//             labelCol: { span: 8 },
-//             wrapperCol: { span: 16 },
-//             style: { maxWidth: 600 },
-//             initialValues: { remember: true },
-//             autoComplete: 'off',
-//           },
-//           children: [
-//             {
-//               id: id(),
-//               packageName: 'antd',
-//               componentName: 'Form.Item',
-//               props: {
-//                 label: 'Username',
-//                 name: 'username',
-//                 rules: [
-//                   { required: true, message: 'Please input your username!' },
-//                 ],
-//               },
-//               children: [
-//                 {
-//                   id: id(),
-//                   packageName: 'antd',
-//                   componentName: 'Input',
-//                 },
-//               ],
-//             },
-//             {
-//               id: id(),
-//               packageName: 'antd',
-//               componentName: 'Form.Item',
-//               props: {
-//                 label: 'Password',
-//                 name: 'password',
-//                 rules: [
-//                   { required: true, message: 'Please input your password!' },
-//                 ],
-//               },
-//               children: [
-//                 {
-//                   id: id(),
-//                   packageName: 'antd',
-//                   componentName: 'Input.Password',
-//                 },
-//               ],
-//             },
-//             {
-//               id: id(),
-//               packageName: 'antd',
-//               componentName: 'Form.Item',
-//               props: {
-//                 name: 'remember',
-//                 valuePropName: 'checked',
-//                 wrapperCol: { offset: 8, span: 16 },
-//               },
-//               children: [
-//                 {
-//                   id: id(),
-//                   packageName: 'antd',
-//                   componentName: 'Checkbox',
-//                   children: [
-//                     {
-//                       id: id(),
-//                       packageName: 'my-custom',
-//                       componentName: 'Text',
-//                       props: {
-//                         text: 'Remember me',
-//                       },
-//                     },
-//                   ],
-//                 },
-//               ],
-//             },
-//             {
-//               id: id(),
-//               packageName: 'antd',
-//               componentName: 'Form.Item',
-//               props: {
-//                 wrapperCol: { offset: 8, span: 16 },
-//               },
-//               children: [
-//                 {
-//                   id: id(),
-//                   packageName: 'antd',
-//                   componentName: 'Button',
-//                   props: {
-//                     type: 'primary',
-//                     htmlType: 'submit',
-//                   },
-//                   children: [
-//                     {
-//                       id: id(),
-//                       packageName: 'my-custom',
-//                       componentName: 'Text',
-//                       props: {
-//                         text: 'Submit',
-//                       },
-//                     },
-//                   ],
-//                 },
-//               ],
-//             },
-//           ],
-//         },
-//       ],
-//     },
-//     {
-//       id: id(),
-//       packageName: 'antd',
-//       componentName: 'Button',
-//       props: {
-//         type: 'primary',
-//         onClick: {
-//           type: 'JSFunction',
-//           effects: ['visible'],
-//           value: `this.onChangeState([['visible',true]])`,
-//         },
-//       },
-//       children: [
-//         {
-//           id: id(),
-//           packageName: 'my-custom',
-//           componentName: 'Text',
-//           props: {
-//             text: '打开表单',
-//           },
-//         },
-//       ],
-//     },
-//   ],
-// };
+export const form = createSchemaConfig({
+  desc: '表单-自定义hooks',
+  schema: {
+    libModules,
+    states: [
+      {
+        name: 'visible',
+        desc: '弹框可见性',
+        initialValue: false,
+      },
+      {
+        name: 'loading',
+        desc: '加载中状态',
+        initialValue: false,
+      },
+      // {
+      //   name: 'form',
+      //   desc: '表单ref',
+      //   initialValue: {
+      //     type: 'JSExpression',
+      //     packages: ['antd'],
+      //     value: `(function(){
+      //     return this.antd.Form.useForm()[0]
+      //   }).call(this)`,
+      //   },
+      // },
+    ],
+    customHooks: [
+      {
+        effect: {
+          body: 'return Form.useForm()',
+          dependences: [
+            {
+              type: NodeType.MODULE,
+              name: 'Form',
+            },
+          ],
+        },
+        arrDestructs: ['form'],
+      },
+    ],
+    compTree: [
+      createCompNode('Modal', {
+        title: '测试表单',
+        open: createStateNode({ stateName: 'visible' }),
+        onCancel: createAnonymousFunction({
+          func: {
+            body: 'setVisible(false)',
+          },
+          effectStates: ['visible'],
+        }),
+        confirmLoading: createStateNode({ stateName: 'loading' }),
+        maskClosable: false,
+        destroyOnClose: true,
+        children: [
+          createCompNode('Form', {
+            form: createHookNode({ hookName: 'form' }),
+            name: 'basic',
+            labelCol: { span: 8 },
+            wrapperCol: { span: 16 },
+            style: { maxWidth: 600 },
+            initialValues: { remember: true },
+            autoComplete: 'off',
+            children: [
+              createCompNode('Form.Item', {
+                label: 'Username',
+                name: 'username',
+                rules: [
+                  { required: true, message: 'Please input your username!' },
+                ],
+                children: [createCompNode('Input', {})],
+              }),
+              createCompNode('Form.Item', {
+                label: 'Password',
+                name: 'password',
+                rules: [
+                  { required: true, message: 'Please input your password!' },
+                ],
+                children: [createCompNode('Input.Password', {})],
+              }),
+              createCompNode('Form.Item', {
+                name: 'remember',
+                valuePropName: 'checked',
+                wrapperCol: { offset: 8, span: 16 },
+                children: [
+                  createCompNode('Checkbox', {
+                    children: 'Remember me',
+                  }),
+                ],
+              }),
+              createCompNode('Form.Item', {
+                wrapperCol: { offset: 8, span: 16 },
+                children: [
+                  createCompNode('Button', {
+                    type: 'primary',
+                    children: 'Submit',
+                    onClick: createAnonymousFunction({
+                      func: {
+                        body: `
+                        form.validateFields().then(()=>{
+                          setLoading(true);
+                          setTimeout(()=>{
+                            setLoading(false);
+                          },1000)
+                        })
+                        `,
+                      },
+                      effectStates: ['loading'],
+                      dependences: [
+                        {
+                          type: NodeType.HOOK,
+                          hookName: 'form',
+                        },
+                      ],
+                    }),
+                  }),
+                  createCompNode('Button', {
+                    onClick: createAnonymousFunction({
+                      func: {
+                        body: `
+                        console.log(form);
+                        form.resetFields()`,
+                      },
+                      dependences: [
+                        {
+                          type: NodeType.HOOK,
+                          hookName: 'form',
+                        },
+                      ],
+                    }),
+                    children: 'Reset',
+                  }),
+                ],
+              }),
+            ],
+          }),
+        ],
+      }),
+      createCompNode('Button', {
+        type: 'primary',
+        children: '打开表单',
+        onClick: createAnonymousFunction({
+          func: {
+            body: 'setVisible(true)',
+          },
+          effectStates: ['visible'],
+        }),
+      }),
+    ],
+  },
+});

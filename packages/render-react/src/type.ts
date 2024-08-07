@@ -1,4 +1,8 @@
-import type { GenerateNodePropType, LibListItem } from '@peeto/core';
+import type {
+  GenerateNodePropType,
+  LibListItem,
+  StateRefHookGetSetType,
+} from '@peeto/core';
 import type { ReactNode, createElement } from 'react';
 
 export type SchemaCompProps = {
@@ -15,7 +19,7 @@ export type SchemaCompProps = {
   onNodeChange?: (node: ReactNode) => void;
 } & Omit<
   GenerateNodePropType<ReactNode>,
-  'schemaRootObj' | 'getState' | 'setState' | 'getRef'
+  'schemaRootObj' | keyof StateRefHookGetSetType
 >;
 
 export interface ReactRenderProps extends Omit<SchemaCompProps, 'modulesMap'> {

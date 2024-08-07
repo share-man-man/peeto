@@ -3,6 +3,7 @@ import { isBasicNode, isSchemaCompTree } from '../component';
 import { SchemaCompTreePath } from '../component/type';
 import { getSetStateFuncName, isAnonymousFunctionNode } from '../func';
 import { GenerateArgumentsType } from '../func/type';
+import { isHookNode } from '../hook';
 import { LibListItem, ModulesMapType } from '../lib/type';
 import { isRefNode } from '../ref';
 import { isStateNode } from '../state';
@@ -40,8 +41,10 @@ export const parseObj = <VNodeType>({
   nodePath = [],
   parseStateNode,
   parseRefNode,
+  parseHookNode,
   parseAnonymousFunctionNode,
   parseSchemaComp,
+  ctx: propCtx = {},
 }: // customDeep = false,
 ParseObjOptionType<VNodeType>) => {
   const deepRecursionParse: DeepRecursionParseType<VNodeType> = ({
@@ -86,31 +89,15 @@ ParseObjOptionType<VNodeType>) => {
         ? parseRefNode({ curSchema: cur, deepRecursionParse, path, ctx })
         : cur;
     }
+    // hook节点
+    if (isHookNode(cur)) {
+      return parseHookNode
+        ? parseHookNode({ curSchema: cur, deepRecursionParse, path, ctx })
+        : cur;
+    }
     // 匿名函数节点
     if (isAnonymousFunctionNode(cur)) {
       const newCur = cur;
-      // 自动递归便利渲染函数的组件树结构
-      // if (!customDeep) {
-      //   Object.keys(newCur).forEach((k) => {
-      //     newCur[k] = deepRecursionParse({
-      //       cur: newCur[k],
-      //       path: [...path, k],
-      //       ctx,
-      //     });
-      //   });
-      // }
-      // if (
-      //   !customDeep &&
-      //   newCur?.funcType === 'renderFunc' &&
-      //   newCur?.renderFunc?.compTree
-      // ) {
-      //   newCur.renderFunc.compTree = deepRecursionParse({
-      //     cur: newCur.renderFunc.compTree,
-      //     path: [...path, 'renderFunc', 'compTree'],
-      //     ctx,
-      //   });
-      // }
-
       if (!parseAnonymousFunctionNode) {
         return newCur;
       }
@@ -152,7 +139,7 @@ ParseObjOptionType<VNodeType>) => {
         : cur;
     }
   };
-  return deepRecursionParse({ cur: node, path: [], ctx: {} });
+  return deepRecursionParse({ cur: node, path: [], ctx: propCtx });
 };
 
 /**
@@ -185,9 +172,6 @@ export const loadLibList = async (
       libList.find((p) => p.name === name)?.load?.() || Promise.resolve()
     ).then((res) => {
       if (res) {
-        // libMap.set(name, res);
-        // console.log(11, res);
-
         libModules.forEach((l) => {
           if (l.name === name) {
             l.subs.forEach((s) => {
@@ -211,13 +195,14 @@ export const loadLibList = async (
 export const generateArguments: GenerateArgumentsType = ({
   params: paramsNameList = [],
   paramsValueList = [],
-  dependences,
+  dependences = [],
   getState,
-  effectStates,
+  effectStates = [],
   setState,
   ctx = {},
   modulesMap,
   getRef,
+  getHook,
 }) => {
   const fieldMap: Map<string, AnyType> = new Map();
   // 安全考虑，暴露特定的函数、状态
@@ -233,6 +218,9 @@ export const generateArguments: GenerateArgumentsType = ({
         break;
       case NodeType.REF:
         fieldMap.set(d.refName, getRef({ refName: d.refName }));
+        break;
+      case NodeType.HOOK:
+        fieldMap.set(d.hookName, getHook({ hookName: d.hookName }));
         break;
       default:
         neverRes = type;

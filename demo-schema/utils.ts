@@ -1,6 +1,11 @@
 import { v4 as id } from 'uuid';
 
-import { AnyType, NodeType, SchemaRootObj } from '../packages/core/src';
+import {
+  AnyType,
+  HookNodeType,
+  NodeType,
+  SchemaRootObj,
+} from '../packages/core/src';
 import { isBasicNode } from '../packages/core/src/component';
 import { StateNodeType } from 'packages/core/src/state/type';
 import { AnonymousFunctionNode } from 'packages/core/src/func/type';
@@ -17,14 +22,14 @@ class SchemaNode {
 }
 
 export const createCompNode = (
-  packageName: string,
+  // packageName: string,
   componentName: string,
   props: Record<string, AnyType> = {}
 ) => {
   const selfId = id();
   return new SchemaNode({
     type: NodeType.COMPONENT,
-    packageName,
+    // packageName,
     componentName,
     id: selfId,
     props,
@@ -53,6 +58,13 @@ export const createRefNode = (p: Omit<RefNodeType, 'type'>) => {
   return new SchemaNode({
     ...p,
     type: NodeType.REF,
+  }) as unknown as AnyType;
+};
+
+export const createHookNode = (p: Omit<HookNodeType, 'type'>) => {
+  return new SchemaNode({
+    ...p,
+    type: NodeType.HOOK,
   }) as unknown as AnyType;
 };
 
