@@ -1,6 +1,17 @@
 import { NodeType } from '../root';
 import { AnyType } from '../type';
-import { StateNodeType } from './type';
+// import { StateNodeType } from './type';
+
+/**
+ * 状态节点
+ */
+export class StateNodeType {
+  public type = NodeType.STATE;
+  public name: string = '';
+  constructor(p: Omit<StateNodeType, 'type'>) {
+    Object.assign(this, p);
+  }
+}
 
 /**
  * 是否为状态节点

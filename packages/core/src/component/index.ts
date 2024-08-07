@@ -1,6 +1,25 @@
 import { NodeType } from '../root';
-import { AnyType } from '../type';
-import { SchemaCompTreeItem } from './type';
+import { AnyType, JSONValue } from '../type';
+// import { SchemaCompTreeItem } from './type';
+
+/**
+ * 组件节点类型
+ */
+export class SchemaCompTreeItem {
+  type = NodeType.COMPONENT;
+  id: string = '';
+  /**
+   * 组件名，支持子组件链式调用，比如antd的：Collapse.Panel、Typography.Text等
+   */
+  componentName: string = '';
+  /**
+   * 组件参数
+   */
+  props?: Record<string, JSONValue> | undefined;
+  constructor(p: Omit<SchemaCompTreeItem, 'type'>) {
+    Object.assign(this, p);
+  }
+}
 
 /**
  * 是否为基础节点

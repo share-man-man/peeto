@@ -1,6 +1,6 @@
 import { FuncTypeEnum, generateFuncRes, generateRenderFuncRes } from '../func';
 import { GenerateFuncBaseOptionType } from '../func/type';
-import { AnyType } from '../type';
+import { AnyType, JSONValue } from '../type';
 import { GenerateNodePropType } from './type';
 import { generateArguments, parseObj } from './utils';
 
@@ -35,19 +35,19 @@ export const generateNode = <VNodeType>({
   const nodeObj = parseObj({
     // customDeep: true,
     ...rest,
-    node: compTree,
+    node: compTree as unknown as JSONValue,
     nodePath: schemaNodePaths || [],
     parseStateNode: ({ curSchema }) => {
-      const curState = getState?.({ stateName: curSchema.stateName });
+      const curState = getState?.({ stateName: curSchema.name });
       return curState;
     },
     parseRefNode: ({ curSchema }) => {
-      const { refName } = curSchema;
-      return getRef?.({ refName });
+      const { name } = curSchema;
+      return getRef?.({ refName: name });
     },
     parseHookNode: ({ curSchema }) => {
-      const { hookName } = curSchema;
-      return getHook({ hookName });
+      const { name } = curSchema;
+      return getHook?.({ name });
     },
     parseAnonymousFunctionNode: ({
       curSchema,

@@ -1,4 +1,4 @@
-import { NodeType } from '../root';
+// import { NodeType } from '../root';
 import type { /* JSExpressionType, */ AnyType, JSONValue } from '../type';
 
 // export interface StateJSExpressionType extends JSExpressionType {
@@ -21,14 +21,6 @@ export interface SchemaStateItem {
    * 初始值
    */
   initialValue?: /* StateJSExpressionType | */ JSONValue;
-}
-
-/**
- * 状态节点
- */
-export interface StateNodeType {
-  type: NodeType.STATE;
-  stateName: string;
 }
 
 /**

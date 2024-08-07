@@ -211,16 +211,16 @@ export const generateArguments: GenerateArgumentsType = ({
     let neverRes: never;
     switch (type) {
       case NodeType.STATE:
-        fieldMap.set(d.stateName, getState({ stateName: d.stateName }));
+        fieldMap.set(d.name, getState({ stateName: d.name }));
         break;
       case NodeType.MODULE:
         fieldMap.set(d.name, modulesMap.get(d.name));
         break;
       case NodeType.REF:
-        fieldMap.set(d.refName, getRef({ refName: d.refName }));
+        fieldMap.set(d.name, getRef({ refName: d.name }));
         break;
       case NodeType.HOOK:
-        fieldMap.set(d.hookName, getHook({ hookName: d.hookName }));
+        fieldMap.set(d.name, getHook({ name: d.name }));
         break;
       default:
         neverRes = type;

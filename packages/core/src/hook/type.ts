@@ -1,5 +1,6 @@
+import { HookNodeType } from '.';
 import { SchemaEffectItem } from '../effect/type';
-import { NodeType } from '../root';
+// import { NodeType } from '../root';
 import { AnyType } from '../type';
 
 export interface SchemaHookItem {
@@ -12,11 +13,11 @@ export interface SchemaHookItem {
   }[];
 }
 
-export interface HookNodeType {
-  type: NodeType.HOOK;
-  hookName: string;
-}
+// export interface HookNodeType {
+//   type: NodeType.HOOK;
+//   hookName: string;
+// }
 
 export interface HookGetSetType {
-  getHook: (p: Pick<HookNodeType, 'hookName'>) => AnyType;
+  getHook: (p: Pick<HookNodeType, 'name'>) => AnyType;
 }

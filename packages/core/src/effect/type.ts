@@ -1,8 +1,8 @@
-// import { SchemaRefItem } from '../ref/type';
-import { HookNodeType } from '../hook/type';
+import { HookNodeType } from '../hook';
 import { SchemaLibItemSubsItem } from '../lib/type';
-import { SchemaRefItem } from '../ref/type';
+import { RefNodeType } from '../ref';
 import { NodeType } from '../root';
+import { StateNodeType } from '../state';
 import { SchemaStateItem } from '../state/type';
 
 export interface SchemaEffectItem {
@@ -12,7 +12,7 @@ export interface SchemaEffectItem {
   dependences?: (
     | {
         type: NodeType.STATE;
-        stateName: SchemaStateItem['name'];
+        name: StateNodeType['name'];
       }
     | {
         type: NodeType.MODULE;
@@ -20,11 +20,11 @@ export interface SchemaEffectItem {
       }
     | {
         type: NodeType.REF;
-        refName: SchemaRefItem['name'];
+        name: RefNodeType['name'];
       }
     | {
         type: NodeType.HOOK;
-        hookName: HookNodeType['hookName'];
+        name: HookNodeType['name'];
       }
   )[];
   /**

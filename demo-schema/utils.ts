@@ -1,72 +1,28 @@
 import { v4 as id } from 'uuid';
 
 import {
+  AnonymousFunctionNode,
   AnyType,
   HookNodeType,
-  NodeType,
   SchemaRootObj,
+  StateNodeType,
 } from '../packages/core/src';
-import { isBasicNode } from '../packages/core/src/component';
-import { StateNodeType } from 'packages/core/src/state/type';
-import { AnonymousFunctionNode } from 'packages/core/src/func/type';
-import { RefNodeType } from 'packages/core/src/ref/type';
-
-class SchemaNode {
-  schema: Record<string, AnyType> = {};
-  constructor(s: SchemaNode['schema']) {
-    this.schema = s;
-  }
-  getSchema() {
-    return this.schema;
+import {
+  isBasicNode,
+  SchemaCompTreeItem,
+} from '../packages/core/src/component';
+import { RefNodeType } from '../packages/core/src/ref';
+import { JSONObject } from 'packages/core/src/type';
+export class CustomCompNode extends SchemaCompTreeItem {
+  constructor(componentName: string, props: Record<string, AnyType> = {}) {
+    const selfId = id();
+    super({
+      componentName,
+      id: selfId,
+      props,
+    });
   }
 }
-
-export const createCompNode = (
-  // packageName: string,
-  componentName: string,
-  props: Record<string, AnyType> = {}
-) => {
-  const selfId = id();
-  return new SchemaNode({
-    type: NodeType.COMPONENT,
-    // packageName,
-    componentName,
-    id: selfId,
-    props,
-  }) as unknown as AnyType;
-};
-
-export const createAnonymousFunction = (
-  p: Omit<AnonymousFunctionNode, 'type' | 'compTree'> & {
-    compTree?: SchemaNode[];
-  }
-) => {
-  return new SchemaNode({
-    ...p,
-    type: NodeType.ANONYMOUSFUNCTION,
-  }) as unknown as AnyType;
-};
-
-export const createStateNode = (p: Omit<StateNodeType, 'type'>) => {
-  return new SchemaNode({
-    ...p,
-    type: NodeType.STATE,
-  }) as unknown as AnyType;
-};
-
-export const createRefNode = (p: Omit<RefNodeType, 'type'>) => {
-  return new SchemaNode({
-    ...p,
-    type: NodeType.REF,
-  }) as unknown as AnyType;
-};
-
-export const createHookNode = (p: Omit<HookNodeType, 'type'>) => {
-  return new SchemaNode({
-    ...p,
-    type: NodeType.HOOK,
-  }) as unknown as AnyType;
-};
 
 export const createSchemaConfig = ({
   desc,
@@ -85,10 +41,18 @@ export const createSchemaConfig = ({
     cur: AnyType;
     path: AnyType[];
   }): AnyType => {
-    // SchemaNode创建的对象，需要添加path
-    if (cur && Object.getPrototypeOf(cur) === SchemaNode.prototype) {
+    if (
+      cur &&
+      [
+        CustomCompNode.prototype,
+        AnonymousFunctionNode.prototype,
+        StateNodeType.prototype,
+        RefNodeType.prototype,
+        HookNodeType.prototype,
+      ].includes(Object.getPrototypeOf(cur))
+    ) {
       schemaNodePaths.push(path);
-      const res = (cur as SchemaNode).getSchema();
+      const res = cur as JSONObject;
       return Object.fromEntries(
         Object.keys(res).map((k) => {
           return [

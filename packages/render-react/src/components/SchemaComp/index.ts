@@ -7,6 +7,7 @@ import {
   RefGetSetType,
   StateMap,
   ContextType,
+  NodeType,
 } from '@peeto/core';
 import {
   useEffect,
@@ -26,7 +27,7 @@ const createRef = useRef;
 
 const Index: FC<SchemaCompProps> = ({ schemaStr, ctx = {}, ...props }) => {
   // 触发重新渲染
-  const [renderFlag, setRenderFlag] = useState<boolean | null>(true);
+  const [renderFlag, setRenderFlag] = useState<[] | null>([]);
   // 避免react多次渲染
   const propsRef = useRef(props);
   propsRef.current = props;
@@ -43,7 +44,7 @@ const Index: FC<SchemaCompProps> = ({ schemaStr, ctx = {}, ...props }) => {
         stateMapRef.current.set(name, value);
       });
       // state改变后，通知react重新渲染state
-      setRenderFlag((prev) => !prev);
+      setRenderFlag([]);
     }
   );
   // ref集合
@@ -53,8 +54,8 @@ const Index: FC<SchemaCompProps> = ({ schemaStr, ctx = {}, ...props }) => {
   });
   // hook集合
   const hookMapRef = useRef(new Map<string, AnyType>());
-  const getHookRef = useRef<HookGetSetType['getHook']>(({ hookName }) => {
-    return hookMapRef.current.get(hookName);
+  const getHookRef = useRef<HookGetSetType['getHook']>(({ name }) => {
+    return hookMapRef.current.get(name);
   });
 
   // schema对象
@@ -87,7 +88,10 @@ const Index: FC<SchemaCompProps> = ({ schemaStr, ctx = {}, ...props }) => {
         getHook: getHookRef.current,
       });
 
-      const res = new Function(...argNameList, body).call({}, ...argList);
+      const res = new Function(...argNameList, `return ${body}`).call(
+        {},
+        ...argList
+      );
       if (name) {
         hookMapRef.current.set(name, res);
       } else if (arrDestructs) {
@@ -102,7 +106,7 @@ const Index: FC<SchemaCompProps> = ({ schemaStr, ctx = {}, ...props }) => {
     }
   );
 
-  // 使用自带的依赖管理函数
+  // 使用自带的依赖管理函数;
   schemaRootObj.effects?.forEach(({ effectStates, body, dependences = [] }) => {
     createEffect(
       () => {
@@ -116,12 +120,11 @@ const Index: FC<SchemaCompProps> = ({ schemaStr, ctx = {}, ...props }) => {
           getRef: getRefRef.current,
           getHook: getHookRef.current,
         });
-
         new Function(...argNameList, body).call({}, ...argList);
       },
       dependences
-        .filter((d) => d.type === 'state')
-        .map((d) => stateMapRef.current.get(d.stateName)?.stateValue)
+        .filter((d) => d.type === NodeType.STATE)
+        .map((d) => stateMapRef.current.get(d.name))
     );
   });
 

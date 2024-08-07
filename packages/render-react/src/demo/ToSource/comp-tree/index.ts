@@ -1,6 +1,8 @@
 import {
   AnyType,
   FuncTypeEnum,
+  HookNodeType,
+  JSONValue,
   parseObj,
   ParseObjOptionType,
   SchemaRootObj,
@@ -47,7 +49,7 @@ export const getCompTreeStr = (
     const { curSchema } = v.config as Parameters<
       Required<ParseObjOptionType<AnyType>>['parseStateNode']
     >[0];
-    let res = curSchema.stateName;
+    let res = curSchema.name;
     if (parentNode === 'prop' || parentNode === 'comp') {
       res = `{${res}}`;
     }
@@ -58,7 +60,15 @@ export const getCompTreeStr = (
     const { curSchema } = v.config as Parameters<
       Required<ParseObjOptionType<AnyType>>['parseRefNode']
     >[0];
-    let res = curSchema.refName;
+    let res = curSchema.name;
+    if (parentNode === 'prop' || parentNode === 'comp') {
+      res = `{${res}}`;
+    }
+    return res;
+  }
+  // hook
+  if (v && Object.getPrototypeOf(v) === HookNodeType.prototype) {
+    let res = (v as HookNodeType).name;
     if (parentNode === 'prop' || parentNode === 'comp') {
       res = `{${res}}`;
     }
@@ -207,13 +217,14 @@ export const getCompTreeStr = (
 export const recusionCompTree = (schemaRootObj: SchemaRootObj) => {
   // const libList: { [key: string]: Set<string> } = {};
   const treeObj = parseObj({
-    node: schemaRootObj.compTree,
+    node: schemaRootObj.compTree as JSONValue,
     nodePath: schemaRootObj.schemaNodePaths || [],
     parseStateNode: (p) => new StateNode(p),
+    parseHookNode: (p) => new HookNodeType({ name: p.curSchema.name || '' }),
     parseAnonymousFunctionNode: (p) => {
       Object.keys(p.curSchema).forEach((k) => {
         (p.curSchema as AnyType)[k] = p.deepRecursionParse({
-          cur: p.curSchema[k as keyof typeof p.curSchema],
+          cur: p.curSchema[k as keyof typeof p.curSchema] as JSONValue,
           ctx: p.ctx,
           path: [...p.path, k],
         });

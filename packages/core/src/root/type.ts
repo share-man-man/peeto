@@ -1,12 +1,16 @@
-import { SchemaCompTreeItem, SchemaCompTreePath } from '../component/type';
+import { SchemaCompTreePath } from '../component/type';
 import { SchemaEventItem } from '../event/type';
-import { SchemaStateItem, StateGetSetType, StateNodeType } from '../state/type';
-import { RefGetSetType, RefNodeType, SchemaRefItem } from '../ref/type';
+import { SchemaStateItem, StateGetSetType } from '../state/type';
+import { RefGetSetType, SchemaRefItem } from '../ref/type';
 import { AnyType, JSONValue } from '../type';
 import { ModulesMapType, SchemaLibItem } from '../lib/type';
 import { SchemaEffectItem } from '../effect/type';
-import { AnonymousFunctionNode } from '../func/type';
-import { HookGetSetType, HookNodeType, SchemaHookItem } from '../hook/type';
+import { HookGetSetType, SchemaHookItem } from '../hook/type';
+import { HookNodeType } from '../hook';
+import { SchemaCompTreeItem } from '../component';
+import { AnonymousFunctionNode } from '../func';
+import { RefNodeType } from '../ref';
+import { StateNodeType } from '../state';
 
 /**
  * schema根对象

@@ -4,11 +4,13 @@ import { getEffectStr } from './effect';
 import { getLibStr } from './lib';
 import { getRefStr } from './ref';
 import { getStateStr } from './state';
+import { getHookStr } from './hook';
 
 export const toReactStr = (str: string) => {
   const libStr = getLibStr(JSON.parse(str || '{}') as SchemaRootObj);
   const stateStr = getStateStr(JSON.parse(str || '{}') as SchemaRootObj);
   const refStr = getRefStr(JSON.parse(str || '{}') as SchemaRootObj);
+  const hookStr = getHookStr(JSON.parse(str || '{}') as SchemaRootObj);
   const effectsStr = getEffectStr(JSON.parse(str || '{}') as SchemaRootObj);
   const { treeObj } = recusionCompTree(
     JSON.parse(str || '{}') as SchemaRootObj
@@ -28,6 +30,9 @@ export const toReactStr = (str: string) => {
     ${refStr}
   
     // 事件
+
+    // 自定义hook
+    ${hookStr}
   
     // 副作用
     ${effectsStr}

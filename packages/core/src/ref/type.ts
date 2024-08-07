@@ -1,4 +1,3 @@
-import { NodeType } from '../root';
 import { AnyType, JSONValue } from '../type';
 
 export interface SchemaRefItem {
@@ -14,11 +13,6 @@ export interface SchemaRefItem {
    * 初始值
    */
   initialValue?: JSONValue;
-}
-
-export interface RefNodeType {
-  type: NodeType.REF;
-  refName: string;
 }
 
 export interface RefGetSetType {

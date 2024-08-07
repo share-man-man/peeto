@@ -1,8 +1,7 @@
 export type { LibListItem, ModulesMapType } from './lib/type';
 export type { SchemaStateItem, StateGetSetType } from './state/type';
 export type { RefGetSetType } from './ref/type';
-export type { HookNodeType } from './hook/type';
-export type { SchemaCompTreeItem } from './component/type';
+export type { SchemaHookItem } from './hook/type';
 export type {
   GenerateNodePropType,
   ParseObjOptionType,
@@ -10,7 +9,8 @@ export type {
   StateRefHookGetSetType,
 } from './root/type';
 export type { AnyType, PickRequired, SchemaRootObj, JSONValue } from './type';
-export type { AnonymousFunctionNode } from './func/type';
+export { SchemaCompTreeItem } from './component';
+export { AnonymousFunctionNode } from './func';
 export { NodeType } from './root';
 export {
   parseObj,
@@ -20,4 +20,6 @@ export {
 } from './root/utils';
 export { generateNode } from './root';
 export { getSetStateFuncName, FuncTypeEnum, ConditionTypeEnum } from './func';
-export { StateMap } from './state';
+export { StateMap, StateNodeType } from './state';
+export { RefNodeType } from './ref';
+export { HookNodeType } from './hook';

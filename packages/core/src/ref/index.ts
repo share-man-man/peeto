@@ -1,6 +1,14 @@
 import { NodeType } from '../root';
 import { AnyType } from '../type';
-import { RefNodeType } from './type';
+// import { RefNodeType } from './type';
+
+export class RefNodeType {
+  public type = NodeType.REF;
+  public name: string = '';
+  constructor(p: Omit<RefNodeType, 'type'>) {
+    Object.assign(this, p);
+  }
+}
 
 /**
  * 是否是ref节点

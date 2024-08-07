@@ -1,13 +1,23 @@
-import { SchemaRootObj } from '@peeto/core';
-import { ConditionTypeEnum, FuncTypeEnum } from '../../packages/core/src/func';
+import {
+  AnyType,
+  HookNodeType,
+  JSONValue,
+  RefNodeType,
+  SchemaRootObj,
+  StateNodeType,
+} from '../../packages/core';
+import {
+  AnonymousFunctionNode,
+  ConditionTypeEnum,
+  FuncTypeEnum,
+} from '../../packages/core/src/func';
 import { NodeType } from '../../packages/core/src/root';
 import {
-  createCompNode,
-  createAnonymousFunction,
-  createStateNode,
+  CustomCompNode,
+  // new AnonymousFunctionNode,
+  // new StateNodeType,
   createSchemaConfig,
-  createRefNode,
-  createHookNode,
+  // createRefNode,
 } from '../utils';
 
 export const libModules: SchemaRootObj['libModules'] = [
@@ -79,9 +89,9 @@ export const basic = createSchemaConfig({
   schema: {
     libModules,
     compTree: [
-      createCompNode('Card', {
+      new CustomCompNode('Card', {
         title: 'antd.Card',
-        children: createCompNode('Typography.Text', {
+        children: new CustomCompNode('Typography.Text', {
           children: '包：my-custom  组件：Text',
         }),
       }),
@@ -94,9 +104,9 @@ export const anonymousFunction = createSchemaConfig({
   schema: {
     libModules,
     compTree: [
-      createCompNode('Button', {
+      new CustomCompNode('Button', {
         type: 'primary',
-        onClick: createAnonymousFunction({
+        onClick: new AnonymousFunctionNode({
           params: ['e'],
           func: {
             body: 'alert("点击了按钮")',
@@ -126,52 +136,53 @@ export const state = createSchemaConfig({
     ],
     effects: [
       {
-        dependences: [{ type: NodeType.STATE, stateName: 'title' }],
+        dependences: [{ type: NodeType.STATE, name: 'title' }],
         effectStates: ['titleLength'],
         body: `
-        setTitleLength(title.length)`,
+        setTitleLength(title.length)
+        `,
       },
     ],
     compTree: [
-      createCompNode('Row', {
+      new CustomCompNode('Row', {
         children: [
-          createCompNode('Space', {
+          new CustomCompNode('Space', {
             children: [
-              createCompNode('Typography.Text', {
+              new CustomCompNode('Typography.Text', {
                 children: 'title值：',
               }),
-              createCompNode('Typography.Text', {
-                children: createStateNode({ stateName: 'title' }),
+              new CustomCompNode('Typography.Text', {
+                children: new StateNodeType({ name: 'title' }),
               }),
             ],
           }),
         ],
       }),
-      createCompNode('Row', {
+      new CustomCompNode('Row', {
         children: [
-          createCompNode('Space', {
+          new CustomCompNode('Space', {
             children: [
-              createCompNode('Typography.Text', {
+              new CustomCompNode('Typography.Text', {
                 children: 'titleLength(effect监听改变)：',
               }),
-              createCompNode('Typography.Text', {
-                children: createStateNode({ stateName: 'titleLength' }),
+              new CustomCompNode('Typography.Text', {
+                children: new StateNodeType({ name: 'titleLength' }),
               }),
             ],
           }),
         ],
       }),
-      createCompNode('Row', {
+      new CustomCompNode('Row', {
         children: [
-          createCompNode('Space', {
+          new CustomCompNode('Space', {
             children: [
-              createCompNode('Typography.Text', {
+              new CustomCompNode('Typography.Text', {
                 children: 'title长度(表达式)：',
               }),
-              createCompNode('Typography.Text', {
-                children: createAnonymousFunction({
+              new CustomCompNode('Typography.Text', {
+                children: new AnonymousFunctionNode({
                   IIFE: true,
-                  dependences: [{ type: NodeType.STATE, stateName: 'title' }],
+                  dependences: [{ type: NodeType.STATE, name: 'title' }],
                   func: {
                     body: '(title || "").length',
                   },
@@ -181,11 +192,11 @@ export const state = createSchemaConfig({
           }),
         ],
       }),
-      createCompNode('Input', {
-        value: createStateNode({
-          stateName: 'title',
+      new CustomCompNode('Input', {
+        value: new StateNodeType({
+          name: 'title',
         }),
-        onChange: createAnonymousFunction({
+        onChange: new AnonymousFunctionNode({
           params: ['v'],
           effectStates: ['title'],
           func: {
@@ -232,38 +243,38 @@ export const listLoop = createSchemaConfig({
       },
     ],
     compTree: [
-      createCompNode('Space', {
+      new CustomCompNode('Space', {
         children: [
-          createAnonymousFunction({
+          new AnonymousFunctionNode({
             IIFE: true,
             funcType: FuncTypeEnum.RENDERFUNC,
             renderFunc: {
               conditionType: ConditionTypeEnum.LISTLOOP,
               listLoop: {
-                data: createAnonymousFunction({
+                data: new AnonymousFunctionNode({
                   IIFE: true,
-                  dependences: [{ type: NodeType.STATE, stateName: 'record' }],
+                  dependences: [{ type: NodeType.STATE, name: 'record' }],
                   func: {
                     body: 'record.labels',
                   },
-                }),
+                }) as AnyType,
                 mapParams: ['lablesItem', 'lablesIndex'],
               },
               compTree: [
-                createCompNode('Tag', {
-                  key: createAnonymousFunction({
+                new CustomCompNode('Tag', {
+                  key: new AnonymousFunctionNode({
                     IIFE: true,
                     func: {
                       body: 'lablesItem.name',
                     },
                   }),
-                  color: createAnonymousFunction({
+                  color: new AnonymousFunctionNode({
                     IIFE: true,
                     func: {
                       body: 'lablesItem.color',
                     },
                   }),
-                  children: createAnonymousFunction({
+                  children: new AnonymousFunctionNode({
                     IIFE: true,
                     func: {
                       body: 'lablesItem.color',
@@ -290,26 +301,28 @@ export const conditionBool = createSchemaConfig({
       },
     ],
     compTree: [
-      createCompNode('Switch', {
-        checked: createStateNode({ stateName: 'visible' }),
-        onChange: createAnonymousFunction({
+      new CustomCompNode('Switch', {
+        checked: new StateNodeType({ name: 'visible' }),
+        onChange: new AnonymousFunctionNode({
           params: ['checked'],
-          dependences: [{ type: NodeType.STATE, stateName: 'visible' }],
+          dependences: [{ type: NodeType.STATE, name: 'visible' }],
           effectStates: ['visible'],
           func: {
             body: 'setVisible(!visible)',
           },
         }),
       }),
-      createAnonymousFunction({
+      new AnonymousFunctionNode({
         IIFE: true,
         funcType: FuncTypeEnum.RENDERFUNC,
         renderFunc: {
           conditionType: ConditionTypeEnum.BOOLEAN,
           boolean: {
-            data: createStateNode({ stateName: 'visible' }),
+            data: new StateNodeType({
+              name: 'visible',
+            }) as unknown as JSONValue,
           },
-          compTree: createCompNode('Typography.Text', {
+          compTree: new CustomCompNode('Typography.Text', {
             children: '===条件展示===',
           }),
         },
@@ -325,7 +338,7 @@ export const table = createSchemaConfig({
     refs: [{ name: 'actionRef', desc: '表格ref' }],
     compTree: [
       123,
-      createCompNode('ProTable', {
+      new CustomCompNode('ProTable', {
         columns: [
           {
             title: '序号',
@@ -358,7 +371,7 @@ export const table = createSchemaConfig({
             valueType: 'select',
             valueEnum: {
               all: {
-                text: createAnonymousFunction({
+                text: new AnonymousFunctionNode({
                   IIFE: true,
                   func: {
                     body: '"表达式-".repeat(50)',
@@ -385,20 +398,20 @@ export const table = createSchemaConfig({
             title: '标签',
             dataIndex: 'labels',
             search: false,
-            renderFormItem: createAnonymousFunction({
+            renderFormItem: new AnonymousFunctionNode({
               params: ['_', 'config'],
               func: {
                 body: 'return config.defaultRender(_)',
               },
             }),
-            render: createAnonymousFunction({
+            render: new AnonymousFunctionNode({
               params: ['_', 'record'],
               funcType: FuncTypeEnum.RENDERFUNC,
               renderFunc: {
                 compTree: [
-                  createCompNode('Space', {
+                  new CustomCompNode('Space', {
                     children: [
-                      createCompNode('Tag', {
+                      new CustomCompNode('Tag', {
                         color: 'warning',
                         key: '1',
                         children: 'aaa',
@@ -414,47 +427,47 @@ export const table = createSchemaConfig({
             title: '渲染函数-组件树',
             dataIndex: '_renders2',
             search: false,
-            renderFormItem: createAnonymousFunction({
+            renderFormItem: new AnonymousFunctionNode({
               params: ['_', 'config'],
               func: {
                 body: 'return config.defaultRender(_)',
               },
             }),
-            render: createAnonymousFunction({
+            render: new AnonymousFunctionNode({
               params: ['_', 'record'],
               funcType: FuncTypeEnum.RENDERFUNC,
               renderFunc: {
                 compTree: [
-                  createCompNode('Space', {
+                  new CustomCompNode('Space', {
                     children: [
-                      createAnonymousFunction({
+                      new AnonymousFunctionNode({
                         IIFE: true,
                         funcType: FuncTypeEnum.RENDERFUNC,
                         renderFunc: {
                           conditionType: ConditionTypeEnum.LISTLOOP,
                           listLoop: {
-                            data: createAnonymousFunction({
+                            data: new AnonymousFunctionNode({
                               IIFE: true,
                               func: {
                                 body: 'record.labels',
                               },
-                            }),
+                            }) as AnyType,
                             mapParams: ['lablesItem', 'lablesIndex'],
                           },
-                          compTree: createCompNode('Tag', {
-                            key: createAnonymousFunction({
+                          compTree: new CustomCompNode('Tag', {
+                            key: new AnonymousFunctionNode({
                               IIFE: true,
                               func: {
                                 body: 'lablesItem.name',
                               },
                             }),
-                            color: createAnonymousFunction({
+                            color: new AnonymousFunctionNode({
                               IIFE: true,
                               func: {
                                 body: 'lablesItem.color',
                               },
                             }),
-                            children: createAnonymousFunction({
+                            children: new AnonymousFunctionNode({
                               IIFE: true,
                               func: {
                                 body: 'lablesItem.name',
@@ -483,7 +496,7 @@ export const table = createSchemaConfig({
             valueType: 'dateRange',
             hideInTable: true,
             search: {
-              transform: createAnonymousFunction({
+              transform: new AnonymousFunctionNode({
                 params: ['value'],
                 func: {
                   body: `return {
@@ -498,25 +511,25 @@ export const table = createSchemaConfig({
             title: '操作',
             valueType: 'option',
             key: 'option',
-            render: createAnonymousFunction({
+            render: new AnonymousFunctionNode({
               params: ['text', 'record', '_', 'action'],
               funcType: FuncTypeEnum.RENDERFUNC,
               renderFunc: {
                 compTree: [
-                  createCompNode('Button', {
+                  new CustomCompNode('Button', {
                     key: 'editable',
                     type: 'link',
-                    onClick: createAnonymousFunction({
+                    onClick: new AnonymousFunctionNode({
                       func: {
                         body: 'action?.startEditable?.(record.id);',
                       },
                     }),
                     children: '编辑',
                   }),
-                  createCompNode('Button', {
+                  new CustomCompNode('Button', {
                     key: 'view',
                     type: 'link',
-                    href: createAnonymousFunction({
+                    href: new AnonymousFunctionNode({
                       IIFE: true,
                       func: {
                         body: 'record.url',
@@ -525,9 +538,9 @@ export const table = createSchemaConfig({
                     rel: 'noopener noreferrer',
                     children: '查看',
                   }),
-                  createCompNode('TableDropdown', {
+                  new CustomCompNode('TableDropdown', {
                     key: 'actionGroup',
-                    onSelect: createAnonymousFunction({
+                    onSelect: new AnonymousFunctionNode({
                       func: {
                         body: 'action?.reload()',
                       },
@@ -542,9 +555,9 @@ export const table = createSchemaConfig({
             }),
           },
         ],
-        actionRef: createRefNode({ refName: 'actionRef' }),
+        actionRef: new RefNodeType({ name: 'actionRef' }),
         cardBordered: true,
-        request: createAnonymousFunction({
+        request: new AnonymousFunctionNode({
           dependences: [
             {
               type: NodeType.MODULE,
@@ -577,7 +590,7 @@ export const table = createSchemaConfig({
           defaultValue: {
             option: { fixed: 'right', disable: true },
           },
-          onChange: createAnonymousFunction({
+          onChange: new AnonymousFunctionNode({
             params: ['value'],
             func: {
               body: 'console.log("value: ", value)',
@@ -595,7 +608,7 @@ export const table = createSchemaConfig({
         },
         form: {
           ignoreRules: false,
-          syncToUrl: createAnonymousFunction({
+          syncToUrl: new AnonymousFunctionNode({
             params: ['values', 'type'],
             func: {
               body: `if (type === 'get') {
@@ -613,19 +626,19 @@ export const table = createSchemaConfig({
         },
         dateFormatter: 'string',
         headerTitle: '高级表格',
-        toolBarRender: createAnonymousFunction({
+        toolBarRender: new AnonymousFunctionNode({
           funcType: FuncTypeEnum.RENDERFUNC,
           renderFunc: {
             conditionType: ConditionTypeEnum.DEFAULT,
             compTree: [
-              createCompNode('Button', {
+              new CustomCompNode('Button', {
                 key: 'button',
-                // icon: createCompNode('@ant-design/icons', 'PlusOutlined'),
-                onClick: createAnonymousFunction({
+                // icon: new CustomCompNode('@ant-design/icons', 'PlusOutlined'),
+                onClick: new AnonymousFunctionNode({
                   dependences: [
                     {
                       type: NodeType.REF,
-                      refName: 'actionRef',
+                      name: 'actionRef',
                     },
                   ],
                   func: {
@@ -636,7 +649,7 @@ export const table = createSchemaConfig({
                 type: 'primary',
                 children: '新建',
               }),
-              createCompNode('Dropdown', {
+              new CustomCompNode('Dropdown', {
                 key: 'menu',
                 menu: {
                   items: [
@@ -654,7 +667,7 @@ export const table = createSchemaConfig({
                     },
                   ],
                 },
-                children: createCompNode('Button', {
+                children: new CustomCompNode('Button', {
                   children: '...',
                 }),
               }),
@@ -696,7 +709,7 @@ export const form = createSchemaConfig({
     customHooks: [
       {
         effect: {
-          body: 'return Form.useForm()',
+          body: 'Form.useForm()',
           dependences: [
             {
               type: NodeType.MODULE,
@@ -707,113 +720,83 @@ export const form = createSchemaConfig({
         arrDestructs: ['form'],
       },
     ],
-    compTree: [
-      createCompNode('Modal', {
-        title: '测试表单',
-        open: createStateNode({ stateName: 'visible' }),
-        onCancel: createAnonymousFunction({
-          func: {
-            body: 'setVisible(false)',
-          },
-          effectStates: ['visible'],
+    compTree: new CustomCompNode('Form', {
+      form: new HookNodeType({ name: 'form' }),
+      name: 'basic',
+      labelCol: { span: 8 },
+      wrapperCol: { span: 16 },
+      style: { maxWidth: 600 },
+      initialValues: { remember: true },
+      autoComplete: 'off',
+      children: [
+        new CustomCompNode('Form.Item', {
+          label: 'Username',
+          name: 'username',
+          rules: [{ required: true, message: 'Please input your username!' }],
+          children: [new CustomCompNode('Input', {})],
         }),
-        confirmLoading: createStateNode({ stateName: 'loading' }),
-        maskClosable: false,
-        destroyOnClose: true,
-        children: [
-          createCompNode('Form', {
-            form: createHookNode({ hookName: 'form' }),
-            name: 'basic',
-            labelCol: { span: 8 },
-            wrapperCol: { span: 16 },
-            style: { maxWidth: 600 },
-            initialValues: { remember: true },
-            autoComplete: 'off',
-            children: [
-              createCompNode('Form.Item', {
-                label: 'Username',
-                name: 'username',
-                rules: [
-                  { required: true, message: 'Please input your username!' },
-                ],
-                children: [createCompNode('Input', {})],
-              }),
-              createCompNode('Form.Item', {
-                label: 'Password',
-                name: 'password',
-                rules: [
-                  { required: true, message: 'Please input your password!' },
-                ],
-                children: [createCompNode('Input.Password', {})],
-              }),
-              createCompNode('Form.Item', {
-                name: 'remember',
-                valuePropName: 'checked',
-                wrapperCol: { offset: 8, span: 16 },
-                children: [
-                  createCompNode('Checkbox', {
-                    children: 'Remember me',
-                  }),
-                ],
-              }),
-              createCompNode('Form.Item', {
-                wrapperCol: { offset: 8, span: 16 },
-                children: [
-                  createCompNode('Button', {
-                    type: 'primary',
-                    children: 'Submit',
-                    onClick: createAnonymousFunction({
-                      func: {
-                        body: `
-                        form.validateFields().then(()=>{
-                          setLoading(true);
-                          setTimeout(()=>{
-                            setLoading(false);
-                          },1000)
-                        })
-                        `,
-                      },
-                      effectStates: ['loading'],
-                      dependences: [
-                        {
-                          type: NodeType.HOOK,
-                          hookName: 'form',
-                        },
-                      ],
-                    }),
-                  }),
-                  createCompNode('Button', {
-                    onClick: createAnonymousFunction({
-                      func: {
-                        body: `
-                        console.log(form);
-                        form.resetFields()`,
-                      },
-                      dependences: [
-                        {
-                          type: NodeType.HOOK,
-                          hookName: 'form',
-                        },
-                      ],
-                    }),
-                    children: 'Reset',
-                  }),
-                ],
-              }),
-            ],
-          }),
-        ],
-      }),
-      createCompNode('Button', {
-        type: 'primary',
-        children: '打开表单',
-        onClick: createAnonymousFunction({
-          func: {
-            body: 'setVisible(true)',
-          },
-          effectStates: ['visible'],
+        new CustomCompNode('Form.Item', {
+          label: 'Password',
+          name: 'password',
+          rules: [{ required: true, message: 'Please input your password!' }],
+          children: [new CustomCompNode('Input.Password', {})],
         }),
-      }),
-    ],
+        new CustomCompNode('Form.Item', {
+          name: 'remember',
+          valuePropName: 'checked',
+          wrapperCol: { offset: 8, span: 16 },
+          children: [
+            new CustomCompNode('Checkbox', {
+              children: 'Remember me',
+            }),
+          ],
+        }),
+        new CustomCompNode('Form.Item', {
+          wrapperCol: { offset: 8, span: 16 },
+          children: [
+            new CustomCompNode('Button', {
+              type: 'primary',
+              children: 'Submit',
+              onClick: new AnonymousFunctionNode({
+                func: {
+                  body: `
+                  console.log(form);  
+                  form.validateFields().then(()=>{
+                    setLoading(true);
+                    setTimeout(()=>{
+                      setLoading(false);
+                    },1000)
+                  })
+                  `,
+                },
+                effectStates: ['loading'],
+                dependences: [
+                  {
+                    type: NodeType.HOOK,
+                    name: 'form',
+                  },
+                ],
+              }),
+            }),
+            new CustomCompNode('Button', {
+              onClick: new AnonymousFunctionNode({
+                func: {
+                  body: `
+                  console.log(form);
+                  form.resetFields()`,
+                },
+                dependences: [
+                  {
+                    type: NodeType.HOOK,
+                    name: 'form',
+                  },
+                ],
+              }),
+              children: 'Reset',
+            }),
+          ],
+        }),
+      ],
+    }),
   },
 });
