@@ -14,3 +14,4 @@ export {
 } from './root/utils';
 export { generateNode } from './root';
 export { getSetStateFuncName, FuncTypeEnum, ConditionTypeEnum } from './func';
+export { StateMap } from './state';

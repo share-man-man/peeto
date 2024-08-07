@@ -5,12 +5,11 @@ import {
   generateArguments,
   StateGetSetType,
   RefGetSetType,
+  StateMap,
 } from '@peeto/core';
 import {
   useEffect,
   useState,
-  Dispatch,
-  SetStateAction,
   useRef,
   useMemo,
   FC,
@@ -29,18 +28,10 @@ const Index: FC<SchemaCompProps> = ({ schemaStr, ...props }) => {
   const propsRef = useRef(props);
   propsRef.current = props;
 
-  const [renderTimes, setRenderTimes] = useState<boolean | null>(true);
+  const [renderFlag, setRenderFlag] = useState<boolean | null>(true);
 
   // 状态集合
-  const stateMapRef = useRef<
-    Map<
-      string,
-      {
-        stateValue: AnyType;
-        setStateValue: Dispatch<SetStateAction<AnyType>>;
-      }
-    >
-  >(new Map());
+  const stateMapRef = useRef(new StateMap());
   // ref集合
   const refMapRef = useRef<Map<string, MutableRefObject<AnyType>>>(new Map());
 
@@ -50,10 +41,7 @@ const Index: FC<SchemaCompProps> = ({ schemaStr, ...props }) => {
   const schemaObjStates = schemaRootObj.states;
   schemaObjStates?.forEach((s) => {
     const [stateValue, setStateValue] = createState(s.initialValue);
-    stateMapRef.current.set(s.name, {
-      stateValue,
-      setStateValue,
-    });
+    stateMapRef.current.addState(s.name, stateValue, setStateValue);
   });
 
   // 使用自带的ref管理
@@ -64,7 +52,7 @@ const Index: FC<SchemaCompProps> = ({ schemaStr, ...props }) => {
   });
 
   const getState = useCallback<StateGetSetType['getState']>(({ stateName }) => {
-    return stateMapRef.current.get(stateName)?.stateValue;
+    return stateMapRef.current.get(stateName);
   }, []);
   const getStateRef = useRef(getState);
   getStateRef.current = getState;
@@ -72,10 +60,10 @@ const Index: FC<SchemaCompProps> = ({ schemaStr, ...props }) => {
   const setState = useCallback<StateGetSetType['setState']>(
     ({ fieldList = [] }) => {
       fieldList.forEach(({ name, value }) => {
-        stateMapRef.current.get(name)?.setStateValue(value);
+        stateMapRef.current.set(name, value);
       });
       // state改变后，通知react重新渲染state
-      setRenderTimes((prev) => !prev);
+      setRenderFlag((prev) => !prev);
     },
     []
   );
@@ -111,7 +99,7 @@ const Index: FC<SchemaCompProps> = ({ schemaStr, ...props }) => {
   });
 
   const dom = useMemo(() => {
-    if (renderTimes === null) {
+    if (renderFlag === null) {
       return null;
     }
     const obj = getSchemaObjFromStr(schemaStr);
@@ -124,7 +112,7 @@ const Index: FC<SchemaCompProps> = ({ schemaStr, ...props }) => {
     });
 
     return res;
-  }, [renderTimes, schemaStr]);
+  }, [renderFlag, schemaStr]);
 
   useEffect(() => {
     propsRef.current?.onNodeChange?.(dom);

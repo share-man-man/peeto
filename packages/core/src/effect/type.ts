@@ -6,7 +6,7 @@ import { SchemaStateItem } from '../state/type';
 
 export interface SchemaEffectItem {
   /**
-   * 依赖的状态
+   * 依赖数组
    */
   dependences: (
     | {
@@ -16,9 +16,6 @@ export interface SchemaEffectItem {
     | {
         type: NodeType.MODULE;
         name: SchemaLibItemSubsItem['name'];
-        // libName: LibListItem['name'];
-        // alias?: string;
-        // subName: string;
       }
     | {
         type: NodeType.REF;
@@ -33,8 +30,4 @@ export interface SchemaEffectItem {
    * 执行事件会影响的状态
    */
   effectStates: SchemaStateItem['name'][];
-  //   /**
-  //    * 执行函数会调用的ref
-  //    */
-  //   effectRefs: SchemaRefItem['name'][];
 }

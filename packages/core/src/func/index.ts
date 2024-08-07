@@ -1,13 +1,23 @@
 import { NodeType } from '../root';
+import { ContextType } from '../root/type';
 import { SchemaStateItem } from '../state/type';
 import { AnyType } from '../type';
 import { AnonymousFunctionNode, GenerateFuncBaseOptionType } from './type';
 
+/**
+ * 函数类型
+ */
 export enum FuncTypeEnum {
   FUNC = 'func',
   RENDERFUNC = 'renderFunc',
 }
 
+/**
+ * 条件渲染类型
+ * default：直接渲染
+ * listLoop： list.map(item=><div>{item.name}</div>)
+ * boolean：flag && <div>111</div>
+ */
 export enum ConditionTypeEnum {
   DEFAULT = 'default',
   LISTLOOP = 'listLoop',
@@ -24,6 +34,16 @@ export const getSetStateFuncName = ({
   stateName: SchemaStateItem['name'];
 }) => {
   return `set${stateName.charAt(0).toUpperCase()}${stateName.slice(1)}`;
+};
+
+/**
+ * 合并上下文，并返回新的对象
+ * @param ctx
+ * @param list
+ * @returns
+ */
+export const mergeCtx = (ctx: ContextType, list: [string, AnyType][] = []) => {
+  return { ...ctx, ...Object.fromEntries(list) };
 };
 
 /**
@@ -72,11 +92,10 @@ export const generateRenderFuncDefaultRes = <VNodeType>({
   return deepRecursionParse({
     cur: compTree,
     path: [...path, 'renderFunc', 'compTree'],
-    ctx: {
-      ...ctx,
-      // 讲函数参数传入下级的上下文
-      ...Object.fromEntries(argNameList.map((n, index) => [n, argList[index]])),
-    },
+    ctx: mergeCtx(
+      ctx,
+      argNameList.map((n, index) => [n, argList[index]])
+    ),
   });
 };
 
@@ -117,7 +136,7 @@ export const generateRenderFuncListLoop = <VNodeType>({
 }: GenerateFuncBaseOptionType<VNodeType>) => {
   const { listLoop, compTree } = curSchema.renderFunc || {};
   const { data, mapParams = [] } = listLoop || {};
-  // 获取数组数据
+  // 解析数组数据，有可能是state、或其他表达式
   const listData = (deepRecursionParse({
     cur: data,
     path: [...path, 'renderFunc', 'listLoop', 'data'],
@@ -126,17 +145,16 @@ export const generateRenderFuncListLoop = <VNodeType>({
 
   return listData.map((...mapParamsValueList) => {
     // 将map的渲染函数放入上下文
-    const newCtx = {
-      ...ctx,
-      // 将函数参数传入下级的上下文
-      ...Object.fromEntries([
-        ...argNameList.map((n, index) => [n, argList[index]]),
-        ...mapParams.map((mapParamItem, mapParamItemIndex) => [
-          mapParamItem,
-          mapParamsValueList[mapParamItemIndex],
-        ]),
-      ]),
-    };
+    const newCtx = mergeCtx(
+      mergeCtx(
+        ctx,
+        argNameList.map((n, index) => [n, argList[index]])
+      ),
+      mapParams.map((mapParamItem, mapParamItemIndex) => [
+        mapParamItem,
+        mapParamsValueList[mapParamItemIndex],
+      ])
+    );
     const r = deepRecursionParse({
       cur: compTree,
       path: [...path, 'renderFunc', 'compTree'],

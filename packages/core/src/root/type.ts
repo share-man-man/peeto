@@ -11,7 +11,6 @@ import { AnonymousFunctionNode } from '../func/type';
  * schema根对象
  */
 export interface SchemaRootObj {
-  // TODO 组件树、渲染函数里，只能从这里获取相关组件、函数，SchemaCompTreeItem.packageName、SchemaEventItem.libName应该删掉
   /**
    * 引入的包
    */

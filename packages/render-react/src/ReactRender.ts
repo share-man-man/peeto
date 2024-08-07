@@ -15,7 +15,6 @@ const ReactRender = ({
   loadingRender,
   onCreateCompNode,
   noMatchCompRender = defaultNoMatchCompRender,
-  // noMatchLibRender = defaultNoMatchLibRender,
   ...props
 }: ReactRenderProps) => {
   const [loading, setLoading] = useState(true);
@@ -48,8 +47,6 @@ const ReactRender = ({
     });
   }
 
-  // console.log(22, modulesMap, schemaStr);
-
   const res = onCreateCompNode({
     comp: SchemaComp,
     props: {
@@ -57,7 +54,6 @@ const ReactRender = ({
       schemaStr,
       onCreateCompNode: curOnCreateCompNode,
       noMatchCompRender,
-      // noMatchLibRender,
       ...props,
     },
   });

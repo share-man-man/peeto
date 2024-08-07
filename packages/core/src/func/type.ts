@@ -28,13 +28,13 @@ export interface AnonymousFunctionNode {
    */
   effectStates?: SchemaEffectItem['effectStates'];
   /**
-   * 用到的状态
+   * 依赖数组，以追踪状态影响哪些变化
    */
   dependences?: SchemaEffectItem['dependences'];
   /**
    * 函数类型
    * func：普通匿名函数
-   * renderFunc：渲染函数
+   * renderFunc：渲染函数，会返回组件
    */
   funcType?: FuncTypeEnum;
   /**
@@ -51,10 +51,7 @@ export interface AnonymousFunctionNode {
    */
   renderFunc?: {
     /* *
-     * 条件渲染：
-     * default：直接渲染
-     * listLoop list.map(item=><div>{item.name}</div>)
-     * boolean：flag && <div>111</div>
+     * 条件渲染类型
      */
     conditionType?: ConditionTypeEnum;
     /**
