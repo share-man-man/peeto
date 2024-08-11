@@ -22,4 +22,4 @@ export { generateNode } from './root';
 export { getSetStateFuncName, FuncTypeEnum, ConditionTypeEnum } from './func';
 export { StateMap, StateNodeType } from './state';
 export { RefNodeType } from './ref';
-export { HookNodeType } from './hook';
+export { HookNodeType, FieldTypeEnum } from './hook';

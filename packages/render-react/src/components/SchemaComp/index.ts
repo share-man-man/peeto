@@ -8,6 +8,7 @@ import {
   StateMap,
   ContextType,
   NodeType,
+  FieldTypeEnum,
 } from '@peeto/core';
 import {
   useEffect,
@@ -74,37 +75,47 @@ const Index: FC<SchemaCompProps> = ({ schemaStr, ctx = {}, ...props }) => {
   });
 
   // 自定义hooks
-  schemaRootObj.customHooks?.forEach(
-    ({ name, arrDestructs, objDestructs, effect }) => {
-      const { body, dependences = [], effectStates = [] } = effect;
-      const { argList, argNameList } = generateArguments({
-        effectStates,
-        setState: setStateRef.current,
-        getState: getStateRef.current,
-        dependences,
-        ctx: ctxRef.current,
-        modulesMap: props.modulesMap,
-        getRef: getRefRef.current,
-        getHook: getHookRef.current,
-      });
+  schemaRootObj.customHooks?.forEach(({ field, effect }) => {
+    const { body, dependences = [], effectStates = [] } = effect;
+    const { argList, argNameList } = generateArguments({
+      effectStates,
+      setState: setStateRef.current,
+      getState: getStateRef.current,
+      dependences,
+      ctx: ctxRef.current,
+      modulesMap: props.modulesMap,
+      getRef: getRefRef.current,
+      getHook: getHookRef.current,
+    });
 
-      const res = new Function(...argNameList, `return ${body}`).call(
-        {},
-        ...argList
-      );
-      if (name) {
-        hookMapRef.current.set(name, res);
-      } else if (arrDestructs) {
-        arrDestructs.forEach((n, index) => {
+    const res = new Function(...argNameList, `return ${body}`).call(
+      {},
+      ...argList
+    );
+    let nv: never;
+    const t = field.type;
+    switch (t) {
+      case FieldTypeEnum.NAME:
+        hookMapRef.current.set(field[t], res);
+        break;
+      case FieldTypeEnum.ARR:
+        field[t].forEach((n, index) => {
           hookMapRef.current.set(n, res[index]);
         });
-      } else if (objDestructs) {
-        objDestructs.forEach(({ alias, name: n }) => {
+        break;
+      case FieldTypeEnum.OBJ:
+        field[t].forEach(({ alias, name: n }) => {
           hookMapRef.current.set(alias || n, res[n]);
         });
-      }
+        break;
+      default:
+        nv = t;
+        if (nv) {
+          //
+        }
+        break;
     }
-  );
+  });
 
   // 使用自带的依赖管理函数;
   schemaRootObj.effects?.forEach(({ effectStates, body, dependences = [] }) => {

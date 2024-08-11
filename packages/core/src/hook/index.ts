@@ -2,6 +2,12 @@ import { NodeType } from '../root';
 import { AnyType } from '../type';
 // import { HookNodeType } from './type';
 
+export enum FieldTypeEnum {
+  NAME = 'name',
+  ARR = 'arr',
+  OBJ = 'obj',
+}
+
 export class HookNodeType {
   public type = NodeType.HOOK;
   public name: string = '';

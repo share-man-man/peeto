@@ -1,5 +1,6 @@
 import {
   AnyType,
+  FieldTypeEnum,
   HookNodeType,
   JSONValue,
   RefNodeType,
@@ -717,7 +718,10 @@ export const form = createSchemaConfig({
             },
           ],
         },
-        arrDestructs: ['form'],
+        field: {
+          type: FieldTypeEnum.ARR,
+          [FieldTypeEnum.ARR]: ['form'],
+        },
       },
     ],
     compTree: new CustomCompNode('Form', {

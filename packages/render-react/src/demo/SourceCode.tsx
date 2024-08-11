@@ -4,6 +4,8 @@ const Index = () => {
   // 引入依赖包
 
   // 状态
+  // // 加载中状态
+  // const [loading, setLoading] = useState(false);
 
   // ref
 
@@ -19,7 +21,7 @@ const Index = () => {
   return (
     <>
       <Form
-        key="bcee1737-a9e1-40ae-a966-9a954d37a4b5"
+        key="61836be2-67f0-4deb-bd9d-dd71bd5e0e84"
         form={form}
         name="basic"
         labelCol={{
@@ -37,7 +39,7 @@ const Index = () => {
         autoComplete="off"
       >
         <Form.Item
-          key="5cce8162-183f-4d69-9c14-66b6e3a28469"
+          key="ac04c920-fda9-4a95-b82a-b6e632a155b8"
           label="Username"
           name="username"
           rules={[
@@ -47,11 +49,11 @@ const Index = () => {
             },
           ]}
         >
-          <Input key="6ddba2a6-1383-4403-98c1-86da416655d3" />
+          <Input key="7895cff8-6a2a-4075-a5bf-860d499cb5bd" />
         </Form.Item>
 
         <Form.Item
-          key="28f40a52-c097-46c6-a978-556f0dbe5e0b"
+          key="6dc78792-2ff1-4f41-a5df-0bb0dae2ee0a"
           label="Password"
           name="password"
           rules={[
@@ -61,11 +63,11 @@ const Index = () => {
             },
           ]}
         >
-          <Input.Password key="32ba8420-9eb2-47e2-b221-06224301e35a" />
+          <Input.Password key="e31c5d19-83ae-4873-bb9f-9031c366af37" />
         </Form.Item>
 
         <Form.Item
-          key="88d2dc8a-0850-44ee-b852-14829467b15d"
+          key="0b9f84aa-d20f-4374-b00f-6b108d56284c"
           name="remember"
           valuePropName="checked"
           wrapperCol={{
@@ -73,21 +75,38 @@ const Index = () => {
             span: 16,
           }}
         >
-          <Checkbox key="4127b368-be02-4877-93b6-98b4b9464c0f">
+          <Checkbox key="d3017847-7957-44f3-b782-d424660f0ba7">
             Remember me
           </Checkbox>
         </Form.Item>
 
         <Form.Item
-          key="1a899207-e077-45e4-8ac3-e7410737eea1"
+          key="6d047bfb-b492-4c11-aa21-4b57ccd9bb6b"
           wrapperCol={{
             offset: 8,
             span: 16,
           }}
         >
           <Button
-            key="76e10e4e-1f01-4c40-9931-1fb32f366987"
+            key="97d41a3a-62bf-4b7b-a734-073c4ad72e0a"
+            type="primary"
             onClick={() => {
+              // console.log(form);
+              form.validateFields().then(() => {
+                // setLoading(true);
+                setTimeout(() => {
+                  // setLoading(false);
+                }, 1000);
+              });
+            }}
+          >
+            Submit
+          </Button>
+
+          <Button
+            key="5f411c4f-3b41-4422-9901-ec5e241ac3c9"
+            onClick={() => {
+              // console.log(form);
               form.resetFields();
             }}
           >
