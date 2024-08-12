@@ -8,11 +8,11 @@ import {
   basic,
   state,
   anonymousFunction,
-  table,
   listLoop,
   conditionBool,
-  form,
 } from '../../../../demo-schema/react/basic';
+import { table } from '../../../../demo-schema/react/table';
+import { form } from '../../../../demo-schema/react/form';
 import SourceCode from './SourceCode';
 import { toReactStr } from './ToSource';
 

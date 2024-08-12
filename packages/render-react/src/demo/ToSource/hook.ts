@@ -1,21 +1,34 @@
-import { SchemaHookItem, SchemaRootObj } from '@peeto/core';
+import { FieldTypeEnum, SchemaHookItem, SchemaRootObj } from '@peeto/core';
 
-const nameStr = ({ name, arrDestructs, objDestructs }: SchemaHookItem) => {
-  if (name) {
-    return name;
-  }
-  if (arrDestructs) {
-    return `[${arrDestructs.join(',')}]`;
-  }
-  if (objDestructs) {
-    return `{
-    ${objDestructs
+const nameStr = ({ field }: SchemaHookItem) => {
+  let res = '';
+  let nr: never;
+  const t = field.type;
+  switch (t) {
+    case FieldTypeEnum.NAME:
+      res = field[FieldTypeEnum.NAME];
+      break;
+    case FieldTypeEnum.ARR:
+      res = `[${field[FieldTypeEnum.ARR].join(',')}]`;
+      break;
+    case FieldTypeEnum.OBJ:
+      res = `{
+    ${field[FieldTypeEnum.OBJ]
       .map((o) => {
         return `${o.name} ${o.alias || ''}`;
       })
       .join(',')}
     }`;
+      break;
+    default:
+      nr = t;
+      if (nr) {
+        //
+      }
+      break;
   }
+
+  return res;
 };
 
 export const getHookStr = (schema: SchemaRootObj) => {

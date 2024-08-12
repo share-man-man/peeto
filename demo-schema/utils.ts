@@ -13,16 +13,36 @@ import {
 } from '../packages/core/src/component';
 import { RefNodeType } from '../packages/core/src/ref';
 import { JSONObject } from 'packages/core/src/type';
-export class CustomCompNode extends SchemaCompTreeItem {
-  constructor(componentName: string, props: Record<string, AnyType> = {}) {
-    const selfId = id();
-    super({
-      componentName,
-      id: selfId,
-      props,
-    });
-  }
-}
+
+export const createComp = (
+  componentName: string,
+  props: Record<string, AnyType> = {}
+) => {
+  const selfId = id();
+  return new SchemaCompTreeItem({
+    componentName,
+    id: selfId,
+    props,
+  });
+};
+
+export const createState = (
+  ...p: ConstructorParameters<typeof StateNodeType>
+) => {
+  return new StateNodeType(...p) as unknown as JSONObject;
+};
+
+export const createHook = (
+  ...p: ConstructorParameters<typeof HookNodeType>
+) => {
+  return new HookNodeType(...p) as unknown as JSONObject;
+};
+
+export const creatAnonymousFunc = (
+  ...p: ConstructorParameters<typeof AnonymousFunctionNode>
+) => {
+  return new AnonymousFunctionNode(...p) as unknown as JSONObject;
+};
 
 export const createSchemaConfig = ({
   desc,
@@ -41,10 +61,11 @@ export const createSchemaConfig = ({
     cur: AnyType;
     path: AnyType[];
   }): AnyType => {
+    // 是否是自定义节点的原型
     if (
       cur &&
       [
-        CustomCompNode.prototype,
+        SchemaCompTreeItem.prototype,
         AnonymousFunctionNode.prototype,
         StateNodeType.prototype,
         RefNodeType.prototype,
