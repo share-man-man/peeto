@@ -11,6 +11,7 @@ import { AnyType } from '../type';
 import {
   DeepRecursionParseType,
   ParseObjOptionType,
+  ParseOptions,
   SchemaRootObj,
 } from './type';
 
@@ -36,78 +37,101 @@ export const getSchemaObjFromStr = (str?: string): SchemaRootObj => {
  * 转换组件树
  * @returns
  */
-export const parseObj = <VNodeType>({
-  node,
-  nodePath = [],
-  parseStateNode,
-  parseRefNode,
-  parseHookNode,
-  parseAnonymousFunctionNode,
-  parseSchemaComp,
-  ctx: propCtx = {},
-}: // customDeep = false,
-ParseObjOptionType<VNodeType>) => {
-  const deepRecursionParse: DeepRecursionParseType<VNodeType> = ({
-    cur,
-    path,
-    ctx,
-  }) => {
+export const parseObj = <VNodeType>(
+  {
+    node,
+    nodePath = [],
+    parseBasicNode,
+    parseArrayNode,
+    parseObjectNode,
+    parseStateNode,
+    parseRefNode,
+    parseHookNode,
+    parseAnonymousFunctionNode,
+    parseSchemaComp,
+    ctx: propCtx = {},
+  }: ParseObjOptionType<VNodeType>,
+  parseOptions?: ParseOptions
+) => {
+  const deepRecursionParse: DeepRecursionParseType<VNodeType> = (
+    { cur: orgCur, path, ctx },
+    op
+  ) => {
+    const cur: AnyType = orgCur;
     // 普通节点继续遍历
     if (!nodePath.some((c) => isPathEqual(c, path))) {
-      // 基础节点，直接返回
-      if (isBasicNode(cur)) {
-        return cur;
+      // 基础节点
+      if (isBasicNode(cur) && parseBasicNode) {
+        return parseBasicNode(
+          { path, ctx, deepRecursionParse, curSchema: cur },
+          op
+        );
       }
-      // 遍历数组
+      // 数组节点
       if (Array.isArray(cur)) {
+        if (parseArrayNode) {
+          return parseArrayNode(
+            {
+              curSchema: cur,
+              path,
+              ctx,
+              deepRecursionParse,
+            },
+            op
+          );
+        }
         return cur.map((o, oIndex) =>
-          deepRecursionParse({ cur: o, path: [...path, oIndex], ctx })
-        ) as VNodeType;
+          deepRecursionParse({ cur: o, path: [...path, oIndex], ctx }, op)
+        );
       }
-      // null、undefined等非对象类型类型
-      if (!(cur instanceof Object)) {
-        return cur;
+      // 对象节点
+      if (cur instanceof Object) {
+        if (parseObjectNode) {
+          return parseObjectNode(
+            { curSchema: cur, path, ctx, deepRecursionParse },
+            op
+          );
+        }
+        return Object.fromEntries(
+          Object.keys(cur).map((k) => [
+            k,
+            deepRecursionParse({ cur: cur[k], path: [...path, k], ctx }, op),
+          ])
+        );
       }
-      // 遍历对象
-      return Object.fromEntries(
-        Object.keys(cur).map((k) => [
-          k,
-          deepRecursionParse({ cur: cur[k], path: [...path, k], ctx }),
-        ])
+    }
+    // 状态节点
+    if (isStateNode(cur) && parseStateNode) {
+      return parseStateNode(
+        { curSchema: cur, deepRecursionParse, path, ctx },
+        op
       );
     }
-
-    // 状态节点
-    if (isStateNode(cur)) {
-      return parseStateNode
-        ? parseStateNode({ curSchema: cur, deepRecursionParse, path, ctx })
-        : cur;
-    }
     // ref节点
-    if (isRefNode(cur)) {
-      return parseRefNode
-        ? parseRefNode({ curSchema: cur, deepRecursionParse, path, ctx })
-        : cur;
+    if (isRefNode(cur) && parseRefNode) {
+      return parseRefNode(
+        { curSchema: cur, deepRecursionParse, path, ctx },
+        op
+      );
     }
     // hook节点
-    if (isHookNode(cur)) {
-      return parseHookNode
-        ? parseHookNode({ curSchema: cur, deepRecursionParse, path, ctx })
-        : cur;
+    if (isHookNode(cur) && parseHookNode) {
+      return parseHookNode(
+        { curSchema: cur, deepRecursionParse, path, ctx },
+        op
+      );
     }
     // 匿名函数节点
-    if (isAnonymousFunctionNode(cur)) {
-      const newCur = cur;
-      if (!parseAnonymousFunctionNode) {
-        return newCur;
-      }
-
-      return parseAnonymousFunctionNode({
-        curSchema: newCur,
-        deepRecursionParse,
-        path,
-        ctx,
-      });
+    if (isAnonymousFunctionNode(cur) && parseAnonymousFunctionNode) {
+      return parseAnonymousFunctionNode(
+        {
+          curSchema: cur,
+          deepRecursionParse,
+          path,
+          ctx,
+        },
+        op
+      );
     }
     // 组件节点
     if (isSchemaCompTree(cur)) {
@@ -119,27 +143,37 @@ ParseObjOptionType<VNodeType>) => {
         ...Object.fromEntries(
           Object.keys(obj.props || {}).map((k) => [
             k,
-            deepRecursionParse({
-              cur: obj.props?.[k],
-              path: [...path, 'props', k],
-              ctx,
-            }),
+            deepRecursionParse(
+              {
+                cur: obj.props?.[k],
+                path: [...path, 'props', k],
+                ctx,
+              },
+              op
+            ),
           ])
         ),
       };
-
-      return parseSchemaComp
-        ? parseSchemaComp({
+      if (parseSchemaComp) {
+        return parseSchemaComp(
+          {
             curSchema: cur,
             deepRecursionParse,
             path,
             props,
             ctx,
-          })
-        : cur;
+          },
+          op
+        );
+      }
+      return { ...cur, props };
     }
+    return cur;
   };
-  return deepRecursionParse({ cur: node, path: [], ctx: propCtx });
+  return deepRecursionParse(
+    { cur: node, path: [], ctx: propCtx },
+    parseOptions || {}
+  );
 };
 
 /**

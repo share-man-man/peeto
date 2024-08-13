@@ -248,28 +248,26 @@ export const listLoop = createSchemaConfig({
                 }),
                 mapParams: ['lablesItem', 'lablesIndex'],
               },
-              compTree: [
-                createComp('Tag', {
-                  key: creatAnonymousFunc({
-                    IIFE: true,
-                    func: {
-                      body: 'lablesItem.name',
-                    },
-                  }),
-                  color: creatAnonymousFunc({
-                    IIFE: true,
-                    func: {
-                      body: 'lablesItem.color',
-                    },
-                  }),
-                  children: creatAnonymousFunc({
-                    IIFE: true,
-                    func: {
-                      body: 'lablesItem.color',
-                    },
-                  }),
+              compTree: createComp('Tag', {
+                key: creatAnonymousFunc({
+                  IIFE: true,
+                  func: {
+                    body: 'lablesItem.name',
+                  },
                 }),
-              ],
+                color: creatAnonymousFunc({
+                  IIFE: true,
+                  func: {
+                    body: 'lablesItem.color',
+                  },
+                }),
+                children: creatAnonymousFunc({
+                  IIFE: true,
+                  func: {
+                    body: 'lablesItem.color',
+                  },
+                }),
+              }),
             },
           }),
         ],

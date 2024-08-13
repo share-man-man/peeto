@@ -1,5 +1,6 @@
 import { NodeType } from '../root';
 import { AnyType, JSONValue } from '../type';
+import { BasicNodeType } from './type';
 // import { SchemaCompTreeItem } from './type';
 
 /**
@@ -26,7 +27,7 @@ export class SchemaCompTreeItem {
  * @param obj
  * @returns
  */
-export const isBasicNode = (obj: AnyType): boolean => {
+export const isBasicNode = (obj: AnyType): obj is BasicNodeType => {
   return [
     '[object String]',
     '[object Number]',

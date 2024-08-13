@@ -1,5 +1,5 @@
 import { SchemaRootObj } from '@peeto/core';
-import { recusionCompTree, getCompTreeStr } from './comp-tree';
+import { getCompTreeStr } from './comp-tree';
 import { getEffectStr } from './effect';
 import { getLibStr } from './lib';
 import { getRefStr } from './ref';
@@ -12,10 +12,12 @@ export const toReactStr = (str: string) => {
   const refStr = getRefStr(JSON.parse(str || '{}') as SchemaRootObj);
   const hookStr = getHookStr(JSON.parse(str || '{}') as SchemaRootObj);
   const effectsStr = getEffectStr(JSON.parse(str || '{}') as SchemaRootObj);
-  const { treeObj } = recusionCompTree(
-    JSON.parse(str || '{}') as SchemaRootObj
-  );
-  const treeStr = getCompTreeStr(treeObj, { parentNode: 'comp' });
+  // const { treeObj } = recusionCompTree(
+  //   JSON.parse(str || '{}') as SchemaRootObj
+  // );
+  const treeStr = getCompTreeStr(JSON.parse(str || '{}') as SchemaRootObj, {
+    parentNode: 'comp',
+  });
 
   return `import { useState, useEffect, useRef } from "react";
   ${libStr}

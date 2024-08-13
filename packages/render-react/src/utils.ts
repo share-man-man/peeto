@@ -40,5 +40,5 @@ export const defaultNoMatchCompRender: Required<ReactRenderProps>['noMatchCompRe
           padding: 12,
         },
       },
-      `包:${schema.packageName}里没有找到组件:${schema.componentName}`
+      `没有找到组件:${schema.componentName}`
     );

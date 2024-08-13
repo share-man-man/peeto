@@ -1,19 +1,18 @@
-import { AnonymousFunctionNode, AnyType, ConditionTypeEnum } from '@peeto/core';
-import { getCompTreeStr } from '../comp-tree';
-
-export type GenerateFuncBaseOptionType = {
-  curSchema: AnonymousFunctionNode;
-  deepRecursionParse: (
-    d: AnyType,
-    op: Parameters<typeof getCompTreeStr>[1]
-  ) => AnyType;
-};
+import {
+  ConditionTypeEnum,
+  GenerateFuncBaseOptionType,
+  generateRenderFuncDefaultRes,
+  JSONValue,
+} from '@peeto/core';
+import { ReactNode } from 'react';
 
 /**
  * 执行普通函数执行结果
  * @returns
  */
-export const generateFuncRes = ({ curSchema }: GenerateFuncBaseOptionType) => {
+export const generateFuncRes = ({
+  curSchema,
+}: GenerateFuncBaseOptionType<ReactNode>) => {
   const { body = '' } = curSchema.func || {};
   // 立即执行函数
   let parseBody = body;
@@ -24,30 +23,29 @@ export const generateFuncRes = ({ curSchema }: GenerateFuncBaseOptionType) => {
 };
 
 /**
- * 渲染函数执行结果
- * @returns
- */
-export const generateRenderFuncDefaultRes = ({
-  curSchema,
-  deepRecursionParse,
-}: GenerateFuncBaseOptionType) => {
-  const { compTree } = curSchema.renderFunc || {};
-  return `${deepRecursionParse(compTree, { parentNode: 'object' })}`;
-};
-
-/**
  * 布尔渲染
  * @returns
  */
-export const generateRenderFuncBoolean = (p: GenerateFuncBaseOptionType) => {
-  const { curSchema, deepRecursionParse /* path, ctx  */ } = p;
+export const generateRenderFuncBoolean = (
+  p: GenerateFuncBaseOptionType<ReactNode>
+) => {
+  const { curSchema, deepRecursionParse, path, ctx } = p;
   const { boolean } = curSchema.renderFunc || {};
 
   const { data = '' } = boolean || {};
   // 获取数组数据
-  const booleanData = deepRecursionParse(data, { parentNode: 'object' });
+  const booleanData = deepRecursionParse(
+    {
+      cur: data,
+      path: [...path, 'renderFunc', 'boolean', 'data'],
+      ctx,
+    },
+    { parentNode: 'object' }
+  );
 
-  return `${booleanData} && ${generateRenderFuncDefaultRes(p)}`;
+  return `${booleanData} && ${generateRenderFuncDefaultRes(p, {
+    parentNode: 'object',
+  })}`;
 };
 
 /**
@@ -57,17 +55,30 @@ export const generateRenderFuncBoolean = (p: GenerateFuncBaseOptionType) => {
 export const generateRenderFuncListLoop = ({
   curSchema,
   deepRecursionParse,
-}: GenerateFuncBaseOptionType) => {
+  ctx,
+  path,
+}: GenerateFuncBaseOptionType<ReactNode>) => {
   const { listLoop, compTree } = curSchema.renderFunc || {};
   const { data, mapParams = [] } = listLoop || {};
-  const mapData = deepRecursionParse(data, { parentNode: 'object' });
-  // 获取数组数据
-  const listData = (deepRecursionParse(compTree, {
-    parentNode: 'object',
-  }) || []) as AnyType[];
+  const listData = deepRecursionParse(
+    {
+      cur: data,
+      path: [...path, 'renderFunc', 'listLoop', 'data'],
+      ctx,
+    },
+    { parentNode: 'object' }
+  );
+  const r = deepRecursionParse(
+    {
+      cur: compTree as JSONValue,
+      path: [...path, 'renderFunc', 'compTree'],
+      ctx,
+    },
+    { parentNode: 'object' }
+  );
 
-  return `${mapData}.map((${mapParams.join(',')})=>{
-    return ${listData}
+  return `${listData}.map((${mapParams.join(',')})=>{
+    return ${r}
 })`;
 };
 
@@ -75,7 +86,9 @@ export const generateRenderFuncListLoop = ({
  * 渲染函数
  * @returns
  */
-export const generateRenderFuncRes = (p: GenerateFuncBaseOptionType) => {
+export const generateRenderFuncRes = (
+  p: GenerateFuncBaseOptionType<ReactNode>
+) => {
   const { conditionType = ConditionTypeEnum.DEFAULT } =
     p.curSchema.renderFunc || {};
   let res = '';
@@ -88,7 +101,9 @@ export const generateRenderFuncRes = (p: GenerateFuncBaseOptionType) => {
       res = generateRenderFuncBoolean(p);
       break;
     case ConditionTypeEnum.DEFAULT:
-      res = `return ${generateRenderFuncDefaultRes(p)}`;
+      res = generateRenderFuncDefaultRes(p, {
+        parentNode: 'object',
+      });
       break;
     default:
       neverRes = conditionType;

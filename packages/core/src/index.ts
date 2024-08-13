@@ -1,16 +1,24 @@
 export type { LibListItem, ModulesMapType } from './lib/type';
 export type { SchemaStateItem, StateGetSetType } from './state/type';
 export type { RefGetSetType } from './ref/type';
-export type { SchemaHookItem } from './hook/type';
+export type { SchemaHookItem, HookGetSetType } from './hook/type';
 export type {
   GenerateNodePropType,
   ParseObjOptionType,
   ContextType,
   StateRefHookGetSetType,
+  ParseOptions,
 } from './root/type';
-export type { AnyType, PickRequired, SchemaRootObj, JSONValue } from './type';
+export type {
+  AnyType,
+  PickRequired,
+  SchemaRootObj,
+  JSONValue,
+  JSONObject,
+  JSONArray,
+} from './type';
 export { SchemaCompTreeItem } from './component';
-export { AnonymousFunctionNode } from './func';
+export type { GenerateFuncBaseOptionType } from './func/type';
 export { NodeType } from './root';
 export {
   parseObj,
@@ -19,7 +27,13 @@ export {
   generateArguments,
 } from './root/utils';
 export { generateNode } from './root';
-export { getSetStateFuncName, FuncTypeEnum, ConditionTypeEnum } from './func';
+export {
+  generateRenderFuncDefaultRes,
+  getSetStateFuncName,
+  FuncTypeEnum,
+  ConditionTypeEnum,
+  AnonymousFunctionNode,
+} from './func';
 export { StateMap, StateNodeType } from './state';
 export { RefNodeType } from './ref';
 export { HookNodeType, FieldTypeEnum } from './hook';

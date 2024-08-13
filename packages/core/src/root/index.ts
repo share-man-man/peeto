@@ -6,12 +6,15 @@ import { generateArguments, parseObj } from './utils';
 
 export enum NodeType {
   STATE = 'state',
-  EVENT = 'event',
-  HOOK = 'hook',
-  COMPONENT = 'component',
   REF = 'ref',
+  HOOK = 'hook',
   ANONYMOUSFUNCTION = 'anonymous-function',
+  COMPONENT = 'component',
+  /**
+   * 模块
+   */
   MODULE = 'module',
+  // EVENT = 'event',
 }
 
 /**
@@ -49,12 +52,10 @@ export const generateNode = <VNodeType>({
       const { name } = curSchema;
       return getHook?.({ name });
     },
-    parseAnonymousFunctionNode: ({
-      curSchema,
-      ctx,
-      path,
-      deepRecursionParse,
-    }) => {
+    parseAnonymousFunctionNode: (
+      { curSchema, ctx, path, deepRecursionParse },
+      op
+    ) => {
       const {
         params = [],
         IIFE = false,
@@ -96,7 +97,7 @@ export const generateNode = <VNodeType>({
             res = generateFuncRes(mergeFuncParams);
             break;
           case FuncTypeEnum.RENDERFUNC:
-            res = generateRenderFuncRes(mergeFuncParams);
+            res = generateRenderFuncRes(mergeFuncParams, op);
             break;
           default:
             neverRes = funcType;

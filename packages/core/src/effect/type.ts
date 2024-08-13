@@ -5,6 +5,9 @@ import { NodeType } from '../root';
 import { StateNodeType } from '../state';
 import { SchemaStateItem } from '../state/type';
 
+/**
+ * 副作用函数
+ */
 export interface SchemaEffectItem {
   /**
    * 依赖数组

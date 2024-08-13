@@ -94,17 +94,16 @@ export const createSchemaConfig = ({
     if (Array.isArray(cur)) {
       return cur.map((o, oIndex) => deep({ cur: o, path: [...path, oIndex] }));
     }
-    // null、undefined等非对象类型类型
-    if (!(cur instanceof Object)) {
-      return cur;
-    }
     // 遍历对象
-    return Object.fromEntries(
-      Object.keys(cur).map((k) => [
-        k,
-        deep({ cur: cur[k], path: [...path, k] }),
-      ])
-    );
+    if (cur instanceof Object) {
+      return Object.fromEntries(
+        Object.keys(cur).map((k) => [
+          k,
+          deep({ cur: cur[k], path: [...path, k] }),
+        ])
+      );
+    }
+    return cur;
   };
 
   const compTree = deep({ cur: schema.compTree, path: [] });

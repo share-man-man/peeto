@@ -1,7 +1,7 @@
 import { SchemaCompTreeItem } from '../component';
 import { SchemaEffectItem } from '../effect/type';
 import { NodeType } from '../root';
-import { ContextType } from '../root/type';
+import { ContextType, ParseOptions } from '../root/type';
 import { SchemaStateItem } from '../state/type';
 import { AnyType, JSONValue } from '../type';
 import { GenerateFuncBaseOptionType } from './type';
@@ -158,23 +158,29 @@ export const generateFuncRes = <VNodeType>({
  * 渲染函数执行结果
  * @returns
  */
-export const generateRenderFuncDefaultRes = <VNodeType>({
-  curSchema,
-  deepRecursionParse,
-  path,
-  argList,
-  argNameList,
-  ctx,
-}: GenerateFuncBaseOptionType<VNodeType>) => {
+export const generateRenderFuncDefaultRes = <VNodeType>(
+  {
+    curSchema,
+    deepRecursionParse,
+    path,
+    argList,
+    argNameList,
+    ctx,
+  }: GenerateFuncBaseOptionType<VNodeType>,
+  op: ParseOptions
+) => {
   const { compTree } = curSchema.renderFunc || {};
-  return deepRecursionParse({
-    cur: compTree as JSONValue,
-    path: [...path, 'renderFunc', 'compTree'],
-    ctx: mergeCtx(
-      ctx,
-      argNameList.map((n, index) => [n, argList[index]])
-    ),
-  });
+  return deepRecursionParse(
+    {
+      cur: compTree as JSONValue,
+      path: [...path, 'renderFunc', 'compTree'],
+      ctx: mergeCtx(
+        ctx,
+        argNameList.map((n, index) => [n, argList[index]])
+      ),
+    },
+    op
+  );
 };
 
 /**
@@ -182,44 +188,54 @@ export const generateRenderFuncDefaultRes = <VNodeType>({
  * @returns
  */
 export const generateRenderFuncBoolean = <VNodeType>(
-  p: GenerateFuncBaseOptionType<VNodeType>
+  p: GenerateFuncBaseOptionType<VNodeType>,
+  op: ParseOptions
 ) => {
   const { curSchema, deepRecursionParse, path, ctx } = p;
   const { boolean } = curSchema.renderFunc || {};
 
   const { data = '' } = boolean || {};
   // 获取数组数据
-  const booleanData = deepRecursionParse({
-    cur: data,
-    path: [...path, 'renderFunc', 'boolean', 'data'],
-    ctx,
-  });
+  const booleanData = deepRecursionParse(
+    {
+      cur: data,
+      path: [...path, 'renderFunc', 'boolean', 'data'],
+      ctx,
+    },
+    op
+  );
   if (!booleanData) {
     return undefined;
   }
-  return generateRenderFuncDefaultRes(p);
+  return generateRenderFuncDefaultRes(p, op);
 };
 
 /**
  * 数组渲染
  * @returns
  */
-export const generateRenderFuncListLoop = <VNodeType>({
-  curSchema,
-  deepRecursionParse,
-  path,
-  ctx,
-  argList,
-  argNameList,
-}: GenerateFuncBaseOptionType<VNodeType>) => {
+export const generateRenderFuncListLoop = <VNodeType>(
+  {
+    curSchema,
+    deepRecursionParse,
+    path,
+    ctx,
+    argList,
+    argNameList,
+  }: GenerateFuncBaseOptionType<VNodeType>,
+  op: ParseOptions
+) => {
   const { listLoop, compTree } = curSchema.renderFunc || {};
   const { data, mapParams = [] } = listLoop || {};
   // 解析数组数据，有可能是state、或其他表达式
-  const listData = (deepRecursionParse({
-    cur: data,
-    path: [...path, 'renderFunc', 'listLoop', 'data'],
-    ctx,
-  }) || []) as AnyType[];
+  const listData = (deepRecursionParse(
+    {
+      cur: data,
+      path: [...path, 'renderFunc', 'listLoop', 'data'],
+      ctx,
+    },
+    op
+  ) || []) as AnyType[];
 
   return listData.map((...mapParamsValueList) => {
     // 将map的渲染函数放入上下文
@@ -233,11 +249,14 @@ export const generateRenderFuncListLoop = <VNodeType>({
         mapParamsValueList[mapParamItemIndex],
       ])
     );
-    const r = deepRecursionParse({
-      cur: compTree as JSONValue,
-      path: [...path, 'renderFunc', 'compTree'],
-      ctx: newCtx,
-    });
+    const r = deepRecursionParse(
+      {
+        cur: compTree as JSONValue,
+        path: [...path, 'renderFunc', 'compTree'],
+        ctx: newCtx,
+      },
+      op
+    );
     return r;
   });
 };
@@ -247,7 +266,8 @@ export const generateRenderFuncListLoop = <VNodeType>({
  * @returns
  */
 export const generateRenderFuncRes = <VNodeType>(
-  p: GenerateFuncBaseOptionType<VNodeType>
+  p: GenerateFuncBaseOptionType<VNodeType>,
+  op: ParseOptions
 ) => {
   const { conditionType = ConditionTypeEnum.DEFAULT } =
     p.curSchema.renderFunc || {};
@@ -255,13 +275,13 @@ export const generateRenderFuncRes = <VNodeType>(
   let neverRes: never;
   switch (conditionType) {
     case ConditionTypeEnum.LISTLOOP:
-      res = generateRenderFuncListLoop(p);
+      res = generateRenderFuncListLoop(p, op);
       break;
     case ConditionTypeEnum.BOOLEAN:
-      res = generateRenderFuncBoolean(p);
+      res = generateRenderFuncBoolean(p, op);
       break;
     case ConditionTypeEnum.DEFAULT:
-      res = generateRenderFuncDefaultRes(p);
+      res = generateRenderFuncDefaultRes(p, op);
       break;
     default:
       neverRes = conditionType;

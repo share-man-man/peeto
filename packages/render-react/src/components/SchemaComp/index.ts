@@ -9,6 +9,7 @@ import {
   ContextType,
   NodeType,
   FieldTypeEnum,
+  HookGetSetType,
 } from '@peeto/core';
 import {
   useEffect,
@@ -19,7 +20,6 @@ import {
   MutableRefObject,
 } from 'react';
 import { SchemaCompProps } from '../../type';
-import { HookGetSetType } from 'packages/core/src/hook/type';
 
 // 避免lint检测到条件判断里的useState、useEffect等
 const createState = useState;
