@@ -42,3 +42,20 @@ export const defaultNoMatchCompRender: Required<ReactRenderProps>['noMatchCompRe
       },
       `没有找到组件:${schema.componentName}`
     );
+
+export const defaultErrorBoundaryRender: Required<ReactRenderProps>['errorBoundaryRender'] =
+  (e, c) =>
+    createElement(
+      'div',
+      {
+        key: `nomatch-package-component-${c.curSchema.id}`,
+        style: {
+          color: 'red',
+          borderWidth: 2,
+          borderStyle: 'solid',
+          borderColor: 'red',
+          padding: 12,
+        },
+      },
+      `组件渲染出错:${e.message}`
+    );

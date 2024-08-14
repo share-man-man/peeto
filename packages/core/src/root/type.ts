@@ -84,6 +84,12 @@ export interface GenerateNodePropType<VNodeType>
    * @returns
    */
   noMatchCompRender: (p: { schema: SchemaCompTreeItem }) => VNodeType;
+  /**
+   * 错误边界
+   * @param p
+   * @returns
+   */
+  errorBoundaryRender: (error: AnyType, p: AnyType) => VNodeType;
   ctx?: ContextType;
   // /**
   //  * 没有找到包

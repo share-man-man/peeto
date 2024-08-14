@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import {
+  defaultErrorBoundaryRender,
   defaultLoading,
   defaultNoMatchCompRender,
   // defaultNoMatchLibRender,
@@ -15,6 +16,7 @@ const ReactRender = ({
   loadingRender,
   onCreateCompNode,
   noMatchCompRender = defaultNoMatchCompRender,
+  errorBoundaryRender = defaultErrorBoundaryRender,
   ...props
 }: ReactRenderProps) => {
   const [loading, setLoading] = useState(true);
@@ -54,6 +56,7 @@ const ReactRender = ({
       schemaStr,
       onCreateCompNode: curOnCreateCompNode,
       noMatchCompRender,
+      errorBoundaryRender,
       ...props,
     },
   });

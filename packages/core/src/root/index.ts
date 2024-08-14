@@ -30,6 +30,7 @@ export const generateNode = <VNodeType>({
   modulesMap,
   noMatchCompRender,
   // noMatchLibRender,
+  errorBoundaryRender,
   setState,
   ...rest
 }: GenerateNodePropType<VNodeType>) => {
@@ -125,26 +126,33 @@ export const generateNode = <VNodeType>({
 
         return func;
       },
-      parseSchemaComp: ({ curSchema: obj, props }) => {
-        const { componentName } = obj;
-        // 组件可能包含子组件，比如Form.Item,Radio.Group
-        const compPath = componentName.split('.');
-        let matchComp = { [compPath[0]]: modulesMap.get(compPath[0]) };
-        compPath.forEach((name) => {
-          matchComp = (matchComp || {})[name];
-        });
-
-        // 没找到组件
-        if (!matchComp) {
-          return noMatchCompRender({
-            schema: obj,
+      parseSchemaComp: (p) => {
+        let compNode: VNodeType;
+        try {
+          const { curSchema: obj, props } = p;
+          const { componentName } = obj;
+          // 组件可能包含子组件，比如Form.Item,Radio.Group
+          const compPath = componentName.split('.');
+          let matchComp = { [compPath[0]]: modulesMap.get(compPath[0]) };
+          compPath.forEach((name) => {
+            matchComp = (matchComp || {})[name];
           });
-        }
 
-        const compNode = onCreateCompNode({
-          comp: matchComp,
-          props,
-        });
+          // 没找到组件
+          if (!matchComp) {
+            compNode = noMatchCompRender({
+              schema: obj,
+            });
+          } else {
+            compNode = onCreateCompNode({
+              comp: matchComp,
+              props,
+            });
+          }
+        } catch (error) {
+          console.error(error);
+          compNode = errorBoundaryRender(error, p);
+        }
 
         return compNode;
       },

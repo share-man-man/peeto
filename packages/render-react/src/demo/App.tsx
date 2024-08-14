@@ -1,7 +1,7 @@
 import { LeftCircleOutlined, RightCircleOutlined } from '@ant-design/icons';
 import ReactRender from '../ReactRender';
 
-import { useEffect, useMemo, useState } from 'react';
+import { Component, ReactNode, useEffect, useMemo, useState } from 'react';
 
 import { Button, message, Radio, Row, Space, Typography } from 'antd';
 
@@ -16,6 +16,7 @@ import { table } from '../../../../demo-schema/react/table';
 import { form } from '../../../../demo-schema/react/form';
 import SourceCode from './SourceCode';
 import { toReactStr } from './ToSource';
+import { AnyType } from '@peeto/core';
 
 const enumOp: {
   key: string;
@@ -58,6 +59,28 @@ const enumOp: {
     str: JSON.stringify(form.schema),
   },
 ];
+
+class ErrorBoundary extends Component<
+  { fallback: ReactNode; children: ReactNode },
+  { hasError: boolean }
+> {
+  constructor(props: AnyType) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError() {
+    // Update state so the next render will show the fallback UI.
+    return { hasError: true };
+  }
+  render() {
+    if (this.state.hasError) {
+      // You can render any custom fallback UI
+      return this.props.fallback;
+    }
+
+    return this.props.children;
+  }
+}
 
 function App() {
   const [key, setKey] = useState(
@@ -134,6 +157,7 @@ function App() {
         />
       </Row>
       <Typography.Title level={2}>渲染结果</Typography.Title>
+
       <ReactRender
         loadingRender={() => {
           return <div>react-loading</div>;
@@ -141,7 +165,13 @@ function App() {
         onCreateCompNode={({ comp: Comp, props }) => {
           // 编译工具根据react版本，决定使用createElement或jsx-runtime
           // const res = <Comp {...props}>{children}</Comp>;
-          const res = <Comp {...props} />;
+          const res = (
+            <ErrorBoundary
+              fallback={<div style={{ color: 'red' }}>react-组件渲染错误</div>}
+            >
+              <Comp {...props} />
+            </ErrorBoundary>
+          );
           // const res = createElement(Comp, props);
           // console.log(11, res);
           return res;
