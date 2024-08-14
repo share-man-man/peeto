@@ -5,6 +5,7 @@ import {
   JSONValue,
 } from '@peeto/core';
 import { ReactNode } from 'react';
+import { CustomOpType } from '../comp-tree';
 
 /**
  * 执行普通函数执行结果
@@ -12,7 +13,7 @@ import { ReactNode } from 'react';
  */
 export const generateFuncRes = ({
   curSchema,
-}: GenerateFuncBaseOptionType<ReactNode>) => {
+}: GenerateFuncBaseOptionType<ReactNode, CustomOpType>) => {
   const { body = '' } = curSchema.func || {};
   // 立即执行函数
   let parseBody = body;
@@ -27,7 +28,7 @@ export const generateFuncRes = ({
  * @returns
  */
 export const generateRenderFuncBoolean = (
-  p: GenerateFuncBaseOptionType<ReactNode>
+  p: GenerateFuncBaseOptionType<ReactNode, CustomOpType>
 ) => {
   const { curSchema, deepRecursionParse, path, ctx } = p;
   const { boolean } = curSchema.renderFunc || {};
@@ -57,7 +58,7 @@ export const generateRenderFuncListLoop = ({
   deepRecursionParse,
   ctx,
   path,
-}: GenerateFuncBaseOptionType<ReactNode>) => {
+}: GenerateFuncBaseOptionType<ReactNode, CustomOpType>) => {
   const { listLoop, compTree } = curSchema.renderFunc || {};
   const { data, mapParams = [] } = listLoop || {};
   const listData = deepRecursionParse(
@@ -87,7 +88,7 @@ export const generateRenderFuncListLoop = ({
  * @returns
  */
 export const generateRenderFuncRes = (
-  p: GenerateFuncBaseOptionType<ReactNode>
+  p: GenerateFuncBaseOptionType<ReactNode, CustomOpType>
 ) => {
   const { conditionType = ConditionTypeEnum.DEFAULT } =
     p.curSchema.renderFunc || {};
@@ -101,9 +102,9 @@ export const generateRenderFuncRes = (
       res = generateRenderFuncBoolean(p);
       break;
     case ConditionTypeEnum.DEFAULT:
-      res = generateRenderFuncDefaultRes(p, {
+      res = `return ${generateRenderFuncDefaultRes(p, {
         parentNode: 'object',
-      });
+      })}`;
       break;
     default:
       neverRes = conditionType;

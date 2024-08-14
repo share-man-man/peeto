@@ -83,7 +83,7 @@ export interface GenerateNodePropType<VNodeType>
    * @param obj
    * @returns
    */
-  noMatchCompRender?: (p: { schema: SchemaCompTreeItem }) => VNodeType;
+  noMatchCompRender: (p: { schema: SchemaCompTreeItem }) => VNodeType;
   ctx?: ContextType;
   // /**
   //  * 没有找到包
@@ -95,59 +95,62 @@ export interface GenerateNodePropType<VNodeType>
 
 export type ContextType = Record<string, AnyType>;
 
-export interface DeepRecursionParseType<VNodeType = AnyType> {
-  (
-    p: { cur: JSONValue; path: SchemaCompTreePath; ctx: ContextType },
-    op: ParseOptions
-  ): VNodeType | JSONValue | AnyType;
+export interface DeepRecursionParseType<
+  VNodeType = AnyType,
+  OP = ParseOptions
+> {
+  (p: { cur: JSONValue; path: SchemaCompTreePath; ctx: ContextType }, op: OP):
+    | VNodeType
+    | JSONValue
+    | AnyType;
 }
 
-export interface ParseNodeBaseProp<SchemaNodeType, VNodeType> {
+export interface ParseNodeBaseProp<SchemaNodeType, VNodeType, OP> {
   curSchema: SchemaNodeType;
-  deepRecursionParse: DeepRecursionParseType<VNodeType>;
+  deepRecursionParse: DeepRecursionParseType<VNodeType, OP>;
   path: SchemaCompTreePath;
   ctx: ContextType;
 }
 
 export type ParseOptions = Record<string, AnyType>;
 
-export interface ParseObjOptionType<VNodeType = AnyType> {
+export interface ParseObjOptionType<VNodeType = AnyType, OP = ParseOptions> {
   node: JSONValue;
   nodePath: SchemaCompTreePath[];
   parseBasicNode?: (
-    p: ParseNodeBaseProp<BasicNodeType, VNodeType>,
-    op: ParseOptions
+    p: ParseNodeBaseProp<BasicNodeType, VNodeType, OP>,
+    op: OP
   ) => AnyType;
   parseArrayNode?: (
-    p: ParseNodeBaseProp<JSONArray, VNodeType>,
-    op: ParseOptions
+    p: ParseNodeBaseProp<JSONArray, VNodeType, OP>,
+    op: OP
   ) => AnyType;
   parseObjectNode?: (
-    p: ParseNodeBaseProp<JSONObject, VNodeType>,
-    op: ParseOptions
+    p: ParseNodeBaseProp<JSONObject, VNodeType, OP>,
+    op: OP
   ) => AnyType;
   parseStateNode?: (
-    p: ParseNodeBaseProp<StateNodeType, VNodeType>,
-    op: ParseOptions
+    p: ParseNodeBaseProp<StateNodeType, VNodeType, OP>,
+    op: OP
   ) => AnyType;
   parseRefNode?: (
-    p: ParseNodeBaseProp<RefNodeType, VNodeType>,
-    op: ParseOptions
+    p: ParseNodeBaseProp<RefNodeType, VNodeType, OP>,
+    op: OP
   ) => AnyType;
   parseHookNode?: (
-    p: ParseNodeBaseProp<HookNodeType, VNodeType>,
-    op: ParseOptions
+    p: ParseNodeBaseProp<HookNodeType, VNodeType, OP>,
+    op: OP
   ) => AnyType;
   parseAnonymousFunctionNode?: (
-    p: ParseNodeBaseProp<AnonymousFunctionNode, VNodeType>,
-    op: ParseOptions
+    p: ParseNodeBaseProp<AnonymousFunctionNode, VNodeType, OP>,
+    op: OP
   ) => AnyType;
   // customDeep?: boolean;
   parseSchemaComp?: (
-    p: ParseNodeBaseProp<SchemaCompTreeItem, VNodeType> & {
+    p: ParseNodeBaseProp<SchemaCompTreeItem, VNodeType, OP> & {
       props: AnyType;
     },
-    op: ParseOptions
+    op: OP
   ) => AnyType;
   ctx?: ContextType;
 }

@@ -1,8 +1,9 @@
+import { LeftCircleOutlined, RightCircleOutlined } from '@ant-design/icons';
 import ReactRender from '../ReactRender';
 
 import { useEffect, useMemo, useState } from 'react';
 
-import { Button, message, Radio, Row, Typography } from 'antd';
+import { Button, message, Radio, Row, Space, Typography } from 'antd';
 
 import {
   basic,
@@ -81,6 +82,47 @@ function App() {
 
   return (
     <div>
+      <div style={{ position: 'fixed', right: 24, zIndex: 999 }}>
+        <Space>
+          <Button
+            type="primary"
+            shape="circle"
+            size="large"
+            icon={<LeftCircleOutlined />}
+            onClick={() => {
+              let index = enumOp.findIndex((i) => {
+                return i.key === key;
+              });
+              if (index === 0) {
+                index = enumOp.length - 1;
+              } else {
+                index -= 1;
+              }
+
+              setKey(enumOp[index].key);
+            }}
+          />
+          <Button
+            type="primary"
+            shape="circle"
+            size="large"
+            icon={<RightCircleOutlined />}
+            onClick={() => {
+              let index = enumOp.findIndex((i) => {
+                return i.key === key;
+              });
+
+              if (index === enumOp.length - 1) {
+                index = 0;
+              } else {
+                index += 1;
+              }
+
+              setKey(enumOp[index].key);
+            }}
+          />
+        </Space>
+      </div>
       <Typography.Title level={2}>schema</Typography.Title>
       <Row>
         <Radio.Group

@@ -12,6 +12,7 @@ export type {
 export type {
   AnyType,
   PickRequired,
+  PickPartial,
   SchemaRootObj,
   JSONValue,
   JSONObject,

@@ -24,9 +24,9 @@ export interface GenerateArgumentsType {
   };
 }
 
-export type GenerateFuncBaseOptionType<VNodeType> = Parameters<
+export type GenerateFuncBaseOptionType<VNodeType, OP> = Parameters<
   PickRequired<
-    ParseObjOptionType<VNodeType>,
+    ParseObjOptionType<VNodeType, OP>,
     'parseAnonymousFunctionNode'
   >['parseAnonymousFunctionNode']
 >[0] &

@@ -37,7 +37,7 @@ export const getSchemaObjFromStr = (str?: string): SchemaRootObj => {
  * 转换组件树
  * @returns
  */
-export const parseObj = <VNodeType>(
+export const parseObj = <VNodeType, OP = ParseOptions>(
   {
     node,
     nodePath = [],
@@ -50,10 +50,10 @@ export const parseObj = <VNodeType>(
     parseAnonymousFunctionNode,
     parseSchemaComp,
     ctx: propCtx = {},
-  }: ParseObjOptionType<VNodeType>,
-  parseOptions?: ParseOptions
+  }: ParseObjOptionType<VNodeType, OP>,
+  parseOptions: OP
 ) => {
-  const deepRecursionParse: DeepRecursionParseType<VNodeType> = (
+  const deepRecursionParse: DeepRecursionParseType<VNodeType, OP> = (
     { cur: orgCur, path, ctx },
     op
   ) => {
@@ -172,7 +172,7 @@ export const parseObj = <VNodeType>(
   };
   return deepRecursionParse(
     { cur: node, path: [], ctx: propCtx },
-    parseOptions || {}
+    parseOptions
   );
 };
 

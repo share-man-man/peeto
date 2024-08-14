@@ -1,6 +1,7 @@
 import type {
   GenerateNodePropType,
   LibListItem,
+  PickPartial,
   StateRefHookGetSetType,
 } from '@peeto/core';
 import type { ReactNode, createElement } from 'react';
@@ -22,7 +23,11 @@ export type SchemaCompProps = {
   'schemaRootObj' | keyof StateRefHookGetSetType
 >;
 
-export interface ReactRenderProps extends Omit<SchemaCompProps, 'modulesMap'> {
+export interface ReactRenderProps
+  extends PickPartial<
+    Omit<SchemaCompProps, 'modulesMap'>,
+    'noMatchCompRender'
+  > {
   /**
    * lib包列表
    * @description

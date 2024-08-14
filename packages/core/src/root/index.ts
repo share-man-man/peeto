@@ -35,116 +35,122 @@ export const generateNode = <VNodeType>({
 }: GenerateNodePropType<VNodeType>) => {
   const { schemaNodePaths = [], compTree } = schemaRootObj;
   // 解析渲染组件
-  const nodeObj = parseObj({
-    // customDeep: true,
-    ...rest,
-    node: compTree as unknown as JSONValue,
-    nodePath: schemaNodePaths || [],
-    parseStateNode: ({ curSchema }) => {
-      const curState = getState?.({ stateName: curSchema.name });
-      return curState;
-    },
-    parseRefNode: ({ curSchema }) => {
-      const { name } = curSchema;
-      return getRef?.({ refName: name });
-    },
-    parseHookNode: ({ curSchema }) => {
-      const { name } = curSchema;
-      return getHook?.({ name });
-    },
-    parseAnonymousFunctionNode: (
-      { curSchema, ctx, path, deepRecursionParse },
-      op
-    ) => {
-      const {
-        params = [],
-        IIFE = false,
-        isPromise = false,
-        effectStates = [],
-        dependences = [],
-        funcType = FuncTypeEnum.FUNC,
-      } = curSchema;
+  const nodeObj = parseObj<VNodeType, null>(
+    {
+      // customDeep: true,
+      ...rest,
+      node: compTree as unknown as JSONValue,
+      nodePath: schemaNodePaths || [],
+      parseStateNode: ({ curSchema }) => {
+        const curState = getState?.({ stateName: curSchema.name });
+        return curState;
+      },
+      parseRefNode: ({ curSchema }) => {
+        const { name } = curSchema;
+        return getRef?.({ refName: name });
+      },
+      parseHookNode: ({ curSchema }) => {
+        const { name } = curSchema;
+        return getHook?.({ name });
+      },
+      parseAnonymousFunctionNode: (
+        { curSchema, ctx, path, deepRecursionParse },
+        op
+      ) => {
+        const {
+          params = [],
+          IIFE = false,
+          isPromise = false,
+          effectStates = [],
+          dependences = [],
+          funcType = FuncTypeEnum.FUNC,
+        } = curSchema;
 
-      // 创建匿名函数
-      const func = (...paramsValueList: AnyType[]) => {
-        // 融合函数参数
-        const { argList, argNameList } = generateArguments({
-          params,
-          paramsValueList,
-          dependences,
-          getState,
-          effectStates,
-          setState,
-          ctx,
-          modulesMap,
-          getRef,
-          getHook,
-        });
+        // 创建匿名函数
+        const func = (...paramsValueList: AnyType[]) => {
+          // 融合函数参数
+          const { argList, argNameList } = generateArguments({
+            params,
+            paramsValueList,
+            dependences,
+            getState,
+            effectStates,
+            setState,
+            ctx,
+            modulesMap,
+            getRef,
+            getHook,
+          });
 
-        // 合并所需参数
-        const mergeFuncParams: GenerateFuncBaseOptionType<VNodeType> = {
-          curSchema,
-          argList,
-          argNameList,
-          ctx,
-          path,
-          deepRecursionParse,
+          // 合并所需参数
+          const mergeFuncParams: GenerateFuncBaseOptionType<
+            VNodeType,
+            typeof op
+          > = {
+            curSchema,
+            argList,
+            argNameList,
+            ctx,
+            path,
+            deepRecursionParse,
+          };
+          let res = null;
+          let neverRes: never;
+          switch (funcType) {
+            case FuncTypeEnum.FUNC:
+              res = generateFuncRes(mergeFuncParams);
+              break;
+            case FuncTypeEnum.RENDERFUNC:
+              res = generateRenderFuncRes(mergeFuncParams, op);
+              break;
+            default:
+              neverRes = funcType;
+              if (neverRes) {
+                res = null;
+              }
+              break;
+          }
+
+          if (isPromise) {
+            return Promise.resolve(res);
+          }
+
+          return res;
         };
-        let res = null;
-        let neverRes: never;
-        switch (funcType) {
-          case FuncTypeEnum.FUNC:
-            res = generateFuncRes(mergeFuncParams);
-            break;
-          case FuncTypeEnum.RENDERFUNC:
-            res = generateRenderFuncRes(mergeFuncParams, op);
-            break;
-          default:
-            neverRes = funcType;
-            if (neverRes) {
-              res = null;
-            }
-            break;
+
+        if (IIFE) {
+          const funcRes = func();
+          return funcRes;
         }
 
-        if (isPromise) {
-          return Promise.resolve(res);
-        }
-
-        return res;
-      };
-
-      if (IIFE) {
-        const funcRes = func();
-        return funcRes;
-      }
-
-      return func;
-    },
-    parseSchemaComp: ({ curSchema: obj, props }) => {
-      const { componentName } = obj;
-      // 组件可能包含子组件，比如Form.Item,Radio.Group
-      const compPath = componentName.split('.');
-      let matchComp = { [compPath[0]]: modulesMap.get(compPath[0]) };
-      compPath.forEach((name) => {
-        matchComp = (matchComp || {})[name];
-      });
-
-      // 没找到组件
-      if (!matchComp) {
-        return noMatchCompRender({
-          schema: obj,
+        return func;
+      },
+      parseSchemaComp: ({ curSchema: obj, props }) => {
+        const { componentName } = obj;
+        // 组件可能包含子组件，比如Form.Item,Radio.Group
+        const compPath = componentName.split('.');
+        let matchComp = { [compPath[0]]: modulesMap.get(compPath[0]) };
+        compPath.forEach((name) => {
+          matchComp = (matchComp || {})[name];
         });
-      }
 
-      const compNode = onCreateCompNode({
-        comp: matchComp,
-        props,
-      });
+        // 没找到组件
+        if (!matchComp) {
+          return noMatchCompRender({
+            schema: obj,
+          });
+        }
 
-      return compNode;
+        const compNode = onCreateCompNode({
+          comp: matchComp,
+          props,
+        });
+
+        return compNode;
+      },
     },
-  });
+    null
+  );
 
   return nodeObj;
 };

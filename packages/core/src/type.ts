@@ -12,6 +12,12 @@ export type PickRequired<T, K extends keyof T> = Omit<T, K> &
   Required<Pick<T, K>>;
 
 /**
+ * 将某些字段置为required
+ */
+export type PickPartial<T, K extends keyof T> = Omit<T, K> &
+  Partial<Pick<T, K>>;
+
+/**
  * JSON节点类型
  */
 export type JSONValue =
