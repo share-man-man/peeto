@@ -43,13 +43,13 @@ const ReactRender = ({
 
   // schema变化，重置渲染节点，避免状态管理出现混乱的问题
   if (loading || schemaStr !== prevSchemaStr) {
-    return onCreateCompNode({
+    return curOnCreateCompNode({
       comp: loadingRender || defaultLoading,
       props: undefined,
     });
   }
 
-  const res = onCreateCompNode({
+  const res = curOnCreateCompNode({
     comp: SchemaComp,
     props: {
       modulesMap,

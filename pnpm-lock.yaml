@@ -14,6 +14,9 @@ importers:
       '@ant-design/pro-components':
         specifier: ^2.6.49
         version: 2.6.49(antd@5.14.1)(rc-field-form@1.41.0)(react-dom@18.2.0)(react@18.2.0)
+      '@element-plus/icons-vue':
+        specifier: ^2.3.1
+        version: 2.3.1(vue@3.3.4)
       '@types/node':
         specifier: ^20.6.0
         version: 20.6.0
@@ -45,8 +48,8 @@ importers:
         specifier: ^3.3.0
         version: 3.3.0
       element-plus:
-        specifier: ^2.5.6
-        version: 2.5.6(vue@3.3.4)
+        specifier: ^2.8.0
+        version: 2.8.0(vue@3.3.4)
       eslint:
         specifier: ^8.46.0
         version: 8.46.0
@@ -3796,8 +3799,8 @@ packages:
     resolution: {integrity: sha512-/Ng/W/kFv7wdEHYzxdK7Cv0BHEGSkSB3M0Ssl8Ndr1eMiYeas/+Mv4cNaDqamqWx6nd2uQZfPz6g25z25M/sdw==}
     dev: true
 
-  /element-plus@2.5.6(vue@3.3.4):
-    resolution: {integrity: sha512-zctKTiyIDmcnMp3K5WG1hglgraW9EbiCLiIDVtaMCS5mPMl2fRKdS0vOFGnECIq9taFoxnyoDwxHD81nv0B4RA==}
+  /element-plus@2.8.0(vue@3.3.4):
+    resolution: {integrity: sha512-7ngapVlVlQAjocVqD4MUKvKXlBneT9DSDk2mmBOSLRFWNm/HLDT15ozmsvUBfy18sajnyUeSIHTtINE8gfrGMg==}
     peerDependencies:
       vue: ^3.2.0
     dependencies:

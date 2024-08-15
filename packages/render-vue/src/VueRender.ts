@@ -1,75 +1,81 @@
-import { defineComponent, shallowRef, watch } from 'vue';
+import { defineComponent, toRefs } from 'vue';
 import {
+  defaultErrorBoundaryRender,
   defaultLoading,
   defaultNoMatchCompRender,
-  defaultNoMatchPackageRender,
   defaultProps,
+  vueEffect,
+  vueState,
 } from './utils';
-import RenderByPackage from './components/RenderByPackage';
 import vueUseCreateNodeFunc from './hooks/useCreateNodeFunc';
-import {
-  CompMapType,
-  PackageMapType,
-  getSchemaObjFromStr,
-  parseComponent,
-  parsePackage,
-} from '@peeto/parse';
+import { getSchemaObjFromStr, loadLibList } from '@peeto/core';
+import { SchemaCompProps } from './type';
+import SchemaComp from './components/SchemaComp';
 
 const VueRender = defineComponent({
   ...defaultProps,
-  setup(props, { slots }) {
-    const loading = shallowRef(true);
-    const schemaStr = shallowRef<string>();
+  setup(originProps, { slots }) {
+    const {
+      schemaStr: prevSchemaStr,
+      libList,
+      onCreateCompNode,
+      ...props
+    } = toRefs(originProps);
+
+    const [loading, setLoading] = vueState(true);
+    const [schemaStr, setSchemaStr] = vueState<string>();
     // 包集合
-    const packageMap = shallowRef<PackageMapType>(new Map());
-    // 组件集合
-    const compMap = shallowRef<CompMapType>(new Map());
+    const [modulesMap, setModulesMap] = vueState<SchemaCompProps['modulesMap']>(
+      new Map()
+    );
 
-    const onCreateNode = vueUseCreateNodeFunc(props);
+    const curOnCreateCompNode = vueUseCreateNodeFunc({
+      onCreateCompNode: onCreateCompNode?.value,
+    });
 
-    watch(
-      () => [props?.packageList, props?.schemaStr, schemaStr.value],
+    vueEffect(
       () => {
-        if (schemaStr.value !== props?.schemaStr) {
-          loading.value = true;
-          const schemaObj = getSchemaObjFromStr(props?.schemaStr);
+        if (schemaStr.value !== prevSchemaStr.value) {
+          setLoading(true);
+          const schemaObj = getSchemaObjFromStr(prevSchemaStr.value);
           // 加载依赖包
-          parsePackage(schemaObj, props?.packageList).then((res) => {
-            // 加载组件
-            const compRes = parseComponent({
-              schemaCompTree: schemaObj?.compTree,
-              packageMap: res,
-              noMatchCompRender: slots.noMatchComp || defaultNoMatchCompRender,
-              noMatchPackageRender:
-                slots.noMatchPackage || defaultNoMatchPackageRender,
-            });
-            packageMap.value = res;
-            compMap.value = compRes;
-            schemaStr.value = props?.schemaStr;
-            loading.value = false;
+          loadLibList(schemaObj, libList.value).then((res) => {
+            setModulesMap(res);
+            setSchemaStr(prevSchemaStr.value);
+            setLoading(false);
           });
         }
       },
-      {
-        immediate: true,
-      }
+      () => [libList.value, prevSchemaStr.value, schemaStr.value]
     );
 
     return () => {
       // schema变化，重置渲染节点，避免状态管理出现混乱的问题
-      if (loading.value || schemaStr.value !== props?.schemaStr) {
-        return onCreateNode(
-          slots?.loading || defaultLoading,
-          undefined,
-          undefined
-        );
+      if (loading.value || schemaStr.value !== prevSchemaStr.value) {
+        return curOnCreateCompNode({
+          comp: slots.loadingRender || defaultLoading,
+          props: undefined,
+        });
       }
-
-      return onCreateNode(
-        RenderByPackage,
-        { packageMap: packageMap.value, compMap: compMap.value, ...props },
-        slots
-      );
+      const res = curOnCreateCompNode({
+        comp: SchemaComp,
+        props: {
+          modulesMap: modulesMap.value,
+          schemaStr: schemaStr.value,
+          onCreateCompNode: curOnCreateCompNode,
+          noMatchCompRender:
+            slots.noMatchCompRender || defaultNoMatchCompRender,
+          errorBoundaryRender:
+            slots.errorBoundaryRender || defaultErrorBoundaryRender,
+          ...Object.fromEntries(
+            Object.keys(props).map((k) => [
+              k,
+              props[k as keyof typeof props].value,
+            ])
+          ),
+        },
+      });
+      return res;
     };
   },
 });

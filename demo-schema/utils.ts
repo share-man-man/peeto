@@ -16,13 +16,19 @@ import { JSONObject } from 'packages/core/src/type';
 
 export const createComp = (
   componentName: string,
-  props: Record<string, AnyType> = {}
+  props: Record<string, AnyType> = {},
+  {
+    slots,
+  }: {
+    slots?: Record<string, AnyType>;
+  } = {}
 ) => {
   const selfId = id();
   return new SchemaCompTreeItem({
     componentName,
     id: selfId,
     props,
+    slots,
   });
 };
 

@@ -84,7 +84,7 @@ class ErrorBoundary extends Component<
 
 function App() {
   const [key, setKey] = useState(
-    localStorage.getItem('_test_cur_key') || 'state'
+    localStorage.getItem('_test_react_cur_key') || 'state'
   );
 
   const [str, setStr] = useState('');
