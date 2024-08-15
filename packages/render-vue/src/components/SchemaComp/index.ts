@@ -166,18 +166,19 @@ const Index = defineComponent({
           },
           onCreateCompNode: props.onCreateCompNode.value,
           modulesMap: props.modulesMap.value,
-          noMatchCompRender: () => {
-            return null;
-          },
-          errorBoundaryRender: () => {
-            return null;
-          },
+          noMatchCompRender: props.noMatchCompRender.value,
+          errorBoundaryRender: props.errorBoundaryRender.value,
           // getRef: getRefRef.current,
           // getState: getStateRef.current,
           // setState: setStateRef.current,
           // getHook: getHookRef.current,
           ctx: ctxRef.current,
-          // ...propsRef.current,
+          ...Object.fromEntries(
+            Object.keys(propsRef.current).map((k) => [
+              k,
+              propsRef.current[k as keyof typeof propsRef.current].value,
+            ])
+          ),
         });
         return res;
       },

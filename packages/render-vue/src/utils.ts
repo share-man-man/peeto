@@ -106,8 +106,6 @@ export const defaultLoading = () => {
   return h('div', 'loading');
 };
 
-export const SlotPrefix = '_peeto_vue_slots';
-
 // export const defaultNoMatchPackageRender: VueRenderSlots['noMatchComp'] = ({
 //   id: componentId,
 //   packageName,

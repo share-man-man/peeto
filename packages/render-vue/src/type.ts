@@ -37,10 +37,6 @@ export interface VueRenderProps
    * @description
    */
   libList: LibListItem[];
-  // /**
-  //  * 加载中
-  //  */
-  // loadingRender?: Parameters<typeof h>[0];
 }
 
 export interface VueRenderSlots {

@@ -49,6 +49,7 @@ const VueRender = defineComponent({
       () => [libList.value, prevSchemaStr.value, schemaStr.value]
     );
 
+    // 显示调用.value，以实现响应式渲染
     return () => {
       // schema变化，重置渲染节点，避免状态管理出现混乱的问题
       if (loading.value || schemaStr.value !== prevSchemaStr.value) {

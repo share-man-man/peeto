@@ -132,7 +132,17 @@ vueEffect(
     >
       <template #loadingRender><div>vue-loading</div></template>
       <template #noMatchCompRender="{ schema }">
-        <div>木有组件{{ schema.componentName }}</div>
+        <div
+          :style="{
+            color: 'red',
+            borderWidth: '2px',
+            borderStyle: 'solid',
+            borderColor: 'red',
+            padding: '12px',
+          }"
+        >
+          木有组件{{ schema.componentName }}
+        </div>
       </template>
       <template #errorBoundaryRender="[e]">
         <div>渲染错误{{ e.message }}</div>
