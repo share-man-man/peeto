@@ -73,7 +73,11 @@ export interface GenerateNodePropType<VNodeType>
    * @param props 组件参数
    * @returns 节点对象（虚拟dom）
    */
-  onCreateCompNode: (p: { comp: AnyType; props: AnyType }) => VNodeType;
+  onCreateCompNode: (p: {
+    comp: AnyType;
+    props: AnyType;
+    slots?: AnyType;
+  }) => VNodeType;
   /**
    * 依赖包集合
    */
@@ -155,6 +159,7 @@ export interface ParseObjOptionType<VNodeType = AnyType, OP = ParseOptions> {
   parseSchemaComp?: (
     p: ParseNodeBaseProp<SchemaCompTreeItem, VNodeType, OP> & {
       props: AnyType;
+      slots?: AnyType;
     },
     op: OP
   ) => AnyType;

@@ -17,6 +17,10 @@ export class SchemaCompTreeItem {
    * 组件参数
    */
   props?: Record<string, JSONValue> | undefined;
+  /**
+   * 插槽，vue用的较多
+   */
+  slots?: Record<string, JSONValue> | undefined;
   constructor(p: Omit<SchemaCompTreeItem, 'type'>) {
     Object.assign(this, p);
   }

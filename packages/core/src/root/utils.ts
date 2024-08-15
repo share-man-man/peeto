@@ -154,6 +154,22 @@ export const parseObj = <VNodeType, OP = ParseOptions>(
           ])
         ),
       };
+      const slots = {
+        ...Object.fromEntries(
+          Object.keys(obj.slots || {}).map((k) => [
+            k,
+            deepRecursionParse(
+              {
+                cur: obj.slots?.[k],
+                path: [...path, 'slots', k],
+                ctx,
+              },
+              op
+            ),
+          ])
+        ),
+      };
+
       if (parseSchemaComp) {
         return parseSchemaComp(
           {
@@ -161,6 +177,7 @@ export const parseObj = <VNodeType, OP = ParseOptions>(
             deepRecursionParse,
             path,
             props,
+            slots,
             ctx,
           },
           op

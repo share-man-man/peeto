@@ -129,7 +129,7 @@ export const generateNode = <VNodeType>({
       parseSchemaComp: (p) => {
         let compNode: VNodeType;
         try {
-          const { curSchema: obj, props } = p;
+          const { curSchema: obj, props, slots } = p;
           const { componentName } = obj;
           // 组件可能包含子组件，比如Form.Item,Radio.Group
           const compPath = componentName.split('.');
@@ -147,6 +147,7 @@ export const generateNode = <VNodeType>({
             compNode = onCreateCompNode({
               comp: matchComp,
               props,
+              slots,
             });
           }
         } catch (error) {
