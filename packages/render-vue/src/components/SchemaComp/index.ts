@@ -7,6 +7,8 @@ import {
   // RefGetSetType,
   // StateMap,
   ContextType,
+  StateMap,
+  StateGetSetType,
   // NodeType,
   // FieldTypeEnum,
   // HookGetSetType,
@@ -22,7 +24,7 @@ import {
   defaultSchemaProps,
 } from '../../utils';
 
-// const createState = vueState;
+const createState = vueState;
 // const createEffect = vueEffect;
 // const createRef = vueRef;
 
@@ -32,26 +34,27 @@ const Index = defineComponent({
     const { schemaStr, ctx, ...props } = toRefs(originProps);
 
     // 触发重新渲染
-    const [renderFlag] = vueState<[] | null>([]);
+    const [renderFlag, setRenderFlag] = vueState<[] | null>([]);
     // 避免react多次渲染
     const propsRef = vueRef(props);
     propsRef.current = props;
     // 上下文
     const ctxRef = vueRef<ContextType>(ctx.value || {});
-    // // 状态集合
-    // const stateMapRef = vueRef(new StateMap());
-    // const getStateRef = vueRef<StateGetSetType['getState']>(({ stateName }) => {
-    //   return stateMapRef.current.get(stateName);
-    // });
-    // const setStateRef = vueRef<StateGetSetType['setState']>(
-    //   ({ fieldList = [] }) => {
-    //     fieldList.forEach(({ name, value }) => {
-    //       stateMapRef.current.set(name, value);
-    //     });
-    //     // state改变后，通知react重新渲染state
-    //     setRenderFlag([]);
-    //   }
-    // );
+    // 状态集合
+    const stateMapRef = vueRef(new StateMap());
+    const getStateRef = vueRef<StateGetSetType['getState']>(({ stateName }) => {
+      return stateMapRef.current.get(stateName);
+    });
+    const setStateRef = vueRef<StateGetSetType['setState']>(
+      ({ fieldList = [] }) => {
+        fieldList.forEach(({ name, value }) => {
+          stateMapRef.current.set(name, value);
+        });
+        // TODO setState后，不能修改stateMap里的值
+        // state改变后，通知react重新渲染state
+        setRenderFlag([]);
+      }
+    );
     // // ref集合
     // const refMapRef = vueRef<Map<string, MutableRefObject<AnyType>>>(new Map());
     // const getRefRef = vueRef<RefGetSetType['getRef']>(({ refName }) => {
@@ -63,14 +66,14 @@ const Index = defineComponent({
     //   return hookMapRef.current.get(name);
     // });
 
-    // // schema对象
-    // const schemaRootObj = getSchemaObjFromStr(schemaStr.value);
+    // schema对象
+    const schemaRootObj = getSchemaObjFromStr(schemaStr.value);
 
-    // // 使用自带的状态管理
-    // schemaRootObj.states?.forEach((s) => {
-    //   const [stateValue, setStateValue] = createState(s.initialValue);
-    //   stateMapRef.current.addState(s.name, stateValue.value, setStateValue);
-    // });
+    // 使用自带的状态管理
+    schemaRootObj.states?.forEach((s) => {
+      const [stateValue, setStateValue] = createState(s.initialValue);
+      stateMapRef.current.addState(s.name, stateValue.value, setStateValue);
+    });
 
     // // 使用自带的ref管理
     // schemaRootObj.refs?.forEach((r) => {
@@ -157,10 +160,10 @@ const Index = defineComponent({
           getRef: () => {
             return null;
           },
-          getState: () => {
-            return null;
-          },
-          setState: () => {},
+          // getState: () => {
+          //   return null;
+          // },
+          // setState: () => {},
           getHook: () => {
             return null;
           },
@@ -169,8 +172,8 @@ const Index = defineComponent({
           noMatchCompRender: props.noMatchCompRender.value,
           errorBoundaryRender: props.errorBoundaryRender.value,
           // getRef: getRefRef.current,
-          // getState: getStateRef.current,
-          // setState: setStateRef.current,
+          getState: getStateRef.current,
+          setState: setStateRef.current,
           // getHook: getHookRef.current,
           ctx: ctxRef.current,
           ...Object.fromEntries(

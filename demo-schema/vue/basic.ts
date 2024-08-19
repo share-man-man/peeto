@@ -1,10 +1,12 @@
-import { SchemaRootObj } from '../../packages/core';
+import { NodeType, SchemaRootObj } from '../../packages/core';
 import { FuncTypeEnum } from '../../packages/core/src/func';
 // import { NodeType } from '../../packages/core/src/root';
 import {
   creatAnonymousFunc,
   createComp,
   createSchemaConfig,
+  createSlot,
+  createState,
   // createState,
 } from '../utils';
 
@@ -36,6 +38,9 @@ export const libModules: SchemaRootObj['libModules'] = [
       {
         name: 'ElCol',
       },
+      {
+        name: 'ElSpace',
+      },
     ],
   },
 ];
@@ -58,11 +63,7 @@ export const basic = createSchemaConfig({
                   {},
                   {
                     slots: {
-                      default: creatAnonymousFunc({
-                        func: {
-                          body: 'return "Card"',
-                        },
-                      }),
+                      default: createSlot({ compTree: ['Card'] }),
                     },
                   }
                 ),
@@ -76,11 +77,7 @@ export const basic = createSchemaConfig({
                   {},
                   {
                     slots: {
-                      default: creatAnonymousFunc({
-                        func: {
-                          body: 'return "ElText组件"',
-                        },
-                      }),
+                      default: createSlot({ compTree: ['ElText组件'] }),
                     },
                   }
                 ),
@@ -89,6 +86,226 @@ export const basic = createSchemaConfig({
           },
         }
       ),
+    ],
+  },
+});
+
+export const anonymousFunction = createSchemaConfig({
+  desc: '基础-匿名函数',
+  schema: {
+    libModules,
+    compTree: [
+      createComp(
+        'ElButton',
+        {
+          type: 'primary',
+          onClick: creatAnonymousFunc({
+            func: {
+              body: 'alert("点击了按钮")',
+            },
+          }),
+        },
+        {
+          slots: {
+            default: createSlot({ compTree: ['点击弹出提示框'] }),
+          },
+        }
+      ),
+    ],
+  },
+});
+
+export const state = createSchemaConfig({
+  desc: '基础-状态响应式',
+  schema: {
+    libModules,
+    states: [
+      {
+        desc: '响应式状态',
+        name: 'title',
+        initialValue: '响应式状态',
+      },
+      {
+        desc: 'title长度',
+        name: 'titleLength',
+        initialValue: 0,
+      },
+    ],
+    effects: [
+      {
+        dependences: [{ type: NodeType.STATE, name: 'title' }],
+        effectStates: ['titleLength'],
+        body: `
+        setTitleLength(title.length)
+        `,
+      },
+    ],
+    compTree: [
+      // createComp(
+      //   'ElRow',
+      //   {},
+      //   {
+      //     slots: {
+      //       default: creatAnonymousFunc({
+      //         funcType: FuncTypeEnum.RENDERFUNC,
+      //         renderFunc: {
+      //           compTree: [
+      //             createComp(
+      //               'ElSpace',
+      //               {},
+      //               {
+      //                 slots: {
+      //                   default: createSlot({
+      //                     compTree: [
+      //                       createComp(
+      //                         'ElText',
+      //                         {},
+      //                         {
+      //                           slots: {
+      //                             default: createSlot({
+      //                               compTree: ['title值：'],
+      //                             }),
+      //                           },
+      //                         }
+      //                       ),
+      //                       createComp(
+      //                         'ElText',
+      //                         {},
+      //                         {
+      //                           slots: {
+      //                             default: createSlot({
+      //                               compTree: [createState({ name: 'title' })],
+      //                             }),
+      //                           },
+      //                         }
+      //                       ),
+      //                     ],
+      //                   }),
+      //                 },
+      //               }
+      //             ),
+      //           ],
+      //         },
+      //       }),
+      //     },
+      //   }
+      // ),
+      // createComp(
+      //   'ElRow',
+      //   {},
+      //   {
+      //     slots: {
+      //       default: createSlot({
+      //         compTree: [
+      //           createComp(
+      //             'ElSpace',
+      //             {},
+      //             {
+      //               slots: {
+      //                 default: createSlot({
+      //                   compTree: [
+      //                     createComp(
+      //                       'ElText',
+      //                       {},
+      //                       {
+      //                         slots: {
+      //                           default: createSlot({
+      //                             compTree: ['titleLength(effect监听改变)：'],
+      //                           }),
+      //                         },
+      //                       }
+      //                     ),
+      //                     createComp(
+      //                       'ElText',
+      //                       {},
+      //                       {
+      //                         slots: {
+      //                           default: createSlot({
+      //                             compTree: [
+      //                               createState({ name: 'titleLength' }),
+      //                             ],
+      //                           }),
+      //                         },
+      //                       }
+      //                     ),
+      //                   ],
+      //                 }),
+      //               },
+      //             }
+      //           ),
+      //         ],
+      //       }),
+      //     },
+      //   }
+      // ),
+      // createComp(
+      //   'ElRow',
+      //   {},
+      //   {
+      //     slots: {
+      //       default: createSlot({
+      //         compTree: [
+      //           createComp(
+      //             'ElSpace',
+      //             {},
+      //             {
+      //               slots: {
+      //                 default: createSlot({
+      //                   compTree: [
+      //                     createComp(
+      //                       'ElText',
+      //                       {},
+      //                       {
+      //                         slots: {
+      //                           default: createSlot({
+      //                             compTree: ['title长度(表达式)：'],
+      //                           }),
+      //                         },
+      //                       }
+      //                     ),
+      //                     createComp(
+      //                       'ElText',
+      //                       {},
+      //                       {
+      //                         slots: {
+      //                           default: createSlot({
+      //                             compTree: [
+      //                               creatAnonymousFunc({
+      //                                 IIFE: true,
+      //                                 dependences: [
+      //                                   { type: NodeType.STATE, name: 'title' },
+      //                                 ],
+      //                                 func: {
+      //                                   body: '(title || "").length',
+      //                                 },
+      //                               }),
+      //                             ],
+      //                           }),
+      //                         },
+      //                       }
+      //                     ),
+      //                   ],
+      //                 }),
+      //               },
+      //             }
+      //           ),
+      //         ],
+      //       }),
+      //     },
+      //   }
+      // ),
+      createComp('ElInput', {
+        modelValue: createState({
+          name: 'title',
+        }),
+        ['onUpdate:modelValue']: creatAnonymousFunc({
+          params: ['v'],
+          effectStates: ['title'],
+          func: {
+            body: `setTitle(v)`,
+          },
+        }),
+      }),
     ],
   },
 });

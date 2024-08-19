@@ -1,15 +1,12 @@
 <script setup lang="ts">
-import {
-  ElButton,
-  ElRow,
-  ElSpace,
-  ElRadioGroup,
-  ElRadio,
-  ElText,
-} from 'element-plus';
+import { ElButton, ElRow, ElSpace, ElRadioGroup, ElRadio } from 'element-plus';
 import { ArrowLeftBold, ArrowRightBold } from '@element-plus/icons-vue';
 
-import { basic } from '../../../../demo-schema/vue/basic';
+import {
+  anonymousFunction,
+  basic,
+  state,
+} from '../../../../demo-schema/vue/basic';
 
 import { VueRender } from '../index';
 import { vueEffect, vueState } from '../utils';
@@ -29,10 +26,35 @@ const enumOp: {
     str: JSON.stringify(basic.schema),
   },
   {
-    key: 'tt',
-    label: 'tt',
-    str: '{}',
+    key: 'anonymousFunction',
+    label: anonymousFunction.desc,
+    str: JSON.stringify(anonymousFunction.schema),
   },
+  {
+    key: 'state',
+    label: state.desc,
+    str: JSON.stringify(state.schema),
+  },
+  // {
+  //   key: 'listLoop',
+  //   label: listLoop.desc,
+  //   str: JSON.stringify(listLoop.schema),
+  // },
+  // {
+  //   key: 'conditionBool',
+  //   label: conditionBool.desc,
+  //   str: JSON.stringify(conditionBool.schema),
+  // },
+  // {
+  //   key: 'table',
+  //   label: table.desc,
+  //   str: JSON.stringify(table.schema),
+  // },
+  // {
+  //   key: 'form',
+  //   label: form.desc,
+  //   str: JSON.stringify(form.schema),
+  // },
 ];
 
 const [key, setKey] = vueState(
@@ -109,17 +131,17 @@ vueEffect(
       </el-space>
     </div>
     <el-row>
-      <el-text size="large">schema</el-text>
+      <h2>schema</h2>
     </el-row>
     <el-row>
       <el-radio-group v-model="key">
-        <el-radio v-for="e in enumOp" :key="e.key" :value="e.key"
-          >{{ e.key }}-{{ e.label }}</el-radio
-        >
+        <el-radio v-for="e in enumOp" :key="e.key" :value="e.key">
+          {{ e.label }}
+        </el-radio>
       </el-radio-group>
     </el-row>
     <el-row>
-      <el-text size="large">渲染结果</el-text>
+      <h2>渲染结果</h2>
     </el-row>
     <VueRender
       :schema-str="str || '{}'"

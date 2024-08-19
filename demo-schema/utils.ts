@@ -3,6 +3,7 @@ import { v4 as id } from 'uuid';
 import {
   AnonymousFunctionNode,
   AnyType,
+  FuncTypeEnum,
   HookNodeType,
   SchemaRootObj,
   StateNodeType,
@@ -48,6 +49,15 @@ export const creatAnonymousFunc = (
   ...p: ConstructorParameters<typeof AnonymousFunctionNode>
 ) => {
   return new AnonymousFunctionNode(...p) as unknown as JSONObject;
+};
+
+export const createSlot = ({ compTree }: { compTree: AnyType[] }) => {
+  return new AnonymousFunctionNode({
+    funcType: FuncTypeEnum.RENDERFUNC,
+    [FuncTypeEnum.RENDERFUNC]: {
+      compTree: compTree as AnyType,
+    },
+  });
 };
 
 export const createSchemaConfig = ({
