@@ -141,159 +141,159 @@ export const state = createSchemaConfig({
       },
     ],
     compTree: [
-      // createComp(
-      //   'ElRow',
-      //   {},
-      //   {
-      //     slots: {
-      //       default: creatAnonymousFunc({
-      //         funcType: FuncTypeEnum.RENDERFUNC,
-      //         renderFunc: {
-      //           compTree: [
-      //             createComp(
-      //               'ElSpace',
-      //               {},
-      //               {
-      //                 slots: {
-      //                   default: createSlot({
-      //                     compTree: [
-      //                       createComp(
-      //                         'ElText',
-      //                         {},
-      //                         {
-      //                           slots: {
-      //                             default: createSlot({
-      //                               compTree: ['title值：'],
-      //                             }),
-      //                           },
-      //                         }
-      //                       ),
-      //                       createComp(
-      //                         'ElText',
-      //                         {},
-      //                         {
-      //                           slots: {
-      //                             default: createSlot({
-      //                               compTree: [createState({ name: 'title' })],
-      //                             }),
-      //                           },
-      //                         }
-      //                       ),
-      //                     ],
-      //                   }),
-      //                 },
-      //               }
-      //             ),
-      //           ],
-      //         },
-      //       }),
-      //     },
-      //   }
-      // ),
-      // createComp(
-      //   'ElRow',
-      //   {},
-      //   {
-      //     slots: {
-      //       default: createSlot({
-      //         compTree: [
-      //           createComp(
-      //             'ElSpace',
-      //             {},
-      //             {
-      //               slots: {
-      //                 default: createSlot({
-      //                   compTree: [
-      //                     createComp(
-      //                       'ElText',
-      //                       {},
-      //                       {
-      //                         slots: {
-      //                           default: createSlot({
-      //                             compTree: ['titleLength(effect监听改变)：'],
-      //                           }),
-      //                         },
-      //                       }
-      //                     ),
-      //                     createComp(
-      //                       'ElText',
-      //                       {},
-      //                       {
-      //                         slots: {
-      //                           default: createSlot({
-      //                             compTree: [
-      //                               createState({ name: 'titleLength' }),
-      //                             ],
-      //                           }),
-      //                         },
-      //                       }
-      //                     ),
-      //                   ],
-      //                 }),
-      //               },
-      //             }
-      //           ),
-      //         ],
-      //       }),
-      //     },
-      //   }
-      // ),
-      // createComp(
-      //   'ElRow',
-      //   {},
-      //   {
-      //     slots: {
-      //       default: createSlot({
-      //         compTree: [
-      //           createComp(
-      //             'ElSpace',
-      //             {},
-      //             {
-      //               slots: {
-      //                 default: createSlot({
-      //                   compTree: [
-      //                     createComp(
-      //                       'ElText',
-      //                       {},
-      //                       {
-      //                         slots: {
-      //                           default: createSlot({
-      //                             compTree: ['title长度(表达式)：'],
-      //                           }),
-      //                         },
-      //                       }
-      //                     ),
-      //                     createComp(
-      //                       'ElText',
-      //                       {},
-      //                       {
-      //                         slots: {
-      //                           default: createSlot({
-      //                             compTree: [
-      //                               creatAnonymousFunc({
-      //                                 IIFE: true,
-      //                                 dependences: [
-      //                                   { type: NodeType.STATE, name: 'title' },
-      //                                 ],
-      //                                 func: {
-      //                                   body: '(title || "").length',
-      //                                 },
-      //                               }),
-      //                             ],
-      //                           }),
-      //                         },
-      //                       }
-      //                     ),
-      //                   ],
-      //                 }),
-      //               },
-      //             }
-      //           ),
-      //         ],
-      //       }),
-      //     },
-      //   }
-      // ),
+      createComp(
+        'ElRow',
+        {},
+        {
+          slots: {
+            default: creatAnonymousFunc({
+              funcType: FuncTypeEnum.RENDERFUNC,
+              renderFunc: {
+                compTree: [
+                  createComp(
+                    'ElSpace',
+                    {},
+                    {
+                      slots: {
+                        default: createSlot({
+                          compTree: [
+                            createComp(
+                              'ElText',
+                              {},
+                              {
+                                slots: {
+                                  default: createSlot({
+                                    compTree: ['title值：'],
+                                  }),
+                                },
+                              }
+                            ),
+                            createComp(
+                              'ElText',
+                              {},
+                              {
+                                slots: {
+                                  default: createSlot({
+                                    compTree: [createState({ name: 'title' })],
+                                  }),
+                                },
+                              }
+                            ),
+                          ],
+                        }),
+                      },
+                    }
+                  ),
+                ],
+              },
+            }),
+          },
+        }
+      ),
+      createComp(
+        'ElRow',
+        {},
+        {
+          slots: {
+            default: createSlot({
+              compTree: [
+                createComp(
+                  'ElSpace',
+                  {},
+                  {
+                    slots: {
+                      default: createSlot({
+                        compTree: [
+                          createComp(
+                            'ElText',
+                            {},
+                            {
+                              slots: {
+                                default: createSlot({
+                                  compTree: ['titleLength(effect监听改变)：'],
+                                }),
+                              },
+                            }
+                          ),
+                          createComp(
+                            'ElText',
+                            {},
+                            {
+                              slots: {
+                                default: createSlot({
+                                  compTree: [
+                                    createState({ name: 'titleLength' }),
+                                  ],
+                                }),
+                              },
+                            }
+                          ),
+                        ],
+                      }),
+                    },
+                  }
+                ),
+              ],
+            }),
+          },
+        }
+      ),
+      createComp(
+        'ElRow',
+        {},
+        {
+          slots: {
+            default: createSlot({
+              compTree: [
+                createComp(
+                  'ElSpace',
+                  {},
+                  {
+                    slots: {
+                      default: createSlot({
+                        compTree: [
+                          createComp(
+                            'ElText',
+                            {},
+                            {
+                              slots: {
+                                default: createSlot({
+                                  compTree: ['title长度(表达式)：'],
+                                }),
+                              },
+                            }
+                          ),
+                          createComp(
+                            'ElText',
+                            {},
+                            {
+                              slots: {
+                                default: createSlot({
+                                  compTree: [
+                                    creatAnonymousFunc({
+                                      IIFE: true,
+                                      dependences: [
+                                        { type: NodeType.STATE, name: 'title' },
+                                      ],
+                                      func: {
+                                        body: '(title || "").length',
+                                      },
+                                    }),
+                                  ],
+                                }),
+                              },
+                            }
+                          ),
+                        ],
+                      }),
+                    },
+                  }
+                ),
+              ],
+            }),
+          },
+        }
+      ),
       createComp('ElInput', {
         modelValue: createState({
           name: 'title',

@@ -7,13 +7,18 @@ import {
   // RefGetSetType,
   // StateMap,
   ContextType,
-  StateMap,
+  // StateMap,
   StateGetSetType,
+  generateArguments,
+  NodeType,
+  RefGetSetType,
+  HookGetSetType,
+  AnyType,
   // NodeType,
   // FieldTypeEnum,
   // HookGetSetType,
 } from '@peeto/core';
-import { defineComponent, toRefs } from 'vue';
+import { defineComponent, ShallowRef, shallowRef, toRefs } from 'vue';
 // import { SchemaCompProps } from '../../type';
 import {
   vueRef,
@@ -24,8 +29,8 @@ import {
   defaultSchemaProps,
 } from '../../utils';
 
-const createState = vueState;
-// const createEffect = vueEffect;
+// const createState = vueState;
+const createEffect = vueEffect;
 // const createRef = vueRef;
 
 const Index = defineComponent({
@@ -41,38 +46,37 @@ const Index = defineComponent({
     // 上下文
     const ctxRef = vueRef<ContextType>(ctx.value || {});
     // 状态集合
-    const stateMapRef = vueRef(new StateMap());
-    const getStateRef = vueRef<StateGetSetType['getState']>(({ stateName }) => {
-      return stateMapRef.current.get(stateName);
+    const stateMap = new Map<string, ShallowRef>();
+    const getState: StateGetSetType['getState'] = ({ stateName }) => {
+      return stateMap.get(stateName)?.value;
+    };
+    const setState: StateGetSetType['setState'] = ({ fieldList = [] }) => {
+      fieldList.forEach(({ name, value }) => {
+        const refValue = stateMap.get(name);
+        if (refValue) {
+          refValue.value = value;
+        }
+      });
+      setRenderFlag([]);
+    };
+    // ref集合
+    const refMapRef = vueRef<Map<string, AnyType>>(new Map());
+    const getRefRef = vueRef<RefGetSetType['getRef']>(({ refName }) => {
+      return refMapRef.current.get(refName);
     });
-    const setStateRef = vueRef<StateGetSetType['setState']>(
-      ({ fieldList = [] }) => {
-        fieldList.forEach(({ name, value }) => {
-          stateMapRef.current.set(name, value);
-        });
-        // TODO setState后，不能修改stateMap里的值
-        // state改变后，通知react重新渲染state
-        setRenderFlag([]);
-      }
-    );
-    // // ref集合
-    // const refMapRef = vueRef<Map<string, MutableRefObject<AnyType>>>(new Map());
-    // const getRefRef = vueRef<RefGetSetType['getRef']>(({ refName }) => {
-    //   return refMapRef.current.get(refName);
-    // });
-    // // hook集合
-    // const hookMapRef = vueRef(new Map<string, AnyType>());
-    // const getHookRef = vueRef<HookGetSetType['getHook']>(({ name }) => {
-    //   return hookMapRef.current.get(name);
-    // });
+    // hook集合
+    const hookMapRef = vueRef(new Map<string, AnyType>());
+    const getHookRef = vueRef<HookGetSetType['getHook']>(({ name }) => {
+      return hookMapRef.current.get(name);
+    });
 
     // schema对象
     const schemaRootObj = getSchemaObjFromStr(schemaStr.value);
 
     // 使用自带的状态管理
     schemaRootObj.states?.forEach((s) => {
-      const [stateValue, setStateValue] = createState(s.initialValue);
-      stateMapRef.current.addState(s.name, stateValue.value, setStateValue);
+      const stateValue = shallowRef(s.initialValue);
+      stateMap.set(s.name, stateValue);
     });
 
     // // 使用自带的ref管理
@@ -124,30 +128,30 @@ const Index = defineComponent({
     //   }
     // });
 
-    // // 使用自带的依赖管理函数;
-    // schemaRootObj.effects?.forEach(
-    //   ({ effectStates, body, dependences = [] }) => {
-    //     createEffect(
-    //       () => {
-    //         const { argList, argNameList } = generateArguments({
-    //           effectStates,
-    //           setState: setStateRef.current,
-    //           getState: getStateRef.current,
-    //           dependences,
-    //           ctx: ctxRef.current,
-    //           modulesMap: props.modulesMap,
-    //           getRef: getRefRef.current,
-    //           getHook: getHookRef.current,
-    //         });
-    //         new Function(...argNameList, body).call({}, ...argList);
-    //       },
-    //       () =>
-    //         dependences
-    //           .filter((d) => d.type === NodeType.STATE)
-    //           .map((d) => stateMapRef.current.get(d.name))
-    //     );
-    //   }
-    // );
+    // 使用自带的依赖管理函数;
+    schemaRootObj.effects?.forEach(
+      ({ effectStates, body, dependences = [] }) => {
+        createEffect(
+          () => {
+            const { argList, argNameList } = generateArguments({
+              effectStates,
+              setState,
+              getState,
+              dependences,
+              ctx: ctxRef.current,
+              modulesMap: props.modulesMap.value,
+              getRef: getRefRef.current,
+              getHook: getHookRef.current,
+            });
+            new Function(...argNameList, body).call({}, ...argList);
+          },
+          () =>
+            dependences
+              .filter((d) => d.type === NodeType.STATE)
+              .map((d) => stateMap.get(d.name)?.value)
+        );
+      }
+    );
 
     const dom = vueMemo(
       () => {
@@ -157,24 +161,14 @@ const Index = defineComponent({
         const obj = getSchemaObjFromStr(schemaStr.value);
         const res = generateNode({
           schemaRootObj: obj,
-          getRef: () => {
-            return null;
-          },
-          // getState: () => {
-          //   return null;
-          // },
-          // setState: () => {},
-          getHook: () => {
-            return null;
-          },
           onCreateCompNode: props.onCreateCompNode.value,
           modulesMap: props.modulesMap.value,
           noMatchCompRender: props.noMatchCompRender.value,
           errorBoundaryRender: props.errorBoundaryRender.value,
-          // getRef: getRefRef.current,
-          getState: getStateRef.current,
-          setState: setStateRef.current,
-          // getHook: getHookRef.current,
+          getRef: getRefRef.current,
+          getState,
+          setState,
+          getHook: getHookRef.current,
           ctx: ctxRef.current,
           ...Object.fromEntries(
             Object.keys(propsRef.current).map((k) => [
