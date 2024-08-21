@@ -1,5 +1,5 @@
 import { NodeType, SchemaRootObj } from '../../packages/core';
-import { FuncTypeEnum } from '../../packages/core/src/func';
+import { ConditionTypeEnum, FuncTypeEnum } from '../../packages/core/src/func';
 // import { NodeType } from '../../packages/core/src/root';
 import {
   creatAnonymousFunc,
@@ -40,6 +40,9 @@ export const libModules: SchemaRootObj['libModules'] = [
       },
       {
         name: 'ElSpace',
+      },
+      {
+        name: 'ElSwitch',
       },
     ],
   },
@@ -305,6 +308,147 @@ export const state = createSchemaConfig({
             body: `setTitle(v)`,
           },
         }),
+      }),
+    ],
+  },
+});
+
+export const listLoop = createSchemaConfig({
+  desc: '基础-数组渲染',
+  schema: {
+    libModules,
+    states: [
+      {
+        name: 'record',
+        initialValue: {
+          title: '🐛 [BUG]yarn install命令 antd2.4.5会报错',
+          labels: [
+            {
+              name: 'primary',
+            },
+            {
+              name: 'success',
+            },
+            {
+              name: 'info',
+            },
+            {
+              name: 'warning',
+            },
+            {
+              name: 'danger',
+            },
+          ],
+        },
+      },
+    ],
+    compTree: [
+      createComp(
+        'ElSpace',
+        {},
+        {
+          slots: {
+            default: createSlot({
+              compTree: [
+                creatAnonymousFunc({
+                  IIFE: true,
+                  funcType: FuncTypeEnum.RENDERFUNC,
+                  renderFunc: {
+                    conditionType: ConditionTypeEnum.LISTLOOP,
+                    listLoop: {
+                      data: creatAnonymousFunc({
+                        IIFE: true,
+                        dependences: [{ type: NodeType.STATE, name: 'record' }],
+                        func: {
+                          body: 'record.labels',
+                        },
+                      }),
+                      mapParams: ['lablesItem', 'lablesIndex'],
+                    },
+                    compTree: createComp(
+                      'ElTag',
+                      {
+                        key: creatAnonymousFunc({
+                          IIFE: true,
+                          func: {
+                            body: 'lablesItem.name',
+                          },
+                        }),
+                        type: creatAnonymousFunc({
+                          IIFE: true,
+                          func: {
+                            body: 'lablesItem.name',
+                          },
+                        }),
+                      },
+                      {
+                        slots: {
+                          default: createSlot({
+                            compTree: [
+                              creatAnonymousFunc({
+                                IIFE: true,
+                                func: {
+                                  body: 'lablesItem.name',
+                                },
+                              }),
+                            ],
+                          }),
+                        },
+                      }
+                    ),
+                  },
+                }),
+              ],
+            }),
+          },
+        }
+      ),
+    ],
+  },
+});
+
+export const conditionBool = createSchemaConfig({
+  desc: '基础-是否渲染',
+  schema: {
+    libModules,
+    states: [
+      {
+        name: 'visible',
+        initialValue: true,
+      },
+    ],
+    compTree: [
+      createComp('ElSwitch', {
+        modelValue: createState({ name: 'visible' }),
+        'onUpdate:modelValue': creatAnonymousFunc({
+          params: ['checked'],
+          dependences: [{ type: NodeType.STATE, name: 'visible' }],
+          effectStates: ['visible'],
+          func: {
+            body: 'setVisible(!visible)',
+          },
+        }),
+      }),
+      creatAnonymousFunc({
+        IIFE: true,
+        funcType: FuncTypeEnum.RENDERFUNC,
+        renderFunc: {
+          conditionType: ConditionTypeEnum.BOOLEAN,
+          boolean: {
+            data: createState({
+              name: 'visible',
+            }),
+          },
+          compTree: createComp(
+            'ElText',
+            {},
+            {
+              slots: {
+                default: createSlot({ compTree: ['===条件展示==='] }),
+              },
+            }
+          ),
+        },
       }),
     ],
   },

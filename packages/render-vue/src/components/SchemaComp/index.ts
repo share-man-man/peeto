@@ -54,7 +54,12 @@ const Index = defineComponent({
       fieldList.forEach(({ name, value }) => {
         const refValue = stateMap.get(name);
         if (refValue) {
-          refValue.value = value;
+          if (Object.prototype.toString.call(value) === '[object Function]') {
+            // 像react的setState一样支持函数
+            refValue.value = value(refValue.value);
+          } else {
+            refValue.value = value;
+          }
         }
       });
       setRenderFlag([]);

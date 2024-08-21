@@ -5,6 +5,8 @@ import { ArrowLeftBold, ArrowRightBold } from '@element-plus/icons-vue';
 import {
   anonymousFunction,
   basic,
+  conditionBool,
+  listLoop,
   state,
 } from '../../../../demo-schema/vue/basic';
 
@@ -35,16 +37,16 @@ const enumOp: {
     label: state.desc,
     str: JSON.stringify(state.schema),
   },
-  // {
-  //   key: 'listLoop',
-  //   label: listLoop.desc,
-  //   str: JSON.stringify(listLoop.schema),
-  // },
-  // {
-  //   key: 'conditionBool',
-  //   label: conditionBool.desc,
-  //   str: JSON.stringify(conditionBool.schema),
-  // },
+  {
+    key: 'listLoop',
+    label: listLoop.desc,
+    str: JSON.stringify(listLoop.schema),
+  },
+  {
+    key: 'conditionBool',
+    label: conditionBool.desc,
+    str: JSON.stringify(conditionBool.schema),
+  },
   // {
   //   key: 'table',
   //   label: table.desc,

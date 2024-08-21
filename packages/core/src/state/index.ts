@@ -2,6 +2,8 @@ import { NodeType } from '../root';
 import { AnyType } from '../type';
 // import { StateNodeType } from './type';
 
+// TODO 只有react用到了，vue没有用到
+
 /**
  * 状态节点
  */
