@@ -9,6 +9,7 @@ import {
   listLoop,
   state,
 } from '../../../../demo-schema/vue/basic';
+import { table } from '../../../../demo-schema/vue/table';
 
 import { VueRender } from '../index';
 import { vueEffect, vueState } from '../utils';
@@ -47,11 +48,11 @@ const enumOp: {
     label: conditionBool.desc,
     str: JSON.stringify(conditionBool.schema),
   },
-  // {
-  //   key: 'table',
-  //   label: table.desc,
-  //   str: JSON.stringify(table.schema),
-  // },
+  {
+    key: 'table',
+    label: table.desc,
+    str: JSON.stringify(table.schema),
+  },
   // {
   //   key: 'form',
   //   label: form.desc,

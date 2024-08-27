@@ -21,15 +21,23 @@ export const createComp = (
   {
     slots,
   }: {
-    slots?: Record<string, AnyType>;
+    slots?: Record<string, AnyType> | AnonymousFunctionNode;
   } = {}
 ) => {
   const selfId = id();
+  let newSlots = slots as Record<string, AnyType>;
+  // slots为函数时，默认为default插槽
+  if (
+    slots &&
+    [AnonymousFunctionNode.prototype].includes(Object.getPrototypeOf(slots))
+  ) {
+    newSlots = { default: slots };
+  }
   return new SchemaCompTreeItem({
     componentName,
     id: selfId,
     props,
-    slots,
+    slots: newSlots,
   });
 };
 

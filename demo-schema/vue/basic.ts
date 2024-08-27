@@ -44,6 +44,12 @@ export const libModules: SchemaRootObj['libModules'] = [
       {
         name: 'ElSwitch',
       },
+      {
+        name: 'ElTable',
+      },
+      {
+        name: 'ElTableColumn',
+      },
     ],
   },
 ];
