@@ -2,7 +2,7 @@ import { SchemaRootObj } from '../../packages/core';
 import { ConditionTypeEnum, FuncTypeEnum } from '../../packages/core/src/func';
 import { NodeType } from '../../packages/core/src/root';
 import {
-  creatAnonymousFunc,
+  createFunc,
   createComp,
   createSchemaConfig,
   createState,
@@ -94,7 +94,7 @@ export const anonymousFunction = createSchemaConfig({
     compTree: [
       createComp('Button', {
         type: 'primary',
-        onClick: creatAnonymousFunc({
+        onClick: createFunc({
           params: ['e'],
           func: {
             body: 'alert("点击了按钮")',
@@ -168,7 +168,7 @@ export const state = createSchemaConfig({
                 children: 'title长度(表达式)：',
               }),
               createComp('Typography.Text', {
-                children: creatAnonymousFunc({
+                children: createFunc({
                   IIFE: true,
                   dependences: [{ type: NodeType.STATE, name: 'title' }],
                   func: {
@@ -184,7 +184,7 @@ export const state = createSchemaConfig({
         value: createState({
           name: 'title',
         }),
-        onChange: creatAnonymousFunc({
+        onChange: createFunc({
           params: ['v'],
           effectStates: ['title'],
           func: {
@@ -233,13 +233,13 @@ export const listLoop = createSchemaConfig({
     compTree: [
       createComp('Space', {
         children: [
-          creatAnonymousFunc({
+          createFunc({
             IIFE: true,
             funcType: FuncTypeEnum.RENDERFUNC,
             renderFunc: {
               conditionType: ConditionTypeEnum.LISTLOOP,
               listLoop: {
-                data: creatAnonymousFunc({
+                data: createFunc({
                   IIFE: true,
                   dependences: [{ type: NodeType.STATE, name: 'record' }],
                   func: {
@@ -249,19 +249,19 @@ export const listLoop = createSchemaConfig({
                 mapParams: ['lablesItem', 'lablesIndex'],
               },
               compTree: createComp('Tag', {
-                key: creatAnonymousFunc({
+                key: createFunc({
                   IIFE: true,
                   func: {
                     body: 'lablesItem.name',
                   },
                 }),
-                color: creatAnonymousFunc({
+                color: createFunc({
                   IIFE: true,
                   func: {
                     body: 'lablesItem.color',
                   },
                 }),
-                children: creatAnonymousFunc({
+                children: createFunc({
                   IIFE: true,
                   func: {
                     body: 'lablesItem.color',
@@ -289,7 +289,7 @@ export const conditionBool = createSchemaConfig({
     compTree: [
       createComp('Switch', {
         checked: createState({ name: 'visible' }),
-        onChange: creatAnonymousFunc({
+        onChange: createFunc({
           params: ['checked'],
           dependences: [{ type: NodeType.STATE, name: 'visible' }],
           effectStates: ['visible'],
@@ -298,7 +298,7 @@ export const conditionBool = createSchemaConfig({
           },
         }),
       }),
-      creatAnonymousFunc({
+      createFunc({
         IIFE: true,
         funcType: FuncTypeEnum.RENDERFUNC,
         renderFunc: {

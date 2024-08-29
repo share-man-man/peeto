@@ -2,7 +2,7 @@ import { NodeType, SchemaRootObj } from '../../packages/core';
 import { ConditionTypeEnum, FuncTypeEnum } from '../../packages/core/src/func';
 // import { NodeType } from '../../packages/core/src/root';
 import {
-  creatAnonymousFunc,
+  createFunc,
   createComp,
   createSchemaConfig,
   createSlot,
@@ -50,6 +50,18 @@ export const libModules: SchemaRootObj['libModules'] = [
       {
         name: 'ElTableColumn',
       },
+      {
+        name: 'ElPagination',
+      },
+    ],
+  },
+  {
+    name: 'umi-request',
+    subs: [
+      {
+        name: 'default',
+        alias: 'request',
+      },
     ],
   },
 ];
@@ -64,7 +76,7 @@ export const basic = createSchemaConfig({
         {},
         {
           slots: {
-            header: creatAnonymousFunc({
+            header: createFunc({
               funcType: FuncTypeEnum.RENDERFUNC,
               renderFunc: {
                 compTree: createComp(
@@ -78,7 +90,7 @@ export const basic = createSchemaConfig({
                 ),
               },
             }),
-            default: creatAnonymousFunc({
+            default: createFunc({
               funcType: FuncTypeEnum.RENDERFUNC,
               renderFunc: {
                 compTree: createComp(
@@ -108,7 +120,7 @@ export const anonymousFunction = createSchemaConfig({
         'ElButton',
         {
           type: 'primary',
-          onClick: creatAnonymousFunc({
+          onClick: createFunc({
             func: {
               body: 'alert("点击了按钮")',
             },
@@ -155,7 +167,7 @@ export const state = createSchemaConfig({
         {},
         {
           slots: {
-            default: creatAnonymousFunc({
+            default: createFunc({
               funcType: FuncTypeEnum.RENDERFUNC,
               renderFunc: {
                 compTree: [
@@ -279,7 +291,7 @@ export const state = createSchemaConfig({
                               slots: {
                                 default: createSlot({
                                   compTree: [
-                                    creatAnonymousFunc({
+                                    createFunc({
                                       IIFE: true,
                                       dependences: [
                                         { type: NodeType.STATE, name: 'title' },
@@ -307,7 +319,7 @@ export const state = createSchemaConfig({
         modelValue: createState({
           name: 'title',
         }),
-        ['onUpdate:modelValue']: creatAnonymousFunc({
+        ['onUpdate:modelValue']: createFunc({
           params: ['v'],
           effectStates: ['title'],
           func: {
@@ -356,13 +368,13 @@ export const listLoop = createSchemaConfig({
           slots: {
             default: createSlot({
               compTree: [
-                creatAnonymousFunc({
+                createFunc({
                   IIFE: true,
                   funcType: FuncTypeEnum.RENDERFUNC,
                   renderFunc: {
                     conditionType: ConditionTypeEnum.LISTLOOP,
                     listLoop: {
-                      data: creatAnonymousFunc({
+                      data: createFunc({
                         IIFE: true,
                         dependences: [{ type: NodeType.STATE, name: 'record' }],
                         func: {
@@ -374,13 +386,13 @@ export const listLoop = createSchemaConfig({
                     compTree: createComp(
                       'ElTag',
                       {
-                        key: creatAnonymousFunc({
+                        key: createFunc({
                           IIFE: true,
                           func: {
                             body: 'lablesItem.name',
                           },
                         }),
-                        type: creatAnonymousFunc({
+                        type: createFunc({
                           IIFE: true,
                           func: {
                             body: 'lablesItem.name',
@@ -391,7 +403,7 @@ export const listLoop = createSchemaConfig({
                         slots: {
                           default: createSlot({
                             compTree: [
-                              creatAnonymousFunc({
+                              createFunc({
                                 IIFE: true,
                                 func: {
                                   body: 'lablesItem.name',
@@ -426,7 +438,7 @@ export const conditionBool = createSchemaConfig({
     compTree: [
       createComp('ElSwitch', {
         modelValue: createState({ name: 'visible' }),
-        'onUpdate:modelValue': creatAnonymousFunc({
+        'onUpdate:modelValue': createFunc({
           params: ['checked'],
           dependences: [{ type: NodeType.STATE, name: 'visible' }],
           effectStates: ['visible'],
@@ -435,7 +447,7 @@ export const conditionBool = createSchemaConfig({
           },
         }),
       }),
-      creatAnonymousFunc({
+      createFunc({
         IIFE: true,
         funcType: FuncTypeEnum.RENDERFUNC,
         renderFunc: {

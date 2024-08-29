@@ -153,6 +153,10 @@ vueEffect(
           name: 'element-plus',
           load: async () => import('element-plus'),
         },
+        {
+          name: 'umi-request',
+          load: async () => import('umi-request'),
+        },
       ]"
     >
       <template #loadingRender><div>vue-loading</div></template>

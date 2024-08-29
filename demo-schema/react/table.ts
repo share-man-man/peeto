@@ -1,11 +1,12 @@
-import { AnyType, RefNodeType } from '../../packages/core';
-import {
-  AnonymousFunctionNode,
-  ConditionTypeEnum,
-  FuncTypeEnum,
-} from '../../packages/core/src/func';
+import { AnyType } from '../../packages/core';
+import { ConditionTypeEnum, FuncTypeEnum } from '../../packages/core/src/func';
 import { NodeType } from '../../packages/core/src/root';
-import { createComp, createSchemaConfig } from '../utils';
+import {
+  createFunc,
+  createComp,
+  createRef,
+  createSchemaConfig,
+} from '../utils';
 import { libModules } from './basic';
 
 export const table = createSchemaConfig({
@@ -48,7 +49,7 @@ export const table = createSchemaConfig({
             valueType: 'select',
             valueEnum: {
               all: {
-                text: new AnonymousFunctionNode({
+                text: createFunc({
                   IIFE: true,
                   func: {
                     body: '"表达式-".repeat(50)',
@@ -75,13 +76,13 @@ export const table = createSchemaConfig({
             title: '标签',
             dataIndex: 'labels',
             search: false,
-            renderFormItem: new AnonymousFunctionNode({
+            renderFormItem: createFunc({
               params: ['_', 'config'],
               func: {
                 body: 'return config.defaultRender(_)',
               },
             }),
-            render: new AnonymousFunctionNode({
+            render: createFunc({
               params: ['_', 'record'],
               funcType: FuncTypeEnum.RENDERFUNC,
               renderFunc: {
@@ -104,26 +105,26 @@ export const table = createSchemaConfig({
             title: '渲染函数-组件树',
             dataIndex: '_renders2',
             search: false,
-            renderFormItem: new AnonymousFunctionNode({
+            renderFormItem: createFunc({
               params: ['_', 'config'],
               func: {
                 body: 'return config.defaultRender(_)',
               },
             }),
-            render: new AnonymousFunctionNode({
-              params: ['_', 'record'],
+            render: createFunc({
               funcType: FuncTypeEnum.RENDERFUNC,
+              params: ['_', 'record'],
               renderFunc: {
                 compTree: [
                   createComp('Space', {
                     children: [
-                      new AnonymousFunctionNode({
+                      createFunc({
                         IIFE: true,
                         funcType: FuncTypeEnum.RENDERFUNC,
                         renderFunc: {
                           conditionType: ConditionTypeEnum.LISTLOOP,
                           listLoop: {
-                            data: new AnonymousFunctionNode({
+                            data: createFunc({
                               IIFE: true,
                               func: {
                                 body: 'record.labels',
@@ -132,19 +133,19 @@ export const table = createSchemaConfig({
                             mapParams: ['lablesItem', 'lablesIndex'],
                           },
                           compTree: createComp('Tag', {
-                            key: new AnonymousFunctionNode({
+                            key: createFunc({
                               IIFE: true,
                               func: {
                                 body: 'lablesItem.name',
                               },
                             }),
-                            color: new AnonymousFunctionNode({
+                            color: createFunc({
                               IIFE: true,
                               func: {
                                 body: 'lablesItem.color',
                               },
                             }),
-                            children: new AnonymousFunctionNode({
+                            children: createFunc({
                               IIFE: true,
                               func: {
                                 body: 'lablesItem.name',
@@ -173,7 +174,7 @@ export const table = createSchemaConfig({
             valueType: 'dateRange',
             hideInTable: true,
             search: {
-              transform: new AnonymousFunctionNode({
+              transform: createFunc({
                 params: ['value'],
                 func: {
                   body: `return {
@@ -188,7 +189,7 @@ export const table = createSchemaConfig({
             title: '操作',
             valueType: 'option',
             key: 'option',
-            render: new AnonymousFunctionNode({
+            render: createFunc({
               params: ['text', 'record', '_', 'action'],
               funcType: FuncTypeEnum.RENDERFUNC,
               renderFunc: {
@@ -196,7 +197,7 @@ export const table = createSchemaConfig({
                   createComp('Button', {
                     key: 'editable',
                     type: 'link',
-                    onClick: new AnonymousFunctionNode({
+                    onClick: createFunc({
                       func: {
                         body: 'action?.startEditable?.(record.id);',
                       },
@@ -206,7 +207,7 @@ export const table = createSchemaConfig({
                   createComp('Button', {
                     key: 'view',
                     type: 'link',
-                    href: new AnonymousFunctionNode({
+                    href: createFunc({
                       IIFE: true,
                       func: {
                         body: 'record.url',
@@ -217,7 +218,7 @@ export const table = createSchemaConfig({
                   }),
                   createComp('TableDropdown', {
                     key: 'actionGroup',
-                    onSelect: new AnonymousFunctionNode({
+                    onSelect: createFunc({
                       func: {
                         body: 'action?.reload()',
                       },
@@ -232,9 +233,9 @@ export const table = createSchemaConfig({
             }),
           },
         ],
-        actionRef: new RefNodeType({ name: 'actionRef' }),
+        actionRef: createRef({ name: 'actionRef' }),
         cardBordered: true,
-        request: new AnonymousFunctionNode({
+        request: createFunc({
           dependences: [
             {
               type: NodeType.MODULE,
@@ -267,7 +268,7 @@ export const table = createSchemaConfig({
           defaultValue: {
             option: { fixed: 'right', disable: true },
           },
-          onChange: new AnonymousFunctionNode({
+          onChange: createFunc({
             params: ['value'],
             func: {
               body: 'console.log("value: ", value)',
@@ -285,7 +286,7 @@ export const table = createSchemaConfig({
         },
         form: {
           ignoreRules: false,
-          syncToUrl: new AnonymousFunctionNode({
+          syncToUrl: createFunc({
             params: ['values', 'type'],
             func: {
               body: `if (type === 'get') {
@@ -303,7 +304,7 @@ export const table = createSchemaConfig({
         },
         dateFormatter: 'string',
         headerTitle: '高级表格',
-        toolBarRender: new AnonymousFunctionNode({
+        toolBarRender: createFunc({
           funcType: FuncTypeEnum.RENDERFUNC,
           renderFunc: {
             conditionType: ConditionTypeEnum.DEFAULT,
@@ -311,7 +312,7 @@ export const table = createSchemaConfig({
               createComp('Button', {
                 key: 'button',
                 // icon: createComp('@ant-design/icons', 'PlusOutlined'),
-                onClick: new AnonymousFunctionNode({
+                onClick: createFunc({
                   dependences: [
                     {
                       type: NodeType.REF,

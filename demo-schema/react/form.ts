@@ -1,7 +1,7 @@
 import { FieldTypeEnum } from '../../packages/core';
 import { NodeType } from '../../packages/core/src/root';
 import {
-  creatAnonymousFunc,
+  createFunc,
   createComp,
   createHook,
   createSchemaConfig,
@@ -89,7 +89,7 @@ export const form = createSchemaConfig({
             createComp('Button', {
               type: 'primary',
               children: 'Submit',
-              onClick: creatAnonymousFunc({
+              onClick: createFunc({
                 func: {
                   body: `
                     console.log(form);  
@@ -111,7 +111,7 @@ export const form = createSchemaConfig({
               }),
             }),
             createComp('Button', {
-              onClick: creatAnonymousFunc({
+              onClick: createFunc({
                 func: {
                   body: `
                     console.log(form);

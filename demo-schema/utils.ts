@@ -21,7 +21,7 @@ export const createComp = (
   {
     slots,
   }: {
-    slots?: Record<string, AnyType> | AnonymousFunctionNode;
+    slots?: Record<string, AnyType> | AnyType;
   } = {}
 ) => {
   const selfId = id();
@@ -53,18 +53,29 @@ export const createHook = (
   return new HookNodeType(...p) as unknown as JSONObject;
 };
 
-export const creatAnonymousFunc = (
+export const createFunc = (
   ...p: ConstructorParameters<typeof AnonymousFunctionNode>
 ) => {
   return new AnonymousFunctionNode(...p) as unknown as JSONObject;
 };
 
-export const createSlot = ({ compTree }: { compTree: AnyType[] }) => {
+export const createRef = (...p: ConstructorParameters<typeof RefNodeType>) => {
+  return new RefNodeType(...p);
+};
+
+export const createSlot = ({
+  compTree,
+  params,
+}: {
+  compTree: AnyType[];
+  params?: AnonymousFunctionNode['params'];
+}) => {
   return new AnonymousFunctionNode({
     funcType: FuncTypeEnum.RENDERFUNC,
     [FuncTypeEnum.RENDERFUNC]: {
       compTree: compTree as AnyType,
     },
+    params,
   });
 };
 
