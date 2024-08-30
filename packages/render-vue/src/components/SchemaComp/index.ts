@@ -18,7 +18,7 @@ import {
   // FieldTypeEnum,
   // HookGetSetType,
 } from '@peeto/core';
-import { defineComponent, ShallowRef, shallowRef, toRefs } from 'vue';
+import { defineComponent, ShallowRef, shallowRef, toRefs, ref, Ref } from 'vue';
 // import { SchemaCompProps } from '../../type';
 import {
   vueRef,
@@ -46,26 +46,28 @@ const Index = defineComponent({
     // 上下文
     const ctxRef = vueRef<ContextType>(ctx.value || {});
     // 状态集合
-    const stateMap = new Map<string, ShallowRef>();
-    const getState: StateGetSetType['getState'] = ({ stateName }) => {
-      return stateMap.get(stateName)?.value;
-    };
-    const setState: StateGetSetType['setState'] = ({ fieldList = [] }) => {
-      fieldList.forEach(({ name, value }) => {
-        const refValue = stateMap.get(name);
-        if (refValue) {
-          if (Object.prototype.toString.call(value) === '[object Function]') {
-            // 像react的setState一样支持函数
-            refValue.value = value(refValue.value);
-          } else {
-            refValue.value = value;
+    const stateMapRef = vueRef(new Map<string, ShallowRef>());
+    const getStateRef = vueRef<StateGetSetType['getState']>(({ stateName }) => {
+      return stateMapRef.current.get(stateName)?.value;
+    });
+    const setStateRef = vueRef<StateGetSetType['setState']>(
+      ({ fieldList = [] }) => {
+        fieldList.forEach(({ name, value }) => {
+          const refValue = stateMapRef.current.get(name);
+          if (refValue) {
+            if (Object.prototype.toString.call(value) === '[object Function]') {
+              // 像react的setState一样支持函数
+              refValue.value = value(refValue.value);
+            } else {
+              refValue.value = value;
+            }
           }
-        }
-      });
-      setRenderFlag([]);
-    };
+        });
+        setRenderFlag([]);
+      }
+    );
     // ref集合
-    const refMapRef = vueRef<Map<string, AnyType>>(new Map());
+    const refMapRef = vueRef<Map<string, Ref<AnyType>>>(new Map());
     const getRefRef = vueRef<RefGetSetType['getRef']>(({ refName }) => {
       return refMapRef.current.get(refName);
     });
@@ -81,14 +83,14 @@ const Index = defineComponent({
     // 使用自带的状态管理
     schemaRootObj.states?.forEach((s) => {
       const stateValue = shallowRef(s.initialValue);
-      stateMap.set(s.name, stateValue);
+      stateMapRef.current.set(s.name, stateValue);
     });
 
-    // // 使用自带的ref管理
-    // schemaRootObj.refs?.forEach((r) => {
-    //   const customRef = createRef(r.initialValue);
-    //   refMapRef.current.set(r.name, customRef);
-    // });
+    // 使用自带的ref管理
+    schemaRootObj.refs?.forEach((r) => {
+      const customRef = ref(null);
+      refMapRef.current.set(r.name, customRef);
+    });
 
     // // 自定义hooks
     // schemaRootObj.customHooks?.forEach(({ field, effect }) => {
@@ -140,8 +142,8 @@ const Index = defineComponent({
           () => {
             const { argList, argNameList } = generateArguments({
               effectStates,
-              setState,
-              getState,
+              setState: setStateRef.current,
+              getState: getStateRef.current,
               dependences,
               ctx: ctxRef.current,
               modulesMap: props.modulesMap.value,
@@ -153,7 +155,7 @@ const Index = defineComponent({
           () =>
             dependences
               .filter((d) => d.type === NodeType.STATE)
-              .map((d) => stateMap.get(d.name)?.value)
+              .map((d) => stateMapRef.current.get(d.name)?.value)
         );
       }
     );
@@ -161,41 +163,45 @@ const Index = defineComponent({
     const dom = vueMemo(
       () => {
         if (renderFlag.value === null) {
-          return null;
+          return () => null;
         }
-        const obj = getSchemaObjFromStr(schemaStr.value);
-        const res = generateNode({
-          schemaRootObj: obj,
-          onCreateCompNode: props.onCreateCompNode.value,
-          modulesMap: props.modulesMap.value,
-          noMatchCompRender: props.noMatchCompRender.value,
-          errorBoundaryRender: props.errorBoundaryRender.value,
-          getRef: getRefRef.current,
-          getState,
-          setState,
-          getHook: getHookRef.current,
-          ctx: ctxRef.current,
-          ...Object.fromEntries(
-            Object.keys(propsRef.current).map((k) => [
-              k,
-              propsRef.current[k as keyof typeof propsRef.current].value,
-            ])
-          ),
-        });
-        return res;
+        return () => {
+          const obj = getSchemaObjFromStr(schemaStr.value);
+          const res = generateNode({
+            schemaRootObj: obj,
+            onCreateCompNode: props.onCreateCompNode.value,
+            modulesMap: props.modulesMap.value,
+            noMatchCompRender: props.noMatchCompRender.value,
+            errorBoundaryRender: props.errorBoundaryRender.value,
+            getRef: getRefRef.current,
+            getState: getStateRef.current,
+            setState: setStateRef.current,
+            getHook: getHookRef.current,
+            ctx: ctxRef.current,
+            // 不能直接展开，需要调用.value出发vue响应式
+            // ...propsRef.current,
+            ...Object.fromEntries(
+              Object.keys(propsRef.current).map((k) => [
+                k,
+                propsRef.current[k as keyof typeof propsRef.current].value,
+              ])
+            ),
+          });
+          return res;
+        };
       },
       () => [renderFlag.value, schemaStr.value]
     );
 
     vueEffect(
       () => {
-        propsRef.current?.onNodeChange?.value?.(dom.value);
+        propsRef.current?.onNodeChange?.value?.(dom.value());
       },
       () => [dom.value]
     );
 
     return () => {
-      return dom.value;
+      return dom.value();
     };
   },
 });

@@ -48,16 +48,13 @@ export const table = createSchemaConfig({
             ellipsis: true,
             valueType: 'select',
             valueEnum: {
-              all: {
+              open: {
                 text: createFunc({
                   IIFE: true,
                   func: {
                     body: '"表达式-".repeat(50)',
                   },
                 }),
-              },
-              open: {
-                text: '未解决',
                 status: 'Error',
               },
               closed: {

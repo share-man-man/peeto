@@ -7,6 +7,7 @@ import {
   createSchemaConfig,
   createSlot,
   createState,
+  createRef,
   // createState,
 } from '../utils';
 
@@ -468,6 +469,29 @@ export const conditionBool = createSchemaConfig({
           ),
         },
       }),
+    ],
+  },
+});
+
+export const compRef = createSchemaConfig({
+  desc: '组件ref引用',
+  schema: {
+    libModules,
+    refs: [{ name: 'btnRef' }],
+    compTree: [
+      createComp(
+        'ElButton',
+        {
+          ref: createRef({ name: 'btnRef' }),
+          onClick: createFunc({
+            func: { body: 'console.log(11,btnRef)' },
+            dependences: [{ type: NodeType.REF, name: 'btnRef' }],
+          }),
+        },
+        {
+          slots: createSlot({ compTree: ['按钮11'] }),
+        }
+      ),
     ],
   },
 });

@@ -7,6 +7,7 @@ import {
   createSchemaConfig,
   createSlot,
   createState,
+  createRef,
 } from '../utils';
 import { libModules } from './basic';
 
@@ -87,6 +88,7 @@ export const table = createSchemaConfig({
           style: {
             width: '100%',
           },
+          ref: createRef({ name: 'actionRef' }),
         },
         {
           slots: {
@@ -135,9 +137,27 @@ export const table = createSchemaConfig({
                 createComp(
                   'ElTableColumn',
                   {
+                    prop: 'state',
+                    label: '表达式',
+                    width: '100',
+                  },
+                  {
+                    slots: createSlot({
+                      compTree: [
+                        createFunc({
+                          IIFE: true,
+                          func: { body: '"表达式-".repeat(10)' },
+                        }),
+                      ],
+                    }),
+                  }
+                ),
+                createComp(
+                  'ElTableColumn',
+                  {
                     prop: '_renders2',
                     label: '渲染函数-组件树',
-                    width: '150',
+                    width: '80',
                   },
                   {
                     slots: createSlot({
@@ -212,36 +232,20 @@ export const table = createSchemaConfig({
                   }
                 ),
                 createComp('ElTableColumn', {
-                  prop: 'name',
-                  label: 'Name',
+                  prop: 'created_at',
+                  label: '创建时间',
                   width: '120',
                 }),
                 createComp('ElTableColumn', {
-                  prop: 'state',
-                  label: 'State',
-                  width: '120',
-                }),
-                createComp('ElTableColumn', {
-                  prop: 'city',
-                  label: 'City',
-                  width: '120',
-                }),
-                createComp('ElTableColumn', {
-                  prop: 'address',
-                  label: 'Address',
-                  width: '600',
-                }),
-                createComp('ElTableColumn', {
-                  prop: 'zip',
-                  label: 'Zip',
-                  width: '120',
+                  prop: '_',
+                  label: '',
                 }),
                 createComp(
                   'ElTableColumn',
                   {
                     fixed: 'right',
                     label: 'Operations',
-                    minWidth: '120',
+                    width: '120',
                   },
                   {
                     slots: createSlot({
@@ -266,9 +270,15 @@ export const table = createSchemaConfig({
                             link: true,
                             type: 'primary',
                             size: 'small',
+                            onClick: createFunc({
+                              dependences: [
+                                { type: NodeType.REF, name: 'actionRef' },
+                              ],
+                              func: { body: 'console.log(actionRef)' },
+                            }),
                           },
                           {
-                            slots: createSlot({ compTree: ['Edit'] }),
+                            slots: createSlot({ compTree: ['编辑'] }),
                           }
                         ),
                       ],

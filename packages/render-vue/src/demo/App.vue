@@ -8,6 +8,7 @@ import {
   conditionBool,
   listLoop,
   state,
+  compRef,
 } from '../../../../demo-schema/vue/basic';
 import { table } from '../../../../demo-schema/vue/table';
 
@@ -47,6 +48,11 @@ const enumOp: {
     key: 'conditionBool',
     label: conditionBool.desc,
     str: JSON.stringify(conditionBool.schema),
+  },
+  {
+    key: 'compRef',
+    label: compRef.desc,
+    str: JSON.stringify(compRef.schema),
   },
   {
     key: 'table',

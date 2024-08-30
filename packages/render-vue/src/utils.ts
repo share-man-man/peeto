@@ -3,6 +3,7 @@ import type { PropType, ShallowRef, SlotsType } from 'vue';
 import { SchemaCompProps, VueRenderProps, VueRenderSlots } from './type';
 import { AnyType } from '@peeto/core';
 
+// 使外部支持类似react写法
 export const vueState = <T>(initial?: T): [ShallowRef<T>, (nV: T) => void] => {
   const v = shallowRef<T>(initial as T);
   return [

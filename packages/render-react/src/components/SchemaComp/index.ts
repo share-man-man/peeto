@@ -35,7 +35,7 @@ const Index: FC<SchemaCompProps> = ({ schemaStr, ctx = {}, ...props }) => {
   // 上下文
   const ctxRef = useRef<ContextType>(ctx);
   // 状态集合
-  const stateMapRef = useRef(new StateMap());
+  const stateMapRef = useRef(new StateMap()); // TODO vue和react都用这一套管理state
   const getStateRef = useRef<StateGetSetType['getState']>(({ stateName }) => {
     return stateMapRef.current.get(stateName);
   });
@@ -141,27 +141,29 @@ const Index: FC<SchemaCompProps> = ({ schemaStr, ctx = {}, ...props }) => {
 
   const dom = useMemo(() => {
     if (renderFlag === null) {
-      return null;
+      return () => null;
     }
-    const obj = getSchemaObjFromStr(schemaStr);
-    const res = generateNode({
-      schemaRootObj: obj,
-      getRef: getRefRef.current,
-      getState: getStateRef.current,
-      setState: setStateRef.current,
-      getHook: getHookRef.current,
-      ctx: ctxRef.current,
-      ...propsRef.current,
-    });
+    return () => {
+      const obj = getSchemaObjFromStr(schemaStr);
+      const res = generateNode({
+        schemaRootObj: obj,
+        getRef: getRefRef.current,
+        getState: getStateRef.current,
+        setState: setStateRef.current,
+        getHook: getHookRef.current,
+        ctx: ctxRef.current,
+        ...propsRef.current,
+      });
 
-    return res;
+      return res;
+    };
   }, [renderFlag, schemaStr]);
 
   useEffect(() => {
-    propsRef.current?.onNodeChange?.(dom);
+    propsRef.current?.onNodeChange?.(dom());
   }, [dom]);
 
-  return dom;
+  return dom();
 };
 
 export default Index;
