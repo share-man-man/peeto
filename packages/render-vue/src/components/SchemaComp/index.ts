@@ -168,6 +168,8 @@ const Index = defineComponent({
         return () => {
           const obj = getSchemaObjFromStr(schemaStr.value);
           const res = generateNode({
+            // vue需要单独解析插槽字段
+            parseSchemaCompFields: ['props', 'slots'],
             schemaRootObj: obj,
             onCreateCompNode: props.onCreateCompNode.value,
             modulesMap: props.modulesMap.value,

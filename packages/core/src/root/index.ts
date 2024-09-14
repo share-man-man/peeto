@@ -32,14 +32,16 @@ export const generateNode = <VNodeType>({
   // noMatchLibRender,
   errorBoundaryRender,
   setState,
+  parseSchemaCompFields = ['props'],
   ...rest
-}: GenerateNodePropType<VNodeType>) => {
+}: GenerateNodePropType<VNodeType, AnyType>) => {
   const { schemaNodePaths = [], compTree } = schemaRootObj;
   // 解析渲染组件
-  const nodeObj = parseObj<VNodeType, null>(
+  const nodeObj = parseObj<VNodeType>(
     {
       // customDeep: true,
       ...rest,
+      parseSchemaCompFields,
       node: compTree as unknown as JSONValue,
       nodePath: schemaNodePaths || [],
       parseStateNode: ({ curSchema }) => {
@@ -129,7 +131,7 @@ export const generateNode = <VNodeType>({
       parseSchemaComp: (p) => {
         let compNode: VNodeType;
         try {
-          const { curSchema: obj, props, slots } = p;
+          const { curSchema: obj, fields } = p;
           const { componentName } = obj;
           // 组件可能包含子组件，比如Form.Item,Radio.Group
           const compPath = componentName.split('.');
@@ -146,8 +148,8 @@ export const generateNode = <VNodeType>({
           } else {
             compNode = onCreateCompNode({
               comp: matchComp,
-              props,
-              slots,
+              fields,
+              parseProps: p,
             });
           }
         } catch (error) {
@@ -158,7 +160,7 @@ export const generateNode = <VNodeType>({
         return compNode;
       },
     },
-    null
+    {}
   );
 
   return nodeObj;

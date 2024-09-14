@@ -8,7 +8,7 @@ import {
 import SchemaComp from './components/SchemaComp';
 import { ReactRenderProps, SchemaCompProps } from './type';
 import useCreateNodeFunc from './hooks/useCreateNodeFunc';
-import { getSchemaObjFromStr, loadLibList } from '@peeto/core';
+import { getSchemaObjFromStr, loadLibList, NodeType } from '@peeto/core';
 
 const ReactRender = ({
   schemaStr: prevSchemaStr,
@@ -45,19 +45,43 @@ const ReactRender = ({
   if (loading || schemaStr !== prevSchemaStr) {
     return curOnCreateCompNode({
       comp: loadingRender || defaultLoading,
-      props: undefined,
+      fields: {},
+      parseProps: {
+        curSchema: {
+          id: '__$loadingRender',
+          type: NodeType.COMPONENT,
+          componentName: 'loadingRender',
+        },
+        deepRecursionParse: () => {},
+        ctx: {},
+        path: [],
+        fields: {},
+      },
     });
   }
 
   const res = curOnCreateCompNode({
     comp: SchemaComp,
-    props: {
-      modulesMap,
-      schemaStr,
-      onCreateCompNode: curOnCreateCompNode,
-      noMatchCompRender,
-      errorBoundaryRender,
-      ...props,
+    fields: {
+      props: {
+        modulesMap,
+        schemaStr,
+        onCreateCompNode: curOnCreateCompNode,
+        noMatchCompRender,
+        errorBoundaryRender,
+        ...props,
+      },
+    },
+    parseProps: {
+      curSchema: {
+        id: '__$schemaComp',
+        type: NodeType.COMPONENT,
+        componentName: 'SchemaComp',
+      },
+      deepRecursionParse: () => {},
+      ctx: {},
+      path: [],
+      fields: {},
     },
   });
 

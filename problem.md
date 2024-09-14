@@ -101,6 +101,7 @@ render(_,record){
 
 - states、events、refs 里 name 都不能重复，且都必须是 camelCase 风格
 - 匿名函数的参数不能和父级匿名函数参数、states 等重复
+- 匿名函数的 params 和 dependence 不能相同
 - 鉴别循环依赖
 - schemaNodePaths 的路径都必须存在，且不能重复
 - 树结构改变时，schemaNodePaths 也要跟着改变

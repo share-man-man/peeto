@@ -37,7 +37,7 @@ export const getSchemaObjFromStr = (str?: string): SchemaRootObj => {
  * 转换组件树
  * @returns
  */
-export const parseObj = <VNodeType, OP = ParseOptions>(
+export const parseObj = <VNodeType, OP extends AnyType | null = ParseOptions>(
   {
     node,
     nodePath = [],
@@ -49,6 +49,7 @@ export const parseObj = <VNodeType, OP = ParseOptions>(
     parseHookNode,
     parseAnonymousFunctionNode,
     parseSchemaComp,
+    parseSchemaCompFields = [],
     ctx: propCtx = {},
   }: ParseObjOptionType<VNodeType, OP>,
   parseOptions: OP
@@ -136,39 +137,25 @@ export const parseObj = <VNodeType, OP = ParseOptions>(
     // 组件节点
     if (isSchemaCompTree(cur)) {
       const obj = cur;
-      // 组件参数，参数可能深层嵌套schema节点
-      // 每个组件都默认有一个key
-      const props = {
-        key: obj.id,
-        ...Object.fromEntries(
-          Object.keys(obj.props || {}).map((k) => [
-            k,
-            deepRecursionParse(
-              {
-                cur: obj.props?.[k],
-                path: [...path, 'props', k],
-                ctx,
-              },
-              op
+      const getFields = () =>
+        Object.fromEntries(
+          parseSchemaCompFields.map((field) => [
+            field,
+            Object.fromEntries(
+              Object.keys((obj as AnyType)[field] || {}).map((k) => [
+                k,
+                deepRecursionParse(
+                  {
+                    cur: (obj as AnyType)[field]?.[k],
+                    path: [...path, field, k],
+                    ctx,
+                  },
+                  op
+                ),
+              ])
             ),
           ])
-        ),
-      };
-      const slots = {
-        ...Object.fromEntries(
-          Object.keys(obj.slots || {}).map((k) => [
-            k,
-            deepRecursionParse(
-              {
-                cur: obj.slots?.[k],
-                path: [...path, 'slots', k],
-                ctx,
-              },
-              op
-            ),
-          ])
-        ),
-      };
+        );
 
       if (parseSchemaComp) {
         return parseSchemaComp(
@@ -176,14 +163,13 @@ export const parseObj = <VNodeType, OP = ParseOptions>(
             curSchema: cur,
             deepRecursionParse,
             path,
-            props,
-            slots,
+            fields: getFields(),
             ctx,
           },
           op
         );
       }
-      return { ...cur, props };
+      return { ...cur, ...getFields() };
     }
     return cur;
   };

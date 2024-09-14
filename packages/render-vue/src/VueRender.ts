@@ -8,7 +8,7 @@ import {
   vueState,
 } from './utils';
 import vueUseCreateNodeFunc from './hooks/useCreateNodeFunc';
-import { getSchemaObjFromStr, loadLibList } from '@peeto/core';
+import { getSchemaObjFromStr, loadLibList, NodeType } from '@peeto/core';
 import { SchemaCompProps } from './type';
 import SchemaComp from './components/SchemaComp';
 
@@ -55,25 +55,49 @@ const VueRender = defineComponent({
       if (loading.value || schemaStr.value !== prevSchemaStr.value) {
         return curOnCreateCompNode({
           comp: slots.loadingRender || defaultLoading,
-          props: undefined,
+          fields: {},
+          parseProps: {
+            curSchema: {
+              id: '__$loadingRender',
+              type: NodeType.COMPONENT,
+              componentName: 'loadingRender',
+            },
+            deepRecursionParse: () => {},
+            ctx: {},
+            path: [],
+            fields: {},
+          },
         });
       }
       const res = curOnCreateCompNode({
         comp: SchemaComp,
-        props: {
-          modulesMap: modulesMap.value,
-          schemaStr: schemaStr.value,
-          onCreateCompNode: curOnCreateCompNode,
-          noMatchCompRender:
-            slots.noMatchCompRender || defaultNoMatchCompRender,
-          errorBoundaryRender:
-            slots.errorBoundaryRender || defaultErrorBoundaryRender,
-          ...Object.fromEntries(
-            Object.keys(props).map((k) => [
-              k,
-              props[k as keyof typeof props].value,
-            ])
-          ),
+        fields: {
+          props: {
+            modulesMap: modulesMap.value,
+            schemaStr: schemaStr.value,
+            onCreateCompNode: curOnCreateCompNode,
+            noMatchCompRender:
+              slots.noMatchCompRender || defaultNoMatchCompRender,
+            errorBoundaryRender:
+              slots.errorBoundaryRender || defaultErrorBoundaryRender,
+            ...Object.fromEntries(
+              Object.keys(props).map((k) => [
+                k,
+                props[k as keyof typeof props].value,
+              ])
+            ),
+          },
+        },
+        parseProps: {
+          curSchema: {
+            id: '__$schemaComp',
+            type: NodeType.COMPONENT,
+            componentName: 'SchemaComp',
+          },
+          deepRecursionParse: () => {},
+          ctx: {},
+          path: [],
+          fields: {},
         },
       });
       return res;

@@ -12,8 +12,8 @@ const Index = (
 ): Required<ReactRenderProps>['onCreateCompNode'] => {
   return (
     props?.onCreateCompNode ||
-    (({ comp, props: { children, ...p } = {} }) =>
-      createElement(comp, p, children))
+    (({ comp, fields: { props: { children, ...p } } = {}, parseProps }) =>
+      createElement(comp, { key: parseProps.curSchema.id, ...p }, children))
   );
 };
 

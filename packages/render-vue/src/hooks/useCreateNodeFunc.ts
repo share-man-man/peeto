@@ -6,7 +6,7 @@ const Index = (
 ): Required<VueRenderProps>['onCreateCompNode'] => {
   return (
     props?.onCreateCompNode ||
-    (({ comp, props: p = {}, slots = {} }) => h(comp, p, slots))
+    (({ comp, fields: { props: p = {}, slots = {} } }) => h(comp, p, slots))
   );
 };
 

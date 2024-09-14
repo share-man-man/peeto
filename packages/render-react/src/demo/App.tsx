@@ -1,7 +1,15 @@
 import { LeftCircleOutlined, RightCircleOutlined } from '@ant-design/icons';
 import ReactRender from '../ReactRender';
 
-import { Component, ReactNode, useEffect, useMemo, useState } from 'react';
+import {
+  cloneElement,
+  Component,
+  ReactElement,
+  ReactNode,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 
 import { Button, message, Radio, Row, Space, Typography } from 'antd';
 
@@ -73,12 +81,14 @@ class ErrorBoundary extends Component<
     return { hasError: true };
   }
   render() {
+    const { children: c, fallback, ...p } = this.props;
     if (this.state.hasError) {
       // You can render any custom fallback UI
-      return this.props.fallback;
+      return fallback;
     }
 
-    return this.props.children;
+    // Form.Item会传入value，onChange给子组件，需要透传
+    return cloneElement(c as ReactElement, { ...p });
   }
 }
 
@@ -99,7 +109,7 @@ function App() {
   useEffect(() => {
     if (key) {
       setStr(enumOp.find((e) => e.key === key)?.str || '');
-      localStorage.setItem('_test_cur_key', key);
+      localStorage.setItem('_test_react_cur_key', key);
     }
   }, [key]);
 
@@ -162,24 +172,22 @@ function App() {
         loadingRender={() => {
           return <div>react-loading</div>;
         }}
-        onCreateCompNode={({ comp: Comp, props }) => {
+        onCreateCompNode={({ comp: Comp, fields, parseProps }) => {
           // 编译工具根据react版本，决定使用createElement或jsx-runtime
-          // const res = <Comp {...props}>{children}</Comp>;
+          // 有可能循环渲染，优先取key值
+          const k = fields.props?.key || parseProps.curSchema.id;
+          if (!k) {
+            console.error('没有找到key值');
+          }
           const res = (
             <ErrorBoundary
+              key={`ErrorBoundary-${k}`}
               fallback={<div style={{ color: 'red' }}>react-组件渲染错误</div>}
             >
-              <Comp {...props} />
+              <Comp key={k} {...fields.props} />
             </ErrorBoundary>
           );
-          // const res = createElement(Comp, props);
-          // console.log(11, res);
           return res;
-
-          // return jsxDEV(Comp, {
-          //   ...props,
-          //   children,
-          // });
         }}
         schemaStr={str || '{}'}
         // 有些打包器（如vite），默认不能通过import($param)动态加载包名，需要提前写好放到异步函数里去

@@ -61,47 +61,55 @@ export type StateRefHookGetSetType = Pick<
 /**
  * 生成节点
  */
-export interface GenerateNodePropType<VNodeType>
-  extends StateRefHookGetSetType {
-  /**
-   * schema对象
-   */
-  schemaRootObj: SchemaRootObj;
-  /**
-   * 创建组件节点
-   * @param comp 组件渲染函数
-   * @param props 组件参数
-   * @returns 节点对象（虚拟dom）
-   */
-  onCreateCompNode: (p: {
-    comp: AnyType;
-    props: AnyType;
-    slots?: AnyType;
-  }) => VNodeType;
-  /**
-   * 依赖包集合
-   */
-  modulesMap: ModulesMapType;
-  /**
-   * 没有找到组件
-   * @param obj
-   * @returns
-   */
-  noMatchCompRender: (p: { schema: SchemaCompTreeItem }) => VNodeType;
-  /**
-   * 错误边界
-   * @param p
-   * @returns
-   */
-  errorBoundaryRender: (error: AnyType, p: AnyType) => VNodeType;
-  ctx?: ContextType;
-  // /**
-  //  * 没有找到包
-  //  * @param obj
-  //  * @returns
-  //  */
-  // noMatchLibRender: (p: { schema: SchemaCompTreeItem }) => VNodeType;
-}
+export type GenerateNodePropType<
+  VNodeType,
+  OP = ParseOptions
+> = StateRefHookGetSetType &
+  Pick<ParseObjOptionType<VNodeType, OP>, 'parseSchemaCompFields'> & {
+    /**
+     * schema对象
+     */
+    schemaRootObj: SchemaRootObj;
+    /**
+     * 创建组件节点
+     * @param comp 组件渲染函数
+     * @param props 组件参数
+     * @returns 节点对象（虚拟dom）
+     */
+    onCreateCompNode: (p: {
+      comp: AnyType;
+      /**
+       * 深度解析组件里的字段，其中key值为parseSchemaCompFields中配置的字段，默认解析props字段
+       */
+      fields: Record<string, AnyType>;
+      parseProps: Parameters<
+        Required<ParseObjOptionType<VNodeType, OP>>['parseSchemaComp']
+      >[0];
+    }) => VNodeType;
+    /**
+     * 依赖包集合
+     */
+    modulesMap: ModulesMapType;
+    /**
+     * 没有找到组件
+     * @param obj
+     * @returns
+     */
+    noMatchCompRender: (p: { schema: SchemaCompTreeItem }) => VNodeType;
+    /**
+     * 错误边界
+     * @param p
+     * @returns
+     */
+    errorBoundaryRender: (error: AnyType, p: AnyType) => VNodeType;
+    ctx?: ContextType;
+    // /**
+    //  * 没有找到包
+    //  * @param obj
+    //  * @returns
+    //  */
+    // noMatchLibRender: (p: { schema: SchemaCompTreeItem }) => VNodeType;
+  };
 
 export type ContextType = Record<string, AnyType>;
 
@@ -155,11 +163,10 @@ export interface ParseObjOptionType<VNodeType = AnyType, OP = ParseOptions> {
     p: ParseNodeBaseProp<AnonymousFunctionNode, VNodeType, OP>,
     op: OP
   ) => AnyType;
-  // customDeep?: boolean;
+  parseSchemaCompFields?: string[];
   parseSchemaComp?: (
     p: ParseNodeBaseProp<SchemaCompTreeItem, VNodeType, OP> & {
-      props: AnyType;
-      slots?: AnyType;
+      fields: Record<string, AnyType>;
     },
     op: OP
   ) => AnyType;
