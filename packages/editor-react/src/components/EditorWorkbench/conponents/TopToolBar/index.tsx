@@ -1,5 +1,5 @@
 import { UsbOutlined } from '@ant-design/icons';
-import { PluginRenderProps, TopToolBarPluginItemProps } from '@peeto/editor';
+import { PluginRenderProps, TopToolBarPluginItemProps } from 'packages/extension/src';
 import PluginRender from '../PluginRender';
 import { useContext } from 'react';
 import { WORK_BENCH_ICON_CLICK_EVENT, WorkBenchContext } from '../..';

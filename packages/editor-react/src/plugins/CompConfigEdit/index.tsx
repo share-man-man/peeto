@@ -1,4 +1,4 @@
-import { InjectPluginCompProps } from '@peeto/editor';
+import { InjectPluginCompProps } from 'packages/extension/src';
 import { Card } from 'antd';
 import { useEffect, useRef } from 'react';
 import ComponentPicker from './utils/component-pick';

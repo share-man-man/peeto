@@ -1,5 +1,5 @@
 import { PackageListType, SchemaCompTree } from '@peeto/parse';
-import { PLUGIN_LIB_TYPE } from '@peeto/editor';
+import { PLUGIN_LIB_TYPE } from 'packages/extension/src';
 
 export interface AppActionRef {
   setConfig: (c: SimilatorPluginConfig) => void;

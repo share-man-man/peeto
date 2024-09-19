@@ -11,7 +11,7 @@ import ChangeProp from './plugins/ChangeProp';
 import SimilatorPlugin, {
   SIMILATOR_CONFIG_CHANGE_EVENT,
 } from '../plugins/SimilatorPlugin';
-import { PLUGIN_CONFIG_TYPE, PLUGIN_LIB_TYPE } from '@peeto/editor';
+import { PLUGIN_CONFIG_TYPE, PLUGIN_LIB_TYPE } from 'packages/extension/src';
 import PickComp from '../plugins/PickComp';
 import CompConfigEdit from '../plugins/CompConfigEdit';
 

@@ -23,7 +23,7 @@
     "baseUrl": ".",
     "paths": {
       "@peeto/core": ["packages/core/src"],
-      "@peeto/editor": ["packages/editor/src"],
+      "@peeto/editor": ["packages/extension/src"],
       "@peeto/render-react": ["packages/render-react/src"],
       "@peeto/render-vue": ["packages/render-vue/src"]
     }

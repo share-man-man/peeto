@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { InjectPluginCompProps } from '@peeto/editor';
+import { InjectPluginCompProps } from 'packages/extension/src';
 import { WORK_BENCH_ICON_CLICK_EVENT } from '../../components/EditorWorkbench';
 import { START_PICK_EVENT } from '../CompConfigEdit';
 

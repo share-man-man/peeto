@@ -1,26 +1,26 @@
 import {
-  BaseToolBarPluginProps,
+  BaseToolBarExtensionProps,
   DispatchEventItem,
   EventMapType,
-  InjectPluginConfigFn,
-  LeftToolBarPluginItemProps,
-  PLUGIN_CONFIG_TYPE,
-  PluginConfig,
-  PluginRenderProps,
-  SimilatorPluginItemProps,
-  SuspenseToolBarPluginItemProps,
-  TopToolBarPluginItemProps,
+  EXTENSION_CONFIG_TYPE,
+  ExtensionConfig,
+  ExtensionRenderProps,
+  InjectExtensionConfigFn,
+  LeftToolBarExtensionItemProps,
+  SimilatorExtensionItemProps,
+  SuspenseToolBarExtensionItemProps,
+  TopToolBarExtensionItemProps,
 } from './type';
 
-export class Plugin {
+export class Extension {
   /**
    * 记录注册的插件
    */
-  pluginNames = new Set<BaseToolBarPluginProps['name']>();
+  extensionNames = new Set<BaseToolBarExtensionProps['name']>();
   /**
    * 加载中的插件
    */
-  pendingPluginNum: number = 0;
+  pendingExtensionNum: number = 0;
   /**
    * 待分发事件
    */
@@ -32,55 +32,64 @@ export class Plugin {
   /**
    * 左侧工具栏
    */
-  leftToolBarPluginList: PluginRenderProps<LeftToolBarPluginItemProps>[] = [];
+  leftToolBarExtensionList: ExtensionRenderProps<LeftToolBarExtensionItemProps>[] =
+    [];
   /**
    * 模拟器
    */
-  similatorPluginList: PluginRenderProps<SimilatorPluginItemProps>[] = [];
+  similatorExtensionList: ExtensionRenderProps<SimilatorExtensionItemProps>[] =
+    [];
   /**
    * 顶部工具栏
    */
-  topToolBarPluginList: PluginRenderProps<TopToolBarPluginItemProps>[] = [];
+  topToolBarExtensionList: ExtensionRenderProps<TopToolBarExtensionItemProps>[] =
+    [];
   /**
    * 悬浮工具栏
    */
-  suspenseToolBarPluginList: PluginRenderProps<SuspenseToolBarPluginItemProps>[] =
+  suspenseToolBarExtensionList: ExtensionRenderProps<SuspenseToolBarExtensionItemProps>[] =
     [];
   /**
    * 配置
    */
-  pluginConfig?: PluginConfig;
+  extensionConfig?: ExtensionConfig;
 
-  constructor(c: PluginConfig) {
-    this.pluginConfig = c;
+  constructor(c: ExtensionConfig) {
+    this.extensionConfig = c;
   }
 
   /**
    * 注册插件
    * @param fn 插件配置
    */
-  async injectPlugin(fn: InjectPluginConfigFn) {
-    this.pendingPluginNum += 1;
+  async injectExtension(fn: InjectExtensionConfigFn) {
+    this.pendingExtensionNum += 1;
     fn().then((config) => {
-      if (this.pluginNames.has(config.name)) {
+      if (this.extensionNames.has(config.name)) {
         throw new Error(`已有插件：${config.name}`);
       }
-      this.pluginNames.add(config.name);
+      this.extensionNames.add(config.name);
 
       let neverType: never;
       switch (config.type) {
-        case PLUGIN_CONFIG_TYPE.LEFT_TOOL_BAR:
-          this.leftToolBarPluginList.push(this.createPluginRenderProps(config));
+        case EXTENSION_CONFIG_TYPE.LEFT_TOOL_BAR:
+          this.leftToolBarExtensionList.push(
+            this.createExtensionRenderProps(config)
+          );
           break;
-        case PLUGIN_CONFIG_TYPE.TOP_TOOL_BAR:
-          this.topToolBarPluginList.push(this.createPluginRenderProps(config));
+        case EXTENSION_CONFIG_TYPE.TOP_TOOL_BAR:
+          this.topToolBarExtensionList.push(
+            this.createExtensionRenderProps(config)
+          );
           break;
-        case PLUGIN_CONFIG_TYPE.SIMILATOR:
-          this.similatorPluginList.push(this.createPluginRenderProps(config));
+        case EXTENSION_CONFIG_TYPE.SIMILATOR:
+          this.similatorExtensionList.push(
+            this.createExtensionRenderProps(config)
+          );
           break;
-        case PLUGIN_CONFIG_TYPE.SUSPENSE_TOOL_BAR:
-          this.suspenseToolBarPluginList.push(
-            this.createPluginRenderProps(config)
+        case EXTENSION_CONFIG_TYPE.SUSPENSE_TOOL_BAR:
+          this.suspenseToolBarExtensionList.push(
+            this.createExtensionRenderProps(config)
           );
           break;
         default:
@@ -98,18 +107,18 @@ export class Plugin {
    * @param config
    * @returns
    */
-  createPluginRenderProps<
-    T extends BaseToolBarPluginProps = BaseToolBarPluginProps
-  >(config: T): PluginRenderProps<T> {
-    const res: PluginRenderProps<T> = {
+  createExtensionRenderProps<
+    T extends BaseToolBarExtensionProps = BaseToolBarExtensionProps
+  >(config: T): ExtensionRenderProps<T> {
+    const res: ExtensionRenderProps<T> = {
       config,
       lifeCycleHooks: {
         onMount: () => {
-          this.pendingPluginNum -= 1;
+          this.pendingExtensionNum -= 1;
           // 所有插件挂载完后，清空分发事件队列
-          if (this.pendingPluginNum === 0) {
+          if (this.pendingExtensionNum === 0) {
             // console.log('所有插件加载完成');
-            this.pluginConfig?.onAllMount?.();
+            this.extensionConfig?.onAllMount?.();
             Promise.all(this.pendingDispatchEventList.map((i) => i())).then(
               () => {
                 this.pendingDispatchEventList = [];
@@ -158,7 +167,7 @@ export class Plugin {
       });
     };
     // 所有插件还未挂载完成时,放入待执行队列
-    if (this.pendingPluginNum !== 0) {
+    if (this.pendingExtensionNum !== 0) {
       // console.log('还有插件未加载');
       this.pendingDispatchEventList.push(async () => {
         doEachDispatch();
@@ -169,4 +178,4 @@ export class Plugin {
   }
 }
 
-export default Plugin;
+export default Extension;

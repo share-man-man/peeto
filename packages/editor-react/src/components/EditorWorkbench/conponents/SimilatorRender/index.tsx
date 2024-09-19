@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import PluginRender from '../PluginRender';
-import { PluginRenderProps, SimilatorPluginItemProps } from '@peeto/editor';
+import { PluginRenderProps, SimilatorPluginItemProps } from 'packages/extension/src';
 
 export interface SimilatorRenderProps {
   list: PluginRenderProps<SimilatorPluginItemProps>[];

@@ -1,7 +1,7 @@
 import {
   PluginRenderProps,
   SuspenseToolBarPluginItemProps,
-} from '@peeto/editor';
+} from 'packages/extension/src';
 import PluginRender from '../PluginRender';
 
 export interface SuspenseToolBarRenderProps {

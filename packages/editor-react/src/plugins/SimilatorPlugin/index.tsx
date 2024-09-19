@@ -12,7 +12,7 @@ import ReactApp from './components/ReactApp';
 import { ReactAppProps } from './components/ReactApp/type';
 import VueApp from './components/VueApp/App.vue';
 import { VueAppProps } from './components/VueApp/type';
-import { InjectPluginCompProps } from '@peeto/editor';
+import { InjectPluginCompProps } from 'packages/extension/src';
 
 export const SIMILATOR_CONFIG_CHANGE_EVENT =
   '__peeto_similator_config_change_event';

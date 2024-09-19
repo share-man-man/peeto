@@ -9,7 +9,7 @@ import {
 import { Root, createRoot } from 'react-dom/client';
 import { App, Component, createApp } from 'vue';
 import { AnyType } from '@peeto/parse';
-import { PLUGIN_LIB_TYPE } from '@peeto/editor';
+import { PLUGIN_LIB_TYPE } from 'packages/extension/src';
 
 export interface AppRenderProps {
   type: PLUGIN_LIB_TYPE;

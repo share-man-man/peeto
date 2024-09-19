@@ -1,7 +1,7 @@
 import { PushpinOutlined, UsbOutlined } from '@ant-design/icons';
 import { useContext, useMemo, useState } from 'react';
 import PluginRender from '../PluginRender';
-import { LeftToolBarPluginItemProps, PluginRenderProps } from '@peeto/editor';
+import { LeftToolBarPluginItemProps, PluginRenderProps } from 'packages/extension/src';
 import { WORK_BENCH_ICON_CLICK_EVENT, WorkBenchContext } from '../..';
 
 export interface LeftToolBarRenderProps {

@@ -1,4 +1,4 @@
-import { PluginRenderProps } from '@peeto/editor';
+import { PluginRenderProps } from 'packages/extension/src';
 import { AnyType } from '@peeto/parse';
 import { useEffect, useRef } from 'react';
 
