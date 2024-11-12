@@ -1,5 +1,5 @@
 import { ReactNode, useEffect, useMemo, useState } from 'react';
-import { PackageListType } from '@peeto/parse';
+import { LibListItem } from '@peeto/core';
 import { v4 as id } from 'uuid';
 import { Descriptions, Radio } from 'antd';
 
@@ -13,9 +13,9 @@ import { schema as vueSearchTable } from '../../schema/vue/search-table';
 import MyButton from '../../components/MyButton.vue';
 import MyTest from '../../components/MyTest.vue';
 import { h } from 'vue';
-import { InjectPluginCompProps, PLUGIN_LIB_TYPE } from '@peeto/editor';
+import { InjectExtensionCompProps, EXTENSION_LIB_TYPE } from '@peeto/extension';
 
-const reactPackage: PackageListType = [
+const reactPackage: LibListItem[] = [
   {
     name: 'antd',
     load: async () => import('antd'),
@@ -36,7 +36,7 @@ const reactPackage: PackageListType = [
   },
 ];
 
-const vuePackage: PackageListType = [
+const vuePackage: LibListItem[] = [
   {
     name: 'element-plus',
     load: async () => import('element-plus'),
@@ -54,14 +54,14 @@ const vuePackage: PackageListType = [
 ];
 
 const schemaConfig: {
-  [k in PLUGIN_LIB_TYPE]: {
+  [k in EXTENSION_LIB_TYPE]: {
     key: string;
     children: ReactNode;
     schema: string;
-    packageList: PackageListType;
+    packageList: LibListItem[];
   }[];
 } = {
-  [PLUGIN_LIB_TYPE.REACT18]: [
+  [EXTENSION_LIB_TYPE.REACT18]: [
     {
       key: id(),
       children: 'base',
@@ -75,7 +75,7 @@ const schemaConfig: {
       packageList: reactPackage,
     },
   ],
-  [PLUGIN_LIB_TYPE.VUE3]: [
+  [EXTENSION_LIB_TYPE.VUE3]: [
     {
       key: id(),
       children: 'vueBase',
@@ -91,9 +91,9 @@ const schemaConfig: {
   ],
 };
 
-const Index = ({ dispatchEvent }: InjectPluginCompProps) => {
-  const [libType, setLibType] = useState<PLUGIN_LIB_TYPE>(
-    PLUGIN_LIB_TYPE.REACT18
+const Index = ({ dispatchEvent }: InjectExtensionCompProps) => {
+  const [libType, setLibType] = useState<EXTENSION_LIB_TYPE>(
+    EXTENSION_LIB_TYPE.REACT18
   );
   const [schemaKey, setSchemaKey] = useState<string>(
     schemaConfig[libType]?.[0]?.key

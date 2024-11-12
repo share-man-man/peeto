@@ -1,6 +1,6 @@
-import { InjectPluginCompProps } from '@peeto/editor';
+import { InjectExtensionCompProps } from '@peeto/extension';
 
-const Index = ({ dispatchEvent }: InjectPluginCompProps) => {
+const Index = ({ dispatchEvent }: InjectExtensionCompProps) => {
   return (
     <div
       onClick={() => {

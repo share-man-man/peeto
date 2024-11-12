@@ -11,7 +11,7 @@ import ChangeProp from './plugins/ChangeProp';
 import SimilatorPlugin, {
   SIMILATOR_CONFIG_CHANGE_EVENT,
 } from '../plugins/SimilatorPlugin';
-import { PLUGIN_CONFIG_TYPE, PLUGIN_LIB_TYPE } from '@peeto/editor';
+import { EXTENSION_CONFIG_TYPE, EXTENSION_LIB_TYPE } from '@peeto/extension';
 import PickComp from '../plugins/PickComp';
 import CompConfigEdit from '../plugins/CompConfigEdit';
 
@@ -23,9 +23,9 @@ function Index() {
       return {
         name: 'ChangeProp',
         // icon: <StepBackwardOutlined />,
-        type: PLUGIN_CONFIG_TYPE.LEFT_TOOL_BAR,
+        type: EXTENSION_CONFIG_TYPE.LEFT_TOOL_BAR,
         renderProps: {
-          libType: PLUGIN_LIB_TYPE.REACT18,
+          libType: EXTENSION_LIB_TYPE.REACT18,
           node: ChangeProp,
         },
       };
@@ -33,9 +33,9 @@ function Index() {
     injectPlugin(async () => {
       return {
         name: 'similator',
-        type: PLUGIN_CONFIG_TYPE.SIMILATOR,
+        type: EXTENSION_CONFIG_TYPE.SIMILATOR,
         renderProps: {
-          libType: PLUGIN_LIB_TYPE.REACT18,
+          libType: EXTENSION_LIB_TYPE.REACT18,
           node: SimilatorPlugin,
           nodeProps: {
             configChangeEventName: SIMILATOR_CONFIG_CHANGE_EVENT,
@@ -46,9 +46,9 @@ function Index() {
     injectPlugin(async () => {
       return {
         name: 'pick-comp',
-        type: PLUGIN_CONFIG_TYPE.TOP_TOOL_BAR,
+        type: EXTENSION_CONFIG_TYPE.TOP_TOOL_BAR,
         renderProps: {
-          libType: PLUGIN_LIB_TYPE.REACT18,
+          libType: EXTENSION_LIB_TYPE.REACT18,
           node: PickComp,
         },
       };
@@ -56,9 +56,9 @@ function Index() {
     injectPlugin(async () => {
       return {
         name: 'comp-config-edit',
-        type: PLUGIN_CONFIG_TYPE.SUSPENSE_TOOL_BAR,
+        type: EXTENSION_CONFIG_TYPE.SUSPENSE_TOOL_BAR,
         renderProps: {
-          libType: PLUGIN_LIB_TYPE.REACT18,
+          libType: EXTENSION_LIB_TYPE.REACT18,
           node: CompConfigEdit,
         },
       };

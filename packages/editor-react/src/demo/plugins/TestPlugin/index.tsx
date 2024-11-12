@@ -1,8 +1,7 @@
 import { useEffect } from 'react';
-import { PackageListType } from '@peeto/parse';
-import { InjectPluginCompProps } from '@peeto/editor';
+import { InjectExtensionCompProps } from '@peeto/extension';
 
-const Index = ({ subscribeEvent, dispatchEvent }: InjectPluginCompProps) => {
+const Index = ({ subscribeEvent, dispatchEvent }: InjectExtensionCompProps) => {
   useEffect(() => {
     /**
      * 订阅事件
@@ -16,7 +15,7 @@ const Index = ({ subscribeEvent, dispatchEvent }: InjectPluginCompProps) => {
       },
       {
         name: 'onPackageChange',
-        run: (v: PackageListType) => {
+        run: (v: string) => {
           console.log('test-plugin-onSchemaChange===', v);
         },
       },
