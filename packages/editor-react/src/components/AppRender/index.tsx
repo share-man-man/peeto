@@ -8,11 +8,11 @@ import {
 } from 'react';
 import { Root, createRoot } from 'react-dom/client';
 import { App, Component, createApp } from 'vue';
-import { AnyType } from '@peeto/parse';
-import { PLUGIN_LIB_TYPE } from '@peeto/editor';
+import { AnyType } from '@peeto/core';
+import { EXTENSION_LIB_TYPE } from '@peeto/extension';
 
 export interface AppRenderProps {
-  type: PLUGIN_LIB_TYPE;
+  type: EXTENSION_LIB_TYPE;
   /**
    * 参数只有初始化加载时生效，没有响应式
    */
@@ -86,10 +86,10 @@ const Index = ({ type, vueProps, reactProps }: AppRenderProps) => {
   let node: ReactNode;
   let validate: never;
   switch (type) {
-    case PLUGIN_LIB_TYPE.REACT18:
+    case EXTENSION_LIB_TYPE.REACT18:
       node = !reactProps?.comp ? null : <ReactRender {...reactProps} />;
       break;
-    case PLUGIN_LIB_TYPE.VUE3:
+    case EXTENSION_LIB_TYPE.VUE3:
       node = !vueProps?.comp ? null : <VueRender {...vueProps} />;
       break;
     default:

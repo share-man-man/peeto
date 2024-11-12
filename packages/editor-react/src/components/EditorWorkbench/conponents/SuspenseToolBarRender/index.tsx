@@ -1,11 +1,11 @@
 import {
-  PluginRenderProps,
-  SuspenseToolBarPluginItemProps,
-} from '@peeto/editor';
+  ExtensionRenderProps,
+  SuspenseToolBarExtensionItemProps,
+} from '@peeto/extension';
 import PluginRender from '../PluginRender';
 
 export interface SuspenseToolBarRenderProps {
-  list: PluginRenderProps<SuspenseToolBarPluginItemProps>[];
+  list: ExtensionRenderProps<SuspenseToolBarExtensionItemProps>[];
 }
 
 const Index = ({ list }: SuspenseToolBarRenderProps) => {

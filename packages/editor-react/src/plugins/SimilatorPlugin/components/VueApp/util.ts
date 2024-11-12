@@ -1,30 +1,31 @@
 import { VNode, isVNode } from 'vue';
 import { SimilatorPluginCompDomMap } from '../../type';
-import {
-  JSONValue,
-  deepRecursionCompTree,
-  getSchemaObjFromStr,
-} from '@peeto/parse';
+// import {
+//   JSONValue,
+//   deepRecursionCompTree,
+//   getSchemaObjFromStr,
+// } from '@peeto/core';
 
 /**
  * 返回vnode和组件的映射关系
  */
 export const getCompDomMap = ({
   node,
-  schemaStr,
-}: {
+}: // schemaStr,
+{
   node: VNode | VNode[] | null;
   schemaStr: string;
 }): SimilatorPluginCompDomMap => {
   const map: SimilatorPluginCompDomMap = new Map();
-  const schemaObj = getSchemaObjFromStr(schemaStr);
-  // 初始化map
-  deepRecursionCompTree({
-    obj: schemaObj as unknown as JSONValue,
-    compCallback: (obj) => {
-      map.set(obj.id, []);
-    },
-  });
+  // TODO 删除了deepRecursionCompTree方法，后面再看有没有其它办法遍历
+  // const schemaObj = getSchemaObjFromStr(schemaStr);
+  // // 初始化map
+  // deepRecursionCompTree({
+  //   obj: schemaObj as unknown as JSONValue,
+  //   compCallback: (obj) => {
+  //     map.set(obj.id, []);
+  //   },
+  // });
 
   (Array.isArray(node) ? node : [node]).forEach((n) => {
     if (n) {

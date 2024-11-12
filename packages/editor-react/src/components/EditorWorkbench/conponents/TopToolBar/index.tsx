@@ -1,11 +1,14 @@
 import { UsbOutlined } from '@ant-design/icons';
-import { PluginRenderProps, TopToolBarPluginItemProps } from '@peeto/editor';
+import {
+  ExtensionRenderProps,
+  TopToolBarExtensionItemProps,
+} from '@peeto/extension';
 import PluginRender from '../PluginRender';
 import { useContext } from 'react';
 import { WORK_BENCH_ICON_CLICK_EVENT, WorkBenchContext } from '../..';
 
 export interface TopToolBarRenderProps {
-  list: PluginRenderProps<TopToolBarPluginItemProps>[];
+  list: ExtensionRenderProps<TopToolBarExtensionItemProps>[];
 }
 
 const Index = ({ list }: TopToolBarRenderProps) => {

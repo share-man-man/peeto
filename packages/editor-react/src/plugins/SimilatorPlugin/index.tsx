@@ -12,7 +12,7 @@ import ReactApp from './components/ReactApp';
 import { ReactAppProps } from './components/ReactApp/type';
 import VueApp from './components/VueApp/App.vue';
 import { VueAppProps } from './components/VueApp/type';
-import { InjectPluginCompProps } from '@peeto/editor';
+import { InjectExtensionCompProps } from '@peeto/extension';
 
 export const SIMILATOR_CONFIG_CHANGE_EVENT =
   '__peeto_similator_config_change_event';
@@ -31,7 +31,7 @@ const Index = ({
   dispatchEvent,
   configChangeEventName = SIMILATOR_CONFIG_CHANGE_EVENT,
   compDomMapChangeEventName = SIMILATOR_COMP_DOM_MAP_CHANGE_EVENT,
-}: InjectPluginCompProps & {
+}: InjectExtensionCompProps & {
   /**
    * 事件名:配置修改
    */

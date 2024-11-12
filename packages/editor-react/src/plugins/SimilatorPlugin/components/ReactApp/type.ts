@@ -1,4 +1,4 @@
-import { AnyType } from '@peeto/parse';
+import { AnyType } from '@peeto/core';
 import { ReactElement } from 'react';
 import { AppActionRef } from '../../type';
 

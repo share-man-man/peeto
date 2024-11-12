@@ -1,11 +1,14 @@
 import { PushpinOutlined, UsbOutlined } from '@ant-design/icons';
 import { useContext, useMemo, useState } from 'react';
 import PluginRender from '../PluginRender';
-import { LeftToolBarPluginItemProps, PluginRenderProps } from '@peeto/editor';
+import {
+  LeftToolBarExtensionItemProps,
+  ExtensionRenderProps,
+} from '@peeto/extension';
 import { WORK_BENCH_ICON_CLICK_EVENT, WorkBenchContext } from '../..';
 
 export interface LeftToolBarRenderProps {
-  list: PluginRenderProps<LeftToolBarPluginItemProps>[];
+  list: ExtensionRenderProps<LeftToolBarExtensionItemProps>[];
 }
 
 /**
@@ -21,7 +24,7 @@ const Index = ({ list }: LeftToolBarRenderProps) => {
   const context = useContext(WorkBenchContext);
   const [fixPannel, setFixPannel] = useState(false);
   const [curName, setCurName] = useState<
-    LeftToolBarPluginItemProps['name'] | null
+    LeftToolBarExtensionItemProps['name'] | null
   >(null);
   //   当前选中插件
   const curPlugin = useMemo(() => {

@@ -1,9 +1,12 @@
 import { useMemo } from 'react';
 import PluginRender from '../PluginRender';
-import { PluginRenderProps, SimilatorPluginItemProps } from '@peeto/editor';
+import {
+  ExtensionRenderProps,
+  SimilatorExtensionItemProps,
+} from '@peeto/extension';
 
 export interface SimilatorRenderProps {
-  list: PluginRenderProps<SimilatorPluginItemProps>[];
+  list: ExtensionRenderProps<SimilatorExtensionItemProps>[];
 }
 
 const Index = ({ list }: SimilatorRenderProps) => {

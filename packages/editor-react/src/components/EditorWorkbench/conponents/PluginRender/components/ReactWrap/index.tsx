@@ -1,11 +1,11 @@
-import { PluginRenderProps } from '@peeto/editor';
-import { AnyType } from '@peeto/parse';
+import { ExtensionRenderProps } from '@peeto/extension';
+import { AnyType } from '@peeto/core';
 import { useEffect, useRef } from 'react';
 
 export interface ReactWrapProps {
   comp: AnyType;
   compProp: AnyType;
-  onMount: PluginRenderProps['lifeCycleHooks']['onMount'];
+  onMount: ExtensionRenderProps['lifeCycleHooks']['onMount'];
 }
 
 const Index = ({ comp: Comp, compProp, onMount }: ReactWrapProps) => {

@@ -1,4 +1,4 @@
-import { PluginRenderProps } from '@peeto/editor';
+import { ExtensionRenderProps } from '@peeto/extension';
 import AppRender from '../../../AppRender';
 import ReactWrap, { ReactWrapProps } from './components/ReactWrap';
 import VueWrap from './components/VueWrap/WrapComp.vue';
@@ -9,7 +9,7 @@ const Index = ({
   config,
   injectProps,
   lifeCycleHooks,
-}: PluginRenderProps) => {
+}: ExtensionRenderProps) => {
   const { nodeProps } = config.renderProps || {};
   const { onMount } = lifeCycleHooks;
   return (

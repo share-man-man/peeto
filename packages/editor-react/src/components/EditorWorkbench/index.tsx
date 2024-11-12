@@ -1,11 +1,11 @@
 import { createContext, useCallback, useMemo, useRef, useState } from 'react';
 import LeftToolBar from './conponents/LeftToolBar';
 import SimilatorRender from './conponents/SimilatorRender';
-import { Plugin } from '@peeto/editor';
+import { Extension } from '@peeto/extension';
 import TopToolBar from './conponents/TopToolBar';
 import SuspenseToolBarRender from './conponents/SuspenseToolBarRender';
 
-export const WorkBenchContext = createContext<{ plugin?: Plugin }>({});
+export const WorkBenchContext = createContext<{ plugin?: Extension }>({});
 
 /**
  * 插件图标点击事件
@@ -16,7 +16,7 @@ export const WORK_BENCH_ICON_CLICK_EVENT =
 export const useEditorWokrBench = () => {
   const [injectLoading, setInjectLoading] = useState(false);
   const pluginRef = useRef(
-    new Plugin({
+    new Extension({
       onAllMount: () => {
         setInjectLoading(false);
       },
@@ -36,19 +36,19 @@ export const useEditorWokrBench = () => {
         }}
       >
         <div className="peeto-workbench">
-          <LeftToolBar list={[...pluginRef.current.leftToolBarPluginList]} />
+          <LeftToolBar list={[...pluginRef.current.leftToolBarExtensionList]} />
           <div className="peeto-workbench-content">
-            <TopToolBar list={[...pluginRef.current.topToolBarPluginList]} />
+            <TopToolBar list={[...pluginRef.current.topToolBarExtensionList]} />
             <div className="peeto-workbench-content-similator">
               <div className="peeto-workbench-content-similator-content">
                 {/* 悬浮工具栏 */}
                 <SuspenseToolBarRender
-                  list={[...pluginRef.current.suspenseToolBarPluginList]}
+                  list={[...pluginRef.current.suspenseToolBarExtensionList]}
                 />
                 {/* 模拟器工具栏 */}
                 {/* TODO 所有Similator、simulator拼写错误，文件夹也要修改 */}
                 <SimilatorRender
-                  list={[...pluginRef.current.similatorPluginList]}
+                  list={[...pluginRef.current.similatorExtensionList]}
                 />
               </div>
             </div>
@@ -59,8 +59,8 @@ export const useEditorWokrBench = () => {
       </WorkBenchContext.Provider>
     );
   }, [injectLoading]);
-  const injectPlugin = useCallback<Plugin['injectPlugin']>((...p) => {
-    return pluginRef.current.injectPlugin(...p).then(() => {
+  const injectPlugin = useCallback<Extension['injectExtension']>((...p) => {
+    return pluginRef.current.injectExtension(...p).then(() => {
       setInjectLoading(true);
     });
   }, []);

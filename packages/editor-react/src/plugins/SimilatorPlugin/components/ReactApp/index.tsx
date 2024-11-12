@@ -64,18 +64,18 @@ const App = ({ actionRef, onMount }: ReactAppProps) => {
     []
   );
 
-  const onCreateNode = useCallback<Required<ReactRenderProps>['onCreateNode']>(
-    (Comp, p, children) => {
+  const onCreateNode = useCallback<
+    Required<ReactRenderProps>['onCreateCompNode']
+  >(
+    ({ comp: Comp, fields }) => {
       const res = (
         <Comp
           {...{
-            ...p,
+            ...fields.props,
             // 传入私有参数原因：@antd.Button会重新定义子组件的key，导致无法在fiber节点通过key获取组件配置
-            [peetoPrivateKey]: p?.key,
+            [peetoPrivateKey]: fields.props?.key,
           }}
-        >
-          {children}
-        </Comp>
+        />
       );
 
       return res;
@@ -92,44 +92,44 @@ const App = ({ actionRef, onMount }: ReactAppProps) => {
       {renderFlag && (
         <ReactRender
           schemaStr={schemaStr || '{}'}
-          packageList={packageList || []}
+          libList={packageList || []}
           onNodeChange={onNodeChange}
-          onCreateNode={onCreateNode}
+          onCreateCompNode={onCreateNode}
           loadingRender={() => {
             return <div>react-loading</div>;
           }}
-          noMatchPackageRender={({ id: componentId, packageName }) => (
-            <div
-              key={`nomatch-package-${componentId}`}
-              style={{
-                color: 'red',
-                borderWidth: 2,
-                borderStyle: 'solid',
-                borderColor: 'red',
-                padding: 12,
-              }}
-            >
-              没有找到包:{packageName}
-            </div>
-          )}
-          noMatchCompRender={({
-            id: componentId,
-            componentName,
-            packageName,
-          }) => (
-            <div
-              key={`nomatch-package-component-${componentId}`}
-              style={{
-                color: 'red',
-                borderWidth: 2,
-                borderStyle: 'solid',
-                borderColor: 'red',
-                padding: 12,
-              }}
-            >
-              包:{packageName}里没有找到组件:{componentName}
-            </div>
-          )}
+          // noMatchPackageRender={({ id: componentId, packageName }) => (
+          //   <div
+          //     key={`nomatch-package-${componentId}`}
+          //     style={{
+          //       color: 'red',
+          //       borderWidth: 2,
+          //       borderStyle: 'solid',
+          //       borderColor: 'red',
+          //       padding: 12,
+          //     }}
+          //   >
+          //     没有找到包:{packageName}
+          //   </div>
+          // )}
+          // noMatchCompRender={({
+          //   id: componentId,
+          //   componentName,
+          //   packageName,
+          // }) => (
+          //   <div
+          //     key={`nomatch-package-component-${componentId}`}
+          //     style={{
+          //       color: 'red',
+          //       borderWidth: 2,
+          //       borderStyle: 'solid',
+          //       borderColor: 'red',
+          //       padding: 12,
+          //     }}
+          //   >
+          //     包:{packageName}里没有找到组件:{componentName}
+          //   </div>
+          // )}
         />
       )}
     </div>

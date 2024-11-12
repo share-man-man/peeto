@@ -1,5 +1,5 @@
-import { PackageListType, SchemaCompTree } from '@peeto/parse';
-import { PLUGIN_LIB_TYPE } from '@peeto/editor';
+import { LibListItem, SchemaCompTreeItem } from '@peeto/core';
+import { EXTENSION_LIB_TYPE } from '@peeto/extension';
 
 export interface AppActionRef {
   setConfig: (c: SimilatorPluginConfig) => void;
@@ -7,14 +7,14 @@ export interface AppActionRef {
 }
 
 export type SimilatorPluginCompDomMap = Map<
-  SchemaCompTree['id'],
+  SchemaCompTreeItem['id'],
   HTMLElement[]
 >;
 export interface SimilatorPluginConfig {
   /**
    * ui库类型
    */
-  type: PLUGIN_LIB_TYPE;
+  type: EXTENSION_LIB_TYPE;
   /**
    * schema
    */
@@ -22,5 +22,5 @@ export interface SimilatorPluginConfig {
   /**
    * 组件库
    */
-  packageList: PackageListType;
+  packageList: LibListItem[];
 }

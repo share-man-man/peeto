@@ -1,4 +1,4 @@
-import { InjectPluginCompProps } from '@peeto/editor';
+import { InjectExtensionCompProps } from '@peeto/extension';
 import { Card } from 'antd';
 import { useEffect, useRef } from 'react';
 import ComponentPicker from './utils/component-pick';
@@ -15,7 +15,7 @@ const Index = ({
   subscribeEvent,
   compDomMapChangeEventName = SIMILATOR_COMP_DOM_MAP_CHANGE_EVENT,
   startPickEventName = START_PICK_EVENT,
-}: InjectPluginCompProps & {
+}: InjectExtensionCompProps & {
   /**
    * 事件名:映射关系修改
    */

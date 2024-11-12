@@ -1,7 +1,7 @@
 // import { BridgeEvents, isBrowser } from '@vue-devtools/shared-utils'
 // import type { BackendContext, DevtoolsBackend } from '@vue-devtools/app-backend-api'
 // import type { ComponentInstance } from '@vue/devtools-api'
-import { SchemaCompTree } from '@peeto/parse';
+import { SchemaCompTreeItem } from '@peeto/core';
 import { isBrowser } from './commom';
 import { SimilatorPluginCompDomMap } from '../../SimilatorPlugin/type';
 import { JobQueue } from './queue';
@@ -108,7 +108,7 @@ export default class ComponentPicker {
    * @param el
    */
   async selectElementComponent(el: EventTarget) {
-    let compId: SchemaCompTree['id'] = '';
+    let compId: SchemaCompTreeItem['id'] = '';
     let curEl: HTMLElement | null = el as HTMLElement;
     while (curEl && !compId) {
       this.map.forEach((list, k) => {

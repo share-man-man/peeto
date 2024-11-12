@@ -1,4 +1,4 @@
-// import { AnyType } from '@peeto/parse';
+// import { AnyType } from '@peeto/core';
 // import { VNode } from 'vue';
 import { AppActionRef } from '../../type';
 

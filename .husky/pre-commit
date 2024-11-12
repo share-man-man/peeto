@@ -1,4 +1,7 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-npx lint-staged
+# ts编译检查，pnpm的tsc和环境的tsc版本不一样，可能导致报的错不一样
+pnpm tsc
+# 提交代码风格检查
+pnpm lint-staged

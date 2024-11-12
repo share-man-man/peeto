@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
-import { InjectPluginCompProps } from '@peeto/editor';
+import { InjectExtensionCompProps } from '@peeto/extension';
 import { WORK_BENCH_ICON_CLICK_EVENT } from '../../components/EditorWorkbench';
 import { START_PICK_EVENT } from '../CompConfigEdit';
 
-const Index = ({ subscribeEvent, dispatchEvent }: InjectPluginCompProps) => {
+const Index = ({ subscribeEvent, dispatchEvent }: InjectExtensionCompProps) => {
   useEffect(() => {
     subscribeEvent([
       {

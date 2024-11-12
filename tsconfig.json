@@ -23,12 +23,12 @@
     "baseUrl": ".",
     "paths": {
       "@peeto/core": ["packages/core/src"],
-      "@peeto/editor": ["packages/editor/src"],
+      "@peeto/extension": ["packages/extension/src"],
       "@peeto/render-react": ["packages/render-react/src"],
       "@peeto/render-vue": ["packages/render-vue/src"]
     }
   },
-  "include": ["packages/*/src"],
+  "include": ["packages/*/src", "config/*", "vue-shim.d.ts"],
   "references": [
     {
       "path": "./tsconfig.node.json"
