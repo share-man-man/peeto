@@ -13,6 +13,7 @@
     "plugin:react-hooks/recommended",
     "plugin:markdown/recommended",
     "plugin:vue/vue3-recommended",
+    // prettier包含eslint规则，https://github.com/prettier/eslint-config-prettier#installation
     "prettier"
   ],
   "overrides": [],

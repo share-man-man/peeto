@@ -4,10 +4,16 @@ import App from './App';
 
 const dom = document.getElementById('root');
 
+const isStrict = import.meta.env.VITE_DEMO_MODE === 'strict';
+
 if (dom) {
   ReactDOM.createRoot(dom).render(
-    <React.StrictMode>
+    isStrict ? (
+      <React.StrictMode>
+        <App />
+      </React.StrictMode>
+    ) : (
       <App />
-    </React.StrictMode>
+    )
   );
 }

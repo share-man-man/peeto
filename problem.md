@@ -4,7 +4,7 @@
 
 ### 同步导入所有组件，导致单文件打包结果过大
 
-- 使用 Promise，异步导入组件。以便 vite、webpack 打包的项目动态倒入。vite 的 import 的后面，需要明确加载的包名，否则找不到包名，会报错
+- 使用 Promise，异步导入组件。使 vite、webpack 可以动态导入。vite 的 import 的后面，需要明确加载的包名，否则找不到包名，会报错
 
   - 错误代码
 
@@ -23,7 +23,7 @@
 
 - 通过 schemaNodePaths 指定路径，再根据节点类型做相应的处理
 
-### 渲染函数的子组件，又嵌套渲染函数，如何获取外层函数的参数
+### 嵌套渲染函数，如何获取外层作用域的变量
 
 ```jsx
 render(_,record){
@@ -40,7 +40,7 @@ render(_,record){
 }
 ```
 
-- 解析 schema 时，透传 ctx 对象，见代码：packages/core/src/root/index.ts/generateNode/nodeObj/parseAnonymousFunctionNode/ctx
+- 解析 schema 时，将变量放到 ctx 对象，new Funciton 时透传 ctx
 
 ## react-render
 
@@ -65,7 +65,7 @@ render(_,record){
   return dom;
   ```
 
-### 不能使用 jsx、tsx 文件，会导致打的包包含 jsx-runtime 的代码，导致体积大了 20 多 kb
+### 不能使用 \*.jsx、\*.tsx 文件，会导致打的包包含 jsx-runtime 的代码，导致体积大了 20 多 kb
 
 ## react-editor
 
@@ -174,7 +174,7 @@ render(_,record){
 
 - 解决方案
 
-  - 匿名函数通过`funcType`字段，判断是否为渲染函数
+  - 匿名函数通过`funcType=FuncTypeEnum.RENDERFUNC`字段，判断是否为渲染函数
 
 ### 复杂的渲染函数：for 循环，三元表达式等
 
