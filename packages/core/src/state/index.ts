@@ -1,8 +1,7 @@
 import { NodeType } from '../root';
 import { AnyType } from '../type';
+import { SchemaStateItem } from './type';
 // import { StateNodeType } from './type';
-
-// TODO 只有react用到了，vue没有用到
 
 /**
  * 状态节点
@@ -24,28 +23,28 @@ export const isStateNode = (obj: AnyType): obj is StateNodeType => {
   return obj?.type === NodeType.STATE;
 };
 
-export class StateMap {
+export class StateMap<
+  ValueType,
+  KeyType extends SchemaStateItem['name'] = SchemaStateItem['name'],
+  SetValeuType extends (v: ValueType) => void = (v: ValueType) => void
+> {
   private map: Map<
-    string,
+    KeyType,
     {
-      stateValue: AnyType;
-      setStateValue: AnyType;
+      stateValue: ValueType;
+      setStateValue: SetValeuType;
     }
   >;
-
   constructor() {
     this.map = new Map();
   }
-
-  addState(name: string, value: AnyType, setValue: AnyType) {
+  addState(name: KeyType, value: ValueType, setValue: SetValeuType) {
     this.map.set(name, { stateValue: value, setStateValue: setValue });
   }
-
-  get(name: string) {
+  getValue(name: KeyType) {
     return this.map.get(name)?.stateValue;
   }
-
-  set(name: string, value: AnyType) {
+  setValue(name: KeyType, value: ValueType) {
     this.map.get(name)?.setStateValue(value);
   }
 }

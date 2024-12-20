@@ -35,14 +35,14 @@ const Index: FC<SchemaCompProps> = ({ schemaStr, ctx = {}, ...props }) => {
   // 上下文
   const ctxRef = useRef<ContextType>(ctx);
   // 状态集合
-  const stateMapRef = useRef(new StateMap()); // TODO vue和react都用这一套管理state
+  const stateMapRef = useRef(new StateMap<AnyType>());
   const getStateRef = useRef<StateGetSetType['getState']>(({ stateName }) => {
-    return stateMapRef.current.get(stateName);
+    return stateMapRef.current.getValue(stateName);
   });
   const setStateRef = useRef<StateGetSetType['setState']>(
     ({ fieldList = [] }) => {
       fieldList.forEach(({ name, value }) => {
-        stateMapRef.current.set(name, value);
+        stateMapRef.current.setValue(name, value);
       });
       // state改变后，通知react重新渲染state
       setRenderFlag([]);
@@ -65,7 +65,9 @@ const Index: FC<SchemaCompProps> = ({ schemaStr, ctx = {}, ...props }) => {
   // 使用自带的状态管理
   schemaRootObj.states?.forEach((s) => {
     const [stateValue, setStateValue] = createState(s.initialValue);
-    stateMapRef.current.addState(s.name, stateValue, setStateValue);
+    stateMapRef.current.addState(s.name, stateValue, (value: AnyType) => {
+      setStateValue(value);
+    });
   });
 
   // 使用自带的ref管理
@@ -135,7 +137,7 @@ const Index: FC<SchemaCompProps> = ({ schemaStr, ctx = {}, ...props }) => {
       },
       dependences
         .filter((d) => d.type === NodeType.STATE)
-        .map((d) => stateMapRef.current.get(d.name))
+        .map((d) => stateMapRef.current.getValue(d.name))
     );
   });
 

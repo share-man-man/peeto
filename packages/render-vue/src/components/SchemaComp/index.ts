@@ -14,6 +14,7 @@ import {
   RefGetSetType,
   HookGetSetType,
   AnyType,
+  StateMap,
   // NodeType,
   // FieldTypeEnum,
   // HookGetSetType,
@@ -46,23 +47,16 @@ const Index = defineComponent({
     // 上下文
     const ctxRef = vueRef<ContextType>(ctx.value || {});
     // 状态集合
-    const stateMapRef = vueRef(new Map<string, ShallowRef>());
+    const stateMapRef = vueRef(new StateMap<ShallowRef<AnyType>>());
     const getStateRef = vueRef<StateGetSetType['getState']>(({ stateName }) => {
-      return stateMapRef.current.get(stateName)?.value;
+      return stateMapRef.current.getValue(stateName)?.value;
     });
     const setStateRef = vueRef<StateGetSetType['setState']>(
       ({ fieldList = [] }) => {
         fieldList.forEach(({ name, value }) => {
-          const refValue = stateMapRef.current.get(name);
-          if (refValue) {
-            if (Object.prototype.toString.call(value) === '[object Function]') {
-              // 像react的setState一样支持函数
-              refValue.value = value(refValue.value);
-            } else {
-              refValue.value = value;
-            }
-          }
+          stateMapRef.current.setValue(name, value);
         });
+        // vue可不用通知重新渲染，此处为了统一react渲染器的风格
         setRenderFlag([]);
       }
     );
@@ -83,7 +77,14 @@ const Index = defineComponent({
     // 使用自带的状态管理
     schemaRootObj.states?.forEach((s) => {
       const stateValue = shallowRef(s.initialValue);
-      stateMapRef.current.set(s.name, stateValue);
+      stateMapRef.current.addState(s.name, stateValue, (value: AnyType) => {
+        // 像react的setState一样支持函数
+        if (Object.prototype.toString.call(value) === '[object Function]') {
+          stateValue.value = value(stateValue.value);
+        } else {
+          stateValue.value = value;
+        }
+      });
     });
 
     // 使用自带的ref管理
@@ -155,7 +156,7 @@ const Index = defineComponent({
           () =>
             dependences
               .filter((d) => d.type === NodeType.STATE)
-              .map((d) => stateMapRef.current.get(d.name)?.value)
+              .map((d) => stateMapRef.current.getValue(d.name)?.value)
         );
       }
     );
@@ -168,7 +169,7 @@ const Index = defineComponent({
         return () => {
           const obj = getSchemaObjFromStr(schemaStr.value);
           const res = generateNode({
-            // vue需要单独解析插槽字段
+            // vue需要单独解析插槽字段slots
             parseSchemaCompFields: ['props', 'slots'],
             schemaRootObj: obj,
             onCreateCompNode: props.onCreateCompNode.value,
@@ -180,7 +181,7 @@ const Index = defineComponent({
             setState: setStateRef.current,
             getHook: getHookRef.current,
             ctx: ctxRef.current,
-            // 不能直接展开，需要调用.value出发vue响应式
+            // 不能直接展开，需要调用.value出触发vue的响应式
             // ...propsRef.current,
             ...Object.fromEntries(
               Object.keys(propsRef.current).map((k) => [
