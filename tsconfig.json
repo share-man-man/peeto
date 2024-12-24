@@ -28,7 +28,7 @@
       "@peeto/render-vue": ["packages/render-vue/src"]
     }
   },
-  "include": ["packages/*/src", "config/*", "vue-shim.d.ts"],
+  "include": ["packages/*/src", "vue-shim.d.ts"],
   "references": [
     {
       "path": "./tsconfig.node.json"

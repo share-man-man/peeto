@@ -10,7 +10,7 @@ export default defineConfig({
       entry: resolve(__dirname, 'src/index.ts'),
       name: packageConfig.EXTENSION.libName,
       fileName: 'index',
-      formats: ['es', 'umd', 'cjs', 'iife'],
+      // formats: ['es', 'umd', 'cjs', 'iife'],
     },
     rollupOptions: {
       external: [packageConfig.CORE.packageName],

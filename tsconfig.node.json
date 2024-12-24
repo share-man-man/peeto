@@ -6,5 +6,6 @@
     "moduleResolution": "bundler",
     "allowSyntheticDefaultImports": true
   },
-  "include": ["packages/*/vite.config.ts"]
+  // vite.config.ts里import了config文件，所需需要同时加上config的路径
+  "include": ["packages/*/vite.config.ts", "config/*"]
 }
