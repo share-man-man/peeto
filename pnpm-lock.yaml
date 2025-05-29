@@ -120,6 +120,9 @@ importers:
       '@peeto/core':
         specifier: workspace:*
         version: link:../core
+      '@peeto/editor':
+        specifier: workspace:*
+        version: link:../editor
       '@peeto/extension':
         specifier: workspace:*
         version: link:../extension
@@ -154,6 +157,9 @@ importers:
       '@peeto/core':
         specifier: workspace:*
         version: link:../core
+      '@peeto/extension':
+        specifier: workspace:*
+        version: 'link:'
 
   packages/render-react:
     dependencies:

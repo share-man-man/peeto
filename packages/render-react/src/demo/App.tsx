@@ -1,5 +1,6 @@
+import { AnyType } from '@peeto/core';
+import { Button, message, Radio, Row, Space, Typography } from 'antd';
 import { LeftCircleOutlined, RightCircleOutlined } from '@ant-design/icons';
-import ReactRender from '../ReactRender';
 
 import {
   cloneElement,
@@ -11,62 +12,11 @@ import {
   useState,
 } from 'react';
 
-import { Button, message, Radio, Row, Space, Typography } from 'antd';
-
-import {
-  basic,
-  state,
-  anonymousFunction,
-  listLoop,
-  conditionBool,
-} from '../../../../demo-schema/react/basic';
-import { table } from '../../../../demo-schema/react/table';
-import { form } from '../../../../demo-schema/react/form';
+import ReactRender from '../ReactRender';
 import SourceCode from './SourceCode';
 import { toReactStr } from './ToSource';
-import { AnyType } from '@peeto/core';
 
-const enumOp: {
-  key: string;
-  label: string;
-  str: string;
-}[] = [
-  {
-    key: 'testObj',
-    label: basic.desc,
-    str: JSON.stringify(basic.schema),
-  },
-  {
-    key: 'anonymousFunction',
-    label: anonymousFunction.desc,
-    str: JSON.stringify(anonymousFunction.schema),
-  },
-  {
-    key: 'state',
-    label: state.desc,
-    str: JSON.stringify(state.schema),
-  },
-  {
-    key: 'listLoop',
-    label: listLoop.desc,
-    str: JSON.stringify(listLoop.schema),
-  },
-  {
-    key: 'conditionBool',
-    label: conditionBool.desc,
-    str: JSON.stringify(conditionBool.schema),
-  },
-  {
-    key: 'table',
-    label: table.desc,
-    str: JSON.stringify(table.schema),
-  },
-  {
-    key: 'form',
-    label: form.desc,
-    str: JSON.stringify(form.schema),
-  },
-];
+import { enumOp } from '../../../../demo-schema/react';
 
 class ErrorBoundary extends Component<
   { fallback: ReactNode; children: ReactNode },

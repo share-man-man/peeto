@@ -25,7 +25,6 @@ import {
   vueRef,
   vueState,
   vueEffect,
-  vueMemo,
   // defaultProps,
   defaultSchemaProps,
 } from '../../utils';
@@ -93,7 +92,7 @@ const Index = defineComponent({
       refMapRef.current.set(r.name, customRef);
     });
 
-    // // 自定义hooks
+    // // TODO 自定义hooks
     // schemaRootObj.customHooks?.forEach(({ field, effect }) => {
     //   const { body, dependences = [], effectStates = [] } = effect;
     //   const { argList, argNameList } = generateArguments({
@@ -161,12 +160,14 @@ const Index = defineComponent({
       }
     );
 
-    const dom = vueMemo(
+    const [node, setNode] = vueState<AnyType>(null);
+    createEffect(
       () => {
         if (renderFlag.value === null) {
-          return () => null;
+          setNode(() => null);
+          return;
         }
-        return () => {
+        const run = () => {
           const obj = getSchemaObjFromStr(schemaStr.value);
           const res = generateNode({
             // vue需要单独解析插槽字段slots
@@ -190,22 +191,61 @@ const Index = defineComponent({
               ])
             ),
           });
+          propsRef.current?.onNodeChange?.value?.(res);
           return res;
         };
+        setNode(() => run());
       },
       () => [renderFlag.value, schemaStr.value]
     );
 
-    vueEffect(
-      () => {
-        propsRef.current?.onNodeChange?.value?.(dom.value());
-      },
-      () => [dom.value]
-    );
+    return () => node.value();
 
-    return () => {
-      return dom.value();
-    };
+    // const dom = vueMemo(
+    //   () => {
+    //     if (renderFlag.value === null) {
+    //       return () => null;
+    //     }
+    //     return () => {
+    //       const obj = getSchemaObjFromStr(schemaStr.value);
+    //       const res = generateNode({
+    //         // vue需要单独解析插槽字段slots
+    //         parseSchemaCompFields: ['props', 'slots'],
+    //         schemaRootObj: obj,
+    //         onCreateCompNode: props.onCreateCompNode.value,
+    //         modulesMap: props.modulesMap.value,
+    //         noMatchCompRender: props.noMatchCompRender.value,
+    //         errorBoundaryRender: props.errorBoundaryRender.value,
+    //         getRef: getRefRef.current,
+    //         getState: getStateRef.current,
+    //         setState: setStateRef.current,
+    //         getHook: getHookRef.current,
+    //         ctx: ctxRef.current,
+    //         // 不能直接展开，需要调用.value出触发vue的响应式
+    //         // ...propsRef.current,
+    //         ...Object.fromEntries(
+    //           Object.keys(propsRef.current).map((k) => [
+    //             k,
+    //             propsRef.current[k as keyof typeof propsRef.current].value,
+    //           ])
+    //         ),
+    //       });
+    //       return res;
+    //     };
+    //   },
+    //   () => [renderFlag.value, schemaStr.value]
+    // );
+
+    // vueEffect(
+    //   () => {
+    //     propsRef.current?.onNodeChange?.value?.(dom.value());
+    //   },
+    //   () => [dom.value]
+    // );
+
+    // return () => {
+    //   return dom.value();
+    // };
   },
 });
 

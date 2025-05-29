@@ -1,83 +1,124 @@
-import { PushpinOutlined, UsbOutlined } from '@ant-design/icons';
-import { useContext, useMemo, useState } from 'react';
-import PluginRender from '../PluginRender';
 import {
-  LeftToolBarExtensionItemProps,
-  ExtensionRenderProps,
-} from '@peeto/extension';
-import { WORK_BENCH_ICON_CLICK_EVENT, WorkBenchContext } from '../..';
+  FC,
+  MutableRefObject,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
+import { WorkBenchContext } from '../..';
+import { Extension } from '@peeto/extension';
 
 export interface LeftToolBarRenderProps {
-  list: ExtensionRenderProps<LeftToolBarExtensionItemProps>[];
+  customRef?: MutableRefObject<LeftToolBarRef | undefined>;
 }
 
-/**
- * 默认icon列表宽度
- */
-const defaultWidth = 40;
-/**
- * 默认面板宽度
- */
-const defaultPannelWidth = 300;
+export interface LeftToolBarRef {
+  onActive: (k: Extension['name']) => void;
+}
 
-const Index = ({ list }: LeftToolBarRenderProps) => {
-  const context = useContext(WorkBenchContext);
-  const [fixPannel, setFixPannel] = useState(false);
-  const [curName, setCurName] = useState<
-    LeftToolBarExtensionItemProps['name'] | null
-  >(null);
-  //   当前选中插件
-  const curPlugin = useMemo(() => {
-    return list.find((i) => i.config.name === curName)?.config;
-  }, [curName, list]);
-  const curPanneWidth = useMemo(() => {
-    if (!curPlugin) {
-      return 0;
+const Index: FC<LeftToolBarRenderProps> = ({ customRef }) => {
+  const { editorRef: _editorRef, reloadFlag } = useContext(WorkBenchContext);
+  const editorRef = useRef(_editorRef?.current);
+  editorRef.current = _editorRef?.current;
+  const [curName, setCurName] = useState<string>();
+  const panelRef = useRef<HTMLDivElement>(null);
+  const [list, setList] = useState<
+    {
+      extension: Extension;
+      acvitityBarIcon: HTMLElement;
+    }[]
+  >([]);
+  useEffect(() => {
+    if (!reloadFlag) {
+      return;
     }
-    return curPlugin.pannelWidth ?? defaultPannelWidth;
-  }, [curPlugin]);
-  const siderWidth = useMemo<number>(() => {
-    return defaultWidth + (fixPannel ? 0 : curPanneWidth);
-  }, [curPanneWidth, fixPannel]);
+    const li: typeof list = [];
+    editorRef?.current?.extensionMap?.values().forEach((c) => {
+      const acvitityBarIcon = c.getAcvitityBarIcon();
+      if (acvitityBarIcon) {
+        li.push({
+          extension: c,
+          acvitityBarIcon,
+        });
+      }
+    });
+    setList(li);
+  }, [reloadFlag]);
+
+  const onClickIcon = useCallback<(k?: Extension['name']) => void>((k) => {
+    setCurName(k);
+  }, []);
+  const onClickIconRef = useRef(onClickIcon);
+  onClickIconRef.current = onClickIcon;
+
+  useEffect(() => {
+    if (!curName) {
+      return;
+    }
+    if (!panelRef.current) {
+      return;
+    }
+    const ex = editorRef.current?.getExtensionByName(curName);
+    const dom = ex?.getPanelContainer();
+    if (!ex || !dom) {
+      return;
+    }
+    // 清空panel的dom
+    while (panelRef.current?.firstChild) {
+      panelRef.current.removeChild(panelRef.current.firstChild);
+    }
+    panelRef.current.appendChild(dom);
+    ex.handlePanelMounted();
+  }, [curName]);
+
+  if (customRef?.current) {
+    customRef.current.onActive = (k) => {
+      setCurName(k);
+    };
+  }
 
   return (
     <div
       className="peeto-workbench-left-tool-bar"
-      style={{
-        width: siderWidth,
-      }}
+      // style={{
+      //   width: siderWidth,
+      // }}
     >
       <div className="peeto-workbench-left-tool-bar-icons">
-        {list.map(({ config }) => {
-          const t = config;
+        {list.map(({ extension, acvitityBarIcon }) => {
           return (
             <div
-              key={t.name}
-              onClick={() => {
-                context.plugin?.dispatchEvent([
-                  {
-                    name: WORK_BENCH_ICON_CLICK_EVENT,
-                    paylod: config,
-                    // 触发对应的插件，而不是全部触发
-                    filtert: (item) => {
-                      return item.renderProps.config.name == config.name;
-                    },
-                  },
-                ]);
-                if (curName === t.name) {
-                  setCurName(null);
-                } else {
-                  setCurName(t.name);
+              ref={(r: HTMLDivElement) => {
+                if (r) {
+                  r.innerHTML = '';
+                  r.appendChild(acvitityBarIcon);
                 }
               }}
-            >
-              {t.icon || <UsbOutlined />}
-            </div>
+              key={extension.getName()}
+              onClick={() => {
+                const name = extension.getName();
+                onClickIcon(name === curName ? undefined : name);
+              }}
+            />
           );
         })}
       </div>
 
-      <div
+      {curName && (
+        <div
+          className="peeto-workbench-left-tool-bar-panel"
+          ref={panelRef}
+          onClick={(e) => {
+            e.stopPropagation();
+            // 不能阻止默认点击，否则panel里面的Radio需要精准点击圆圈正中间才能触发onChange
+            // e.preventDefault();
+          }}
+        />
+      )}
+
+      {/* <div
         style={{
           width: curPanneWidth,
           position: fixPannel ? 'absolute' : 'relative',
@@ -107,7 +148,7 @@ const Index = ({ list }: LeftToolBarRenderProps) => {
             ))}
           </div>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };

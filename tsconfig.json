@@ -24,6 +24,7 @@
     "paths": {
       "@peeto/core": ["packages/core/src"],
       "@peeto/extension": ["packages/extension/src"],
+      "@peeto/editor": ["packages/editor/src"],
       "@peeto/render-react": ["packages/render-react/src"],
       "@peeto/render-vue": ["packages/render-vue/src"]
     }

@@ -11,14 +11,7 @@ import {
   FieldTypeEnum,
   HookGetSetType,
 } from '@peeto/core';
-import {
-  useEffect,
-  useState,
-  useRef,
-  useMemo,
-  FC,
-  MutableRefObject,
-} from 'react';
+import { useEffect, useState, useRef, FC, MutableRefObject } from 'react';
 import { SchemaCompProps } from '../../type';
 
 // 避免lint检测到条件判断里的useState、useEffect等
@@ -141,31 +134,28 @@ const Index: FC<SchemaCompProps> = ({ schemaStr, ctx = {}, ...props }) => {
     );
   });
 
-  const dom = useMemo(() => {
-    if (renderFlag === null) {
-      return () => null;
-    }
-    return () => {
-      const obj = getSchemaObjFromStr(schemaStr);
-      const res = generateNode({
-        schemaRootObj: obj,
-        getRef: getRefRef.current,
-        getState: getStateRef.current,
-        setState: setStateRef.current,
-        getHook: getHookRef.current,
-        ctx: ctxRef.current,
-        ...propsRef.current,
-      });
-
-      return res;
-    };
-  }, [renderFlag, schemaStr]);
+  const [node, setNode] = useState<AnyType>(null);
 
   useEffect(() => {
-    propsRef.current?.onNodeChange?.(dom());
-  }, [dom]);
+    if (renderFlag === null) {
+      setNode(null);
+      return;
+    }
+    const obj = getSchemaObjFromStr(schemaStr);
+    const res = generateNode({
+      schemaRootObj: obj,
+      getRef: getRefRef.current,
+      getState: getStateRef.current,
+      setState: setStateRef.current,
+      getHook: getHookRef.current,
+      ctx: ctxRef.current,
+      ...propsRef.current,
+    });
+    setNode(res);
+    propsRef.current?.onNodeChange?.(res);
+  }, [renderFlag, schemaStr]);
 
-  return dom();
+  return node;
 };
 
 export default Index;

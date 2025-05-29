@@ -1,107 +1,4 @@
-import Extension from '.';
-
-/**
- * 参照：https://code.visualstudio.com/api/extension-capabilities/extending-workbench
- */
-export type UIComponentType =
-  | 'TitleBar'
-  | 'ActivityBar'
-  | 'SideBar'
-  | 'Panel'
-  | 'EditorGroup'
-  | 'StatusBar';
-
-/**
- * 所有生命周期钩子函数
- */
-export type LifeCycleHooks = {
-  /**
-   * 挂载到面板，只会调用一次
-   * @param dom
-   * @returns
-   */
-  onMounted: (p: { dom: HTMLDivElement }) => Promise<void>;
-  /**
-   * 激活
-   * @returns
-   */
-  onActive: () => Promise<void>;
-  /**
-   * 失活
-   * @returns
-   */
-  onDeActive: () => Promise<void>;
-};
-
-// /**
-//  * 扩展面板和钩子函数的映射
-//  */
-// export type LifeCycleHooksPannelMap = {
-//   [key in ExtensionPannelType]: key extends 'top'
-//     ? Pick<LifeCycleHooks, 'onMounted' | 'onActive' | 'onDeActive'>
-//     : key extends 'right'
-//     ? Pick<LifeCycleHooks, 'onMounted' | 'onActive' | 'onDeActive'>
-//     : key extends 'bottom'
-//     ? Pick<LifeCycleHooks, 'onActive' | 'onDeActive'>
-//     : key extends 'left'
-//     ? Pick<LifeCycleHooks, 'onMounted' | 'onActive' | 'onDeActive'>
-//     : key extends 'simulator'
-//     ? Pick<LifeCycleHooks, 'onMounted' | 'onActive' | 'onDeActive'>
-//     : key extends 'suspense'
-//     ? Pick<LifeCycleHooks, 'onMounted' | 'onActive' | 'onDeActive'>
-//     : never;
-// };
-
-/**
- * 扩展配置
- */
-export interface ExtensionConfig {
-  /**
-   * 名称
-   */
-  name: string;
-  /**
-   * 版本
-   */
-  version: string;
-  /**
-   * 生命周期
-   */
-  lifeCycleHooks: {
-    /**
-     * panel挂载
-     */
-    panelMounted?: (dom: HTMLDivElement) => void;
-    /**
-     * 模拟器挂载
-     * @param dom
-     * @returns
-     */
-    simulatorMounted?: (p: {
-      dom: HTMLDivElement;
-      extension: Extension;
-    }) => void;
-    // /**
-    //  * 初始化
-    //  * @returns
-    //  */
-    // onInit: () => void;
-  };
-  /**
-   * 描述
-   */
-  description?: string;
-  activityBarIcon?: () => HTMLElement;
-  topToolBarIcon?: (p: { extension: Extension }) => HTMLElement;
-}
-
-// /**
-//  * 插件类型：vue3、react-18
-//  */
-// export enum EXTENSION_LIB_TYPE {
-//   VUE3 = 'vue-3',
-//   REACT18 = 'react-18',
-// }
+// import { AnyType } from '@peeto/core';
 
 // /**
 //  * 插件类型
@@ -109,8 +6,7 @@ export interface ExtensionConfig {
 // export enum EXTENSION_CONFIG_TYPE {
 //   LEFT_TOOL_BAR = 'left-tool-bar',
 //   TOP_TOOL_BAR = 'top-tool-bar',
-//   SIMULATOR = 'simulator',
-//   SUSPENSE_TOOL_BAR = 'suspense-tool-bar',
+//   SUSPENSE_TOOL_BAR = 'suspense_tool_bar',
 // }
 
 // /**
@@ -151,13 +47,6 @@ export interface ExtensionConfig {
 // export interface TopToolBarExtensionItemProps
 //   extends BaseToolBarExtensionProps {
 //   type: EXTENSION_CONFIG_TYPE.TOP_TOOL_BAR;
-// }
-
-// /**
-//  * 模拟器插件
-//  */
-// export interface SimulatorExtensionItemProps extends BaseToolBarExtensionProps {
-//   type: EXTENSION_CONFIG_TYPE.SIMULATOR;
 // }
 
 // /**
@@ -263,7 +152,6 @@ export interface ExtensionConfig {
 // export type InjectExtensionConfig =
 //   | LeftToolBarExtensionItemProps
 //   | TopToolBarExtensionItemProps
-//   | SimulatorExtensionItemProps
 //   | SuspenseToolBarExtensionItemProps;
 
 // /**
@@ -276,13 +164,11 @@ export interface ExtensionConfig {
 //  */
 // export type InjectExtensionCompProps = ExtensionRenderProps['injectProps'];
 
-// /**
-//  * 配置
-//  */
-// export type ExtensionConfig = {
-//   /**
-//    * 加载插件完成后调用
-//    * @returns
-//    */
-//   onAllMount?: () => void;
-// };
+/**
+ * 配置
+ */
+export type EditorConfig = {
+  onBeforeInit?: () => Promise<void>;
+  onMounted?: () => Promise<void>;
+  onInjectSuccess?: () => Promise<void>;
+};

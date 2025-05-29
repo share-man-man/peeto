@@ -13,7 +13,7 @@ import {
   SchemaCompTreeItem,
 } from '../packages/core/src/component';
 import { RefNodeType } from '../packages/core/src/ref';
-import { JSONObject } from 'packages/core/src/type';
+import { JSONObject } from '../packages/core/src/type';
 
 export const createComp = (
   componentName: string,

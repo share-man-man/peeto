@@ -1,50 +1,56 @@
-import { UsbOutlined } from '@ant-design/icons';
-import {
-  ExtensionRenderProps,
-  TopToolBarExtensionItemProps,
-} from '@peeto/extension';
-import PluginRender from '../PluginRender';
-import { useContext } from 'react';
-import { WORK_BENCH_ICON_CLICK_EVENT, WorkBenchContext } from '../..';
+import { useContext, useEffect, useRef, useState } from 'react';
+import { WorkBenchContext } from '../..';
+import { Extension } from '@peeto/extension';
 
-export interface TopToolBarRenderProps {
-  list: ExtensionRenderProps<TopToolBarExtensionItemProps>[];
-}
+const Index = () => {
+  const { editorRef: _editorRef, reloadFlag } = useContext(WorkBenchContext);
+  const editorRef = useRef(_editorRef?.current);
+  editorRef.current = _editorRef?.current;
+  const [list, setList] = useState<
+    {
+      extension: Extension;
+      topToolBarIcon: HTMLElement;
+    }[]
+  >([]);
 
-const Index = ({ list }: TopToolBarRenderProps) => {
-  const context = useContext(WorkBenchContext);
+  useEffect(() => {
+    if (!reloadFlag) {
+      return;
+    }
+    const li: typeof list = [];
+    editorRef?.current?.extensionMap?.values().forEach((c) => {
+      const topToolBarIcon = c.getTopToolBarIcon();
+      if (topToolBarIcon) {
+        li.push({
+          extension: c,
+          topToolBarIcon,
+        });
+      }
+    });
+    setList(li);
+  }, [reloadFlag]);
 
   return (
     <div className="peeto-workbench-content-top-tool-bar">
       <div className="peeto-workbench-content-top-tool-bar-icons">
-        <div className="peeto-workbench-content-top-tool-bar-icons-left">
-          {list.map(({ config }) => {
-            const t = config;
-            return (
-              <div
-                key={t.name}
-                onClick={() => {
-                  context.plugin?.dispatchEvent([
-                    {
-                      name: WORK_BENCH_ICON_CLICK_EVENT,
-                      paylod: config,
-                      // 触发对应的插件，而不是全部触发
-                      filtert: (item) => {
-                        return item.renderProps.config.name == config.name;
-                      },
-                    },
-                  ]);
-                }}
-              >
-                {t.icon || <UsbOutlined />}
-              </div>
-            );
-          })}
-        </div>
-      </div>
-      <div className="peeto-workbench-content-top-tool-bar-panel">
-        {list.map((i) => {
-          return <PluginRender key={i.config.name} {...i} visible={false} />;
+        {list.map(({ extension, topToolBarIcon }) => {
+          return (
+            <div
+              className="peeto-workbench-content-top-tool-bar-icons-item"
+              style={{ fill: extension.topToolBarActive ? 'red' : '' }}
+              ref={(r: HTMLDivElement) => {
+                if (r) {
+                  r.innerHTML = '';
+                  r.appendChild(topToolBarIcon);
+                }
+              }}
+              key={extension.getName()}
+              onClick={() => {
+                extension.changeTopToolBarActive();
+                setList((prev) => [...prev]);
+              }}
+            />
+          );
         })}
       </div>
     </div>

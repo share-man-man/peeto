@@ -46,3 +46,15 @@ export type JSONObject = {
  * 数组节点
  */
 export type JSONArray = Array<JSONValue>;
+
+/**
+ * 将泛型参数的首字母转换为大写
+ */
+export type UppercaseFirstLetter<T extends string> =
+  T extends `${infer First}${infer Rest}` ? `${Uppercase<First>}${Rest}` : T;
+
+/**
+ * 将泛型参数的首字母转换为大写
+ */
+export type LowercaseFirstLetter<T extends string> =
+  T extends `${infer First}${infer Rest}` ? `${Lowercase<First>}${Rest}` : T;

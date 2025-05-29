@@ -17,6 +17,7 @@ export type {
   JSONValue,
   JSONObject,
   JSONArray,
+  UppercaseFirstLetter,
 } from './type';
 export { SchemaCompTreeItem } from './component';
 export type { GenerateFuncBaseOptionType } from './func/type';
@@ -31,6 +32,7 @@ export { generateNode } from './root';
 export {
   generateRenderFuncDefaultRes,
   getSetStateFuncName,
+  generateRenderFuncRes,
   FuncTypeEnum,
   ConditionTypeEnum,
   AnonymousFunctionNode,

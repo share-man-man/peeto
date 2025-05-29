@@ -1,5 +1,5 @@
 {
-  "name": "@peeto/extension",
+  "name": "@peeto/editor",
   "private": false,
   "version": "0.0.0",
   "type": "module",
@@ -15,9 +15,5 @@
     "dev": "vite build -w",
     "build": "vite build",
     "preview": "vite preview"
-  },
-  "peerDependencies": {
-    "@peeto/core": "workspace:*",
-    "@peeto/extension": "workspace:*"
   }
 }
