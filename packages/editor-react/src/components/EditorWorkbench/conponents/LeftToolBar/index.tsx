@@ -18,6 +18,11 @@ export interface LeftToolBarRef {
   onActive: (k: Extension['name']) => void;
 }
 
+/**
+ * 左侧工具栏
+ * @param param0
+ * @returns
+ */
 const Index: FC<LeftToolBarRenderProps> = ({ customRef }) => {
   const { editorRef: _editorRef, reloadFlag } = useContext(WorkBenchContext);
   const editorRef = useRef(_editorRef?.current);

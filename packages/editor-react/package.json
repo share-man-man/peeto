@@ -19,13 +19,13 @@
     "@peeto/extension": "workspace:*",
     "@peeto/render-react": "workspace:*",
     "@peeto/render-vue": "workspace:*",
-    "antd": "^5.14.1",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "uuid": "^9.0.0",
-    "vue": "^3.3.4"
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
-    "@ant-design/icons": "^5.3.1"
+    "@ant-design/icons": "^5.3.1",
+    "antd": "^5.14.1",
+    "react-dom": "^18.2.0",
+    "vue": "^3.3.4"
   }
 }

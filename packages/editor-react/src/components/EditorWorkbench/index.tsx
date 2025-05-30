@@ -17,21 +17,9 @@ export const WorkBenchContext = createContext<{
   reloadFlag: number;
 }>({ reloadFlag: 0 });
 
-/**
- * 插件图标点击事件
- */
-export const WORK_BENCH_ICON_CLICK_EVENT =
-  '__peeto_work_bench_icon_click_event';
-
-export interface useEditorWokrBenchProps {
-  onInitSuccess?: () => void;
-}
-
 // 参考 https://code.visualstudio.com/api/extension-capabilities/extending-workbench
 
-export const useEditorWokrBench = ({
-  onInitSuccess,
-}: useEditorWokrBenchProps) => {
+export const useEditorWokrBench = () => {
   // 初始化标志
   const [initLoading, setInitLoading] = useState(true);
   const [reloadFlag, setReloadFlag] = useState(0);
@@ -89,12 +77,12 @@ export const useEditorWokrBench = ({
     );
   }, [initLoading, reloadFlag]);
 
-  const onInitSuccessRef = useRef(onInitSuccess);
-  onInitSuccessRef.current = onInitSuccess;
-  useEffect(() => {
-    if (initLoading) return;
-    onInitSuccessRef.current?.();
-  }, [initLoading]);
+  // const onInitSuccessRef = useRef(onInitSuccess);
+  // onInitSuccessRef.current = onInitSuccess;
+  // useEffect(() => {
+  //   if (initLoading) return;
+  //   onInitSuccessRef.current?.();
+  // }, [initLoading]);
 
   return {
     initLoading,

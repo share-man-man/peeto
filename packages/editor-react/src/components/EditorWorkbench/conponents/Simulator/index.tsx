@@ -2,6 +2,10 @@ import { useContext, useEffect, useRef } from 'react';
 import { WorkBenchContext } from '../..';
 import { Extension } from '@peeto/extension';
 
+/**
+ * 模拟器
+ * @returns
+ */
 const Index = () => {
   const { editorRef: _editorRef, reloadFlag } = useContext(WorkBenchContext);
   const editorRef = useRef(_editorRef?.current);

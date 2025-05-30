@@ -17,7 +17,7 @@ export const API_GET_STATE = 'API_GET_STATE';
  * 生成唯一key
  * @returns
  */
-export const generateKey = () => `__peeto_similator_${id()}`;
+export const generateKey = () => `__peeto_simulator_${id()}`;
 
 const Index = ({ extension }: { extension: Extension }) => {
   const [config, setConfig] = useState<SimulatorConfigType>();
