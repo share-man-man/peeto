@@ -41,7 +41,7 @@ const Index: FC<LeftToolBarRenderProps> = ({ customRef }) => {
     }
     const li: typeof list = [];
     editorRef?.current?.extensionMap?.values().forEach((c) => {
-      const acvitityBarIcon = c.getAcvitityBarIcon();
+      const acvitityBarIcon = c.getActivityBarIcon();
       if (acvitityBarIcon) {
         li.push({
           extension: c,

@@ -5,7 +5,7 @@ import './style.less';
 import { createElement, useCallback, useEffect, useRef } from 'react';
 import { createApp } from 'vue';
 
-import { useEditorWokrBench } from '../components/EditorWorkbench';
+import { EditorWokrBench } from '../index';
 import '../style.less';
 import { Extension } from '@peeto/extension';
 import { createRoot } from 'react-dom/client';
@@ -13,6 +13,7 @@ import ChangeProp, { name as changePropName } from './extension/ChangeProp';
 import Simulator, { name as simulatorName } from './extension/Simulator';
 import CompCheck, { name as compCheckName } from './extension/CheckComp';
 import MyTest from './extension/TestExtensionVue/MyTest.vue';
+import { EditorWorkbenchActionRefType } from '../components/EditorWorkbench/type';
 
 const sleep = (ms: number) => {
   return new Promise((resolve) => {
@@ -21,26 +22,16 @@ const sleep = (ms: number) => {
 };
 
 function Index() {
-  const {
-    initLoading,
-    onReload,
-    workbench,
-    editor: _editor,
-    leftToolBarRef: _leftToolBarRef,
-  } = useEditorWokrBench();
-  const editorRef = useRef(_editor);
-  editorRef.current = _editor;
-  const reloadRef = useRef(onReload);
-  reloadRef.current = onReload;
-  const leftToolBarRef = useRef(_leftToolBarRef.current);
-  leftToolBarRef.current = _leftToolBarRef.current;
+  const workbenchRef = useRef<EditorWorkbenchActionRefType>(null);
 
   const onStartInject = useCallback(async () => {
-    reloadRef.current?.();
-    const editor = editorRef.current;
+    // 挂载编辑器
+    await workbenchRef.current?.onMounted();
+    const editor = workbenchRef.current?.editor;
     if (!editor) {
       return;
     }
+    await sleep(1000);
     // 注册扩展：切换渲染参数面板
     editor.injectExtension(
       new Extension({
@@ -49,7 +40,11 @@ function Index() {
         lifeCycleHooks: {
           panelMounted: (dom) => {
             const appRef = createRoot(dom);
-            appRef.render(createElement(ChangeProp, { editor }));
+            appRef.render(
+              createElement(ChangeProp, {
+                editor,
+              })
+            );
           },
         },
         activityBarIcon: () => {
@@ -62,7 +57,8 @@ function Index() {
         },
       })
     );
-    // 注册扩展：渲染模拟器
+    await sleep(1000);
+    // 注册扩展：模拟器
     editor.injectExtension(
       new Extension({
         name: simulatorName,
@@ -75,32 +71,31 @@ function Index() {
         },
       })
     );
-
+    await sleep(1000);
     // 注册扩展：选择器
     editor.injectExtension(
       new Extension({
         name: compCheckName,
         version: '1',
-        lifeCycleHooks: {},
-        topToolBarIcon: ({ extension }) => {
-          const dom = document.createElement('div');
-          const appRef = createRoot(dom);
-          appRef.render(createElement(CompCheck, { editor, extension }));
-
+        lifeCycleHooks: {
+          suspenseToolBarMounted: ({ dom, extension }) => {
+            const appRef = createRoot(dom);
+            appRef.render(createElement(CompCheck, { editor, extension }));
+          },
+        },
+        topToolBarIcon: () => {
           const parser = new DOMParser();
           const doc = parser.parseFromString(
             '<svg t="1748328255874" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1485" width="100%" height="100%"><path d="M751.872 533.290667h-161.024c-31.616 0-57.344 25.685333-57.344 57.301333v161.152c0 15.317333 5.973333 29.696 16.853333 40.533333 10.88 10.794667 25.258667 16.725333 40.533334 16.64h160.981333c31.573333 0 57.301333-25.685333 57.301333-57.301333v-161.024c0-31.573333-25.685333-57.301333-57.301333-57.301333z m8.874667 217.301333c0 5.418667-4.352 9.813333-9.728 9.813333h-159.829334a9.386667 9.386667 0 0 1-6.826666-2.986666 9.301333 9.301333 0 0 1-2.816-6.741334V590.933333c0-5.461333 4.352-9.813333 9.728-9.813333h159.744c5.376 0 9.728 4.352 9.728 9.813333v159.658667zM438.229333 213.930667H277.248c-31.616 0-57.344 25.728-57.344 57.344v161.152c0 15.317333 5.973333 29.696 16.853333 40.533333 10.837333 10.794667 25.258667 16.725333 40.490667 16.64h160.981333c31.658667 0 57.344-25.685333 57.344-57.344V271.274667c0-31.616-25.770667-57.344-57.344-57.344z m9.770667 218.026666c0 5.418667-4.352 9.813333-9.728 9.813334H278.442667a9.386667 9.386667 0 0 1-6.826667-2.986667 9.301333 9.301333 0 0 1-2.816-6.784V272.213333c0-5.461333 4.352-9.813333 9.728-9.813333h159.744c5.376 0 9.728 4.352 9.728 9.813333v159.744zM785.408 284.928h-2.474667a23.893333 23.893333 0 0 0-23.765333 23.765333v37.205334c-48.213333-55.637333-113.792-92.416-186.453333-106.325334a26.282667 26.282667 0 0 0-9.173334-2.261333c-0.64-0.128-1.28-0.426667-2.005333-0.426667v0.170667a25.728 25.728 0 0 0 0 51.413333v0.256a276.608 276.608 0 0 1 198.784 148.736 24.106667 24.106667 0 0 0 9.514667 9.813334c3.797333 2.56 8.192 4.522667 13.098666 4.522666h2.474667a23.893333 23.893333 0 0 0 23.765333-23.765333V308.821333a23.893333 23.893333 0 0 0-23.765333-23.893333z m-317.610667 456.832l-0.256 0.042667a277.162667 277.162667 0 0 1-205.397333-146.645334 23.722667 23.722667 0 0 0-22.058667-15.189333H237.653333a23.68 23.68 0 0 0-22.357333 16.768c-0.682667 1.706667-0.810667 3.456-1.066667 5.248-0.085333 0.597333-0.341333 1.152-0.341333 1.706667v1.237333c0 1.194667-0.128 2.346667 0 3.541333v114.517334a23.893333 23.893333 0 0 0 23.765333 23.765333h2.474667a23.893333 23.893333 0 0 0 23.765333-23.765333v-36.906667c50.090667 56.490667 118.186667 92.842667 193.237334 105.002667 3.242667 1.536 7.509333 1.536 11.392 1.536l0.256-0.042667h0.128v-0.085333a24.490667 24.490667 0 0 0 24.832-24.832 25.898667 25.898667 0 0 0-25.898667-25.898667z" p-id="1486"></path></svg>',
             'image/svg+xml'
           );
-
           const containerDom = document.createElement('div');
-          containerDom.appendChild(dom);
           containerDom.appendChild(doc.documentElement);
           return containerDom;
         },
       })
     );
-
+    await sleep(1000);
     // 注册扩展：测试的vue组件
     editor.injectExtension(
       new Extension({
@@ -122,21 +117,19 @@ function Index() {
         },
       })
     );
-
-    reloadRef.current?.();
-    // TODO 需要提供函数，等待某个插件加载完毕后，在执行某些操作
-    await sleep(0);
-    leftToolBarRef.current?.onActive(changePropName);
+    await sleep(1000);
+    workbenchRef.current.leftToolBarRef.current.onActive(changePropName);
   }, []);
-  const onStartInjectRef = useRef(onStartInject);
-  onStartInjectRef.current = onStartInject;
 
   useEffect(() => {
-    if (initLoading) return;
-    onStartInjectRef.current?.();
-  }, [initLoading]);
+    onStartInject();
+  }, [onStartInject]);
 
-  return <div>{workbench}</div>;
+  return (
+    <div>
+      <EditorWokrBench actionRef={workbenchRef} />
+    </div>
+  );
 }
 
 export default Index;

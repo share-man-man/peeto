@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { WorkBenchContext } from '../..';
 import { Extension } from '@peeto/extension';
 
@@ -11,9 +11,12 @@ const Index = () => {
   const editorRef = useRef(_editorRef?.current);
   editorRef.current = _editorRef?.current;
   const simulatorExtension = useRef<Extension>();
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const [hasInit, setHasInit] = useState(false);
 
   useEffect(() => {
-    if (!reloadFlag) {
+    if (!reloadFlag || hasInit) {
       return;
     }
     editorRef.current?.extensionMap?.values().forEach((e) => {
@@ -31,8 +34,9 @@ const Index = () => {
       dom: containerRef.current,
       extension: ex,
     });
-  }, [reloadFlag]);
-  const containerRef = useRef<HTMLDivElement>(null);
+    setHasInit(true);
+  }, [hasInit, reloadFlag]);
+
   return <div ref={containerRef} />;
 };
 

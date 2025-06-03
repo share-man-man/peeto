@@ -6,16 +6,17 @@ export enum EVENT_NAME {
    * 模拟器初始化
    */
   TOP_TOOL_BAR_ACTIVE_CHANGE = 'TOP_TOOL_BAR_ACTIVE_CHANGE',
-  // TODO 挂载后触发
 }
 
 export class Extension {
   private name: ExtensionConfig['name'];
-  private acvitityBarIcon?: HTMLElement;
+  private activityBarIcon?: HTMLElement;
   private topToolBarIcon?: HTMLElement;
   topToolBarActive: boolean = false;
   private panelContainer?: HTMLDivElement;
   private panelMounted: boolean = false;
+  private suspenseToolBarContainer?: HTMLDivElement;
+  private suspenseToolBarMounted: boolean = false;
   private apiMap = new Map<string, AnyType>();
   private _events = {
     [EVENT_NAME.TOP_TOOL_BAR_ACTIVE_CHANGE]: new Set<(f: boolean) => void>(),
@@ -25,9 +26,10 @@ export class Extension {
   constructor(c: ExtensionConfig) {
     this.name = c.name;
     this.config = c;
-    // TODO 暂时默认使用window.document.createElement创建
-    this.panelContainer = window.document.createElement('div');
-    this.acvitityBarIcon = c.activityBarIcon?.();
+    // TODO 暂时默认使用document.createElement创建
+    this.panelContainer = document.createElement('div');
+    this.suspenseToolBarContainer = document.createElement('div');
+    this.activityBarIcon = c.activityBarIcon?.();
     this.topToolBarIcon = c.topToolBarIcon?.({ extension: this });
   }
 
@@ -43,15 +45,19 @@ export class Extension {
     return this.panelContainer;
   }
 
-  getAcvitityBarIcon() {
-    return this.acvitityBarIcon;
+  getSuspenseToolBarContainer() {
+    return this.suspenseToolBarContainer;
+  }
+
+  getActivityBarIcon() {
+    return this.activityBarIcon;
   }
   getTopToolBarIcon() {
     return this.topToolBarIcon;
   }
 
   /**
-   * 面板挂载，根据panelMounted只会调用一次
+   * 面板挂载，只会调用一次
    * @returns
    */
   handlePanelMounted() {
@@ -60,6 +66,21 @@ export class Extension {
     }
     this.config.lifeCycleHooks?.panelMounted?.(this.panelContainer);
     this.panelMounted = true;
+  }
+
+  /**
+   * 浮动层挂载，只会调用一次
+   * @returns
+   */
+  handleSuspenseToolBarMounted() {
+    if (this.suspenseToolBarMounted || !this.suspenseToolBarContainer) {
+      return;
+    }
+    this.config.lifeCycleHooks?.suspenseToolBarMounted?.({
+      dom: this.suspenseToolBarContainer,
+      extension: this,
+    });
+    this.suspenseToolBarMounted = true;
   }
 
   /**

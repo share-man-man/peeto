@@ -69,7 +69,7 @@ export interface ExtensionConfig {
    */
   lifeCycleHooks: {
     /**
-     * panel挂载
+     * 面板挂载
      */
     panelMounted?: (dom: HTMLDivElement) => void;
     /**
@@ -81,11 +81,15 @@ export interface ExtensionConfig {
       dom: HTMLDivElement;
       extension: Extension;
     }) => void;
-    // /**
-    //  * 初始化
-    //  * @returns
-    //  */
-    // onInit: () => void;
+    /**
+     * 浮动层挂载
+     * @param p
+     * @returns
+     */
+    suspenseToolBarMounted?: (p: {
+      dom: HTMLDivElement;
+      extension: Extension;
+    }) => void;
   };
   /**
    * 描述
