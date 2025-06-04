@@ -95,24 +95,13 @@ const Index = ({ editor }: { editor: Editor }) => {
     }
     const simulatorExtension =
       editorRef.current?.getExtensionByName(simulatorName);
-
-    simulatorExtension?.getApi(API_CONFIG_CHANGE)?.({
-      packageList: curConfig?.packageList,
-      schemaStr: curConfig?.schema,
-      type: libType,
+    simulatorExtension?.onPanelActive().then(() => {
+      simulatorExtension?.getApi(API_CONFIG_CHANGE)?.({
+        packageList: curConfig?.packageList,
+        schemaStr: curConfig?.schema,
+        type: libType,
+      });
     });
-
-    // dispatchEvent([
-    //   {
-    //     name: SIMULATOR_CONFIG_CHANGE_EVENT,
-    //     paylod: {
-    //       packageList: curConfig?.packageList,
-    //       schemaStr: curConfig?.schema,
-    //       type: libType,
-    //     } as SimulatorPluginConfig,
-    //   },
-    //   // 告诉配置插件，重新注册相关setter
-    // ]);
   }, [curConfig?.packageList, curConfig?.schema, libType]);
 
   return (

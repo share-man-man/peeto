@@ -53,7 +53,12 @@ const Index: FC<LeftToolBarRenderProps> = ({ customRef }) => {
   }, [reloadFlag]);
 
   const onClickIcon = useCallback<(k?: Extension['name']) => void>((k) => {
-    setCurName(k);
+    setCurName((pre) => {
+      if (pre) {
+        editorRef.current?.getExtensionByName(pre)?.handlePanelActive(false);
+      }
+      return k;
+    });
   }, []);
   const onClickIconRef = useRef(onClickIcon);
   onClickIconRef.current = onClickIcon;
@@ -76,21 +81,17 @@ const Index: FC<LeftToolBarRenderProps> = ({ customRef }) => {
     }
     panelRef.current.appendChild(dom);
     ex.handlePanelMounted();
+    ex.handlePanelActive(true);
   }, [curName]);
 
   if (customRef?.current) {
     customRef.current.onActive = (k) => {
-      setCurName(k);
+      onClickIcon(k);
     };
   }
 
   return (
-    <div
-      className="peeto-workbench-left-tool-bar"
-      // style={{
-      //   width: siderWidth,
-      // }}
-    >
+    <div className="peeto-workbench-left-tool-bar">
       <div className="peeto-workbench-left-tool-bar-icons">
         {list.map(({ extension, acvitityBarIcon }) => {
           return (
@@ -122,38 +123,6 @@ const Index: FC<LeftToolBarRenderProps> = ({ customRef }) => {
           }}
         />
       )}
-
-      {/* <div
-        style={{
-          width: curPanneWidth,
-          position: fixPannel ? 'absolute' : 'relative',
-          transform: fixPannel ? `translateX(${defaultWidth}px)` : '',
-          overflow: 'hidden',
-          height: '100%',
-        }}
-      >
-        <div
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            overflow: 'auto',
-          }}
-        >
-          <PushpinOutlined
-            onClick={() => {
-              setFixPannel(!fixPannel);
-            }}
-          />
-          <div>
-            {list.map((item) => (
-              <PluginRender key={item.config.name} {...item} />
-            ))}
-          </div>
-        </div>
-      </div> */}
     </div>
   );
 };

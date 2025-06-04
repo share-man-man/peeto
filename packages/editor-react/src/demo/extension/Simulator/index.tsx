@@ -37,37 +37,6 @@ const Index = ({ extension }: { extension: Extension }) => {
   extension.setApi(API_CONFIG_CHANGE, onChangeConfig);
   extension.setApi(API_GET_STATE, getState);
 
-  // const getMap = useCallback(() => {
-  //   // 过滤深度子dom
-  //   const newMap: SimulatorExtensionCompDomMap =
-  //     appActionRef.current?.getMap() || new Map();
-  //   newMap.forEach((domList, k) => {
-  //     const tmpList = [...domList];
-  //     const newList = domList.filter((el) => {
-  //       let tmp: HTMLElement | null = el.parentElement;
-  //       let flag = false;
-  //       while (!flag && tmp) {
-  //         if (tmpList.some((d) => d === tmp)) {
-  //           flag = true;
-  //         } else {
-  //           tmp = tmp.parentElement;
-  //         }
-  //       }
-  //       return !flag;
-  //     });
-  //     newMap.set(k, newList);
-  //   });
-  //   // dispatchEvent([
-  //   //   {
-  //   //     name: compDomMapChangeEventName,
-  //   //     paylod: newMap,
-  //   //   },
-  //   // ]);
-  // }, []);
-
-  // const getMapRef = useRef(getMap);
-  // getMapRef.current = getMap;
-
   const appActionRef = useRef<AppActionRef>();
   useEffect(() => {
     if (!config) {
@@ -77,7 +46,7 @@ const Index = ({ extension }: { extension: Extension }) => {
   }, [config]);
 
   if (!config?.type) {
-    return <div>没有类型</div>;
+    return <div>没有选择ui库</div>;
   }
 
   return (
@@ -93,12 +62,7 @@ const Index = ({ extension }: { extension: Extension }) => {
             peetoPrivateKey,
             actionRef: (ctx) => {
               appActionRef.current = ctx;
-              // 手动调用一次setConfig，初始化配置
-              appActionRef.current?.setConfig(config);
             },
-            // onMount: () => {
-            //   getMap();
-            // },
           } as ReactAppProps,
         },
         [EXTENSION_LIB_TYPE.VUE3]: {
@@ -107,12 +71,7 @@ const Index = ({ extension }: { extension: Extension }) => {
             peetoPrivateKey,
             actionRef: (ctx) => {
               appActionRef.current = ctx;
-              // 手动调用一次setConfig，初始化配置
-              appActionRef.current?.setConfig(config);
             },
-            // onMount: () => {
-            //   getMap();
-            // },
           } as VueAppProps,
         },
       }}

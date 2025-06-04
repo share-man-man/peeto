@@ -9,16 +9,7 @@ export type {
   StateRefHookGetSetType,
   ParseOptions,
 } from './root/type';
-export type {
-  AnyType,
-  PickRequired,
-  PickPartial,
-  SchemaRootObj,
-  JSONValue,
-  JSONObject,
-  JSONArray,
-  UppercaseFirstLetter,
-} from './type';
+export type * from './type';
 export { SchemaCompTreeItem } from './component';
 export type { GenerateFuncBaseOptionType } from './func/type';
 export { NodeType } from './root';

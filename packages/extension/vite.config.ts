@@ -1,5 +1,6 @@
 import { resolve } from 'path';
 import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 import dts from 'vite-plugin-dts';
 import { packageConfig } from '../../config';
 
@@ -21,5 +22,5 @@ export default defineConfig({
       },
     },
   },
-  plugins: [dts({ entryRoot: './src' })],
+  plugins: [dts({ entryRoot: './src' }), react()],
 });

@@ -44,10 +44,13 @@ const Index = ({
       root,
       peetoPrivateKey,
     }: {
-      root: AnyType;
-      config: SimulatorConfigType;
-      peetoPrivateKey: string;
+      root?: AnyType;
+      config?: SimulatorConfigType;
+      peetoPrivateKey?: string;
     }) => {
+      if (!config || !root || !peetoPrivateKey) {
+        return;
+      }
       // 根据ui类型和节点，获取dom和schema组件映射
       const { type } = config;
       let validate: never;
@@ -98,15 +101,15 @@ const Index = ({
   // 循环获取映射，原因：有些组件会异步改变状态或dom
   useEffect(() => {
     const timer = setInterval(() => {
-      // 获取模拟器扩展，获取root节点
-      const p = editorRef.current
-        .getExtensionByName(simulatorName)
-        ?.getApi(API_GET_STATE)?.();
-
       // TODO 使用requestAnimationFrame，防止页面掉帧
-      if (p.config) {
-        updatePickerMapRef.current(p);
-      }
+      // 获取模拟器扩展，获取root节点
+      const simulatorEx = editorRef.current.getExtensionByName(simulatorName);
+      simulatorEx?.onPanelActive().then(() => {
+        const p = simulatorEx.getApi(API_GET_STATE)?.();
+        if (p.config) {
+          updatePickerMapRef.current(p);
+        }
+      });
     }, 2000);
     return () => {
       clearInterval(timer);

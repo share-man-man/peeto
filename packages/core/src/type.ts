@@ -58,3 +58,13 @@ export type UppercaseFirstLetter<T extends string> =
  */
 export type LowercaseFirstLetter<T extends string> =
   T extends `${infer First}${infer Rest}` ? `${Lowercase<First>}${Rest}` : T;
+
+/**
+ * 获取Set类型中的元素类型
+ */
+export type GetSetType<T> = T extends Set<infer U> ? U : never;
+
+/**
+ * 获取数组类型中的元素类型
+ */
+export type GetArrayType<T> = T extends Array<infer U> ? U : never;

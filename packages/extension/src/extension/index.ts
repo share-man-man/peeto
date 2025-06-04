@@ -1,9 +1,10 @@
-import { AnyType } from '@peeto/core';
+import { AnyType, GetSetType } from '@peeto/core';
 import { ExtensionConfig } from './type';
+import PromisePending from '../utils/promise-pending';
 
 export enum EVENT_NAME {
   /**
-   * 模拟器初始化
+   * 顶部工具栏状态改变
    */
   TOP_TOOL_BAR_ACTIVE_CHANGE = 'TOP_TOOL_BAR_ACTIVE_CHANGE',
 }
@@ -13,6 +14,7 @@ export class Extension {
   private activityBarIcon?: HTMLElement;
   private topToolBarIcon?: HTMLElement;
   topToolBarActive: boolean = false;
+  private panelActive = false;
   private panelContainer?: HTMLDivElement;
   private panelMounted: boolean = false;
   private suspenseToolBarContainer?: HTMLDivElement;
@@ -21,6 +23,7 @@ export class Extension {
   private _events = {
     [EVENT_NAME.TOP_TOOL_BAR_ACTIVE_CHANGE]: new Set<(f: boolean) => void>(),
   };
+  private panelPending = new PromisePending();
   config: ExtensionConfig;
 
   constructor(c: ExtensionConfig) {
@@ -84,7 +87,7 @@ export class Extension {
   }
 
   /**
-   * 设置扩展的api
+   * 设置api
    */
   setApi(k: string, v: AnyType) {
     this.apiMap.set(k, v);
@@ -108,20 +111,64 @@ export class Extension {
     );
   }
 
-  addEventListener(eventName: EVENT_NAME, listener: AnyType) {
-    if (!this._events[eventName]) {
-      this._events[eventName] = new Set();
-    }
-    this._events[eventName].add(listener);
+  /**
+   * 监听事件
+   * @param eventName
+   * @param listener
+   */
+  addEventListener<T extends EVENT_NAME>(
+    eventName: T,
+    listener: GetSetType<(typeof this._events)[T]>
+  ) {
+    this._events[eventName].add(listener as AnyType);
   }
 
+  /**
+   * 取消监听
+   * @param eventName
+   * @param listener
+   */
   removeEventListener(eventName: EVENT_NAME, listener: AnyType) {
     this._events[eventName]?.delete(listener);
   }
 
-  private dispatchEvent(eventName: EVENT_NAME, data: AnyType) {
+  /**
+   * 分发事件
+   * @param eventName
+   * @param data
+   */
+  private dispatchEvent<T extends EVENT_NAME>(
+    eventName: EVENT_NAME,
+    ...data: Parameters<GetSetType<(typeof this._events)[T]>>
+  ) {
     this._events[eventName]?.forEach((listener) => {
-      listener(data);
+      (listener as (...p: AnyType[]) => void)(...data);
+    });
+  }
+
+  /**
+   * 改变panel激活状态
+   * @param v
+   */
+  handlePanelActive(v: boolean) {
+    this.panelActive = v;
+    // 激活扩展后要执行挂起的promise
+    if (this.panelActive) {
+      this.panelPending.run();
+    }
+  }
+
+  /**
+   * 等待panel激活
+   * @returns
+   */
+  onPanelActive() {
+    return new Promise<void>((resolve) => {
+      if (this.panelActive) {
+        resolve();
+      } else {
+        this.panelPending.add(resolve);
+      }
     });
   }
 }
