@@ -71,7 +71,7 @@ export interface ExtensionConfig {
     /**
      * 面板挂载
      */
-    panelMounted?: (dom: HTMLDivElement) => void;
+    panelMounted?: (p: { dom: HTMLDivElement; extension: Extension }) => void;
     /**
      * 模拟器挂载
      * @param dom

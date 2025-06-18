@@ -18,10 +18,18 @@ const Index = () => {
       containerRef.current.removeChild(containerRef.current.firstChild);
     }
     editorRef.current?.extensionMap?.values().forEach((e) => {
-      e.handleSuspenseToolBarMounted();
-      const dom = e.getSuspenseToolBarContainer();
-      if (dom) {
+      const suspenseToolBar = e.suspenseToolBar;
+      const { mounted } = suspenseToolBar.getStatus();
+      // 没有挂载的组件，才执行挂载
+      if (!mounted) {
+        const dom = suspenseToolBar.getDom();
         containerRef.current?.appendChild(dom);
+        e.config.lifeCycleHooks.suspenseToolBarMounted?.({
+          dom,
+          extension: e,
+        });
+      } else {
+        suspenseToolBar.changeActive(true);
       }
     });
   }, [reloadFlag]);

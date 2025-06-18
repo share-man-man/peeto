@@ -7,12 +7,12 @@ import {
   useRef,
   useState,
 } from 'react';
-import LeftToolBar, { LeftToolBarRef } from './conponents/LeftToolBar';
-import TopToolBar from './conponents/TopToolBar';
+import LeftToolBar, { LeftToolBarRef } from './components/LeftToolBar';
+import TopToolBar from './components/TopToolBar';
 import { Editor } from '@peeto/editor';
-import Simulator from './conponents/Simulator';
+import Simulator from './components/Simulator';
 import { EditorWorkbenchProps } from './type';
-import SuspenseToolBar from './conponents/SuspenseToolBar';
+import SuspenseToolBar from './components/SuspenseToolBar';
 
 export const WorkBenchContext = createContext<{
   editorRef?: MutableRefObject<Editor | undefined>;
@@ -24,6 +24,9 @@ export const WorkBenchContext = createContext<{
 export const EditorWokrBench = ({ actionRef }: EditorWorkbenchProps) => {
   const [init, setInit] = useState(false);
   const [reloadFlag, setReloadFlag] = useState(0);
+  const reloadRef = useRef(() => {
+    setReloadFlag((f) => (f > 10 ? f + 1 : f - 1));
+  });
   const [editor, setEditor] = useState<Editor>();
   const editorRef = useRef<Editor>();
   const mountResolveRef = useRef<() => void>();
@@ -42,7 +45,7 @@ export const EditorWokrBench = ({ actionRef }: EditorWorkbenchProps) => {
     const e = new Editor({
       onMounted: async () => {},
       onInjectSuccess: async () => {
-        setReloadFlag((p) => p + 1);
+        // setReloadFlag((p) => p + 1);
       },
     });
     editorRef.current = e;
@@ -70,6 +73,7 @@ export const EditorWokrBench = ({ actionRef }: EditorWorkbenchProps) => {
         onMounted,
         editor,
         leftToolBarRef,
+        reload: reloadRef.current,
       };
     },
     [editor, onMounted]

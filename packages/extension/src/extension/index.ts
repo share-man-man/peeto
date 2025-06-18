@@ -1,6 +1,6 @@
 import { AnyType, GetSetType } from '@peeto/core';
 import { ExtensionConfig } from './type';
-import PromisePending from '../utils/promise-pending';
+import { ToolBar } from '../utils/promise-pending';
 
 export enum EVENT_NAME {
   /**
@@ -12,28 +12,25 @@ export enum EVENT_NAME {
 export class Extension {
   private name: ExtensionConfig['name'];
   private activityBarIcon?: HTMLElement;
-  private topToolBarIcon?: HTMLElement;
-  topToolBarActive: boolean = false;
-  private panelActive = false;
-  private panelContainer?: HTMLDivElement;
-  private panelMounted: boolean = false;
-  private suspenseToolBarContainer?: HTMLDivElement;
-  private suspenseToolBarMounted: boolean = false;
+  // private topToolBarIcon?: HTMLElement;
+  // topToolBarActive: boolean = false;
+  panel = new ToolBar();
+  simulator = new ToolBar();
+  suspenseToolBar = new ToolBar();
+  topToolBar = new ToolBar();
+  // private suspenseToolBarContainer?: HTMLDivElement;
   private apiMap = new Map<string, AnyType>();
   private _events = {
     [EVENT_NAME.TOP_TOOL_BAR_ACTIVE_CHANGE]: new Set<(f: boolean) => void>(),
   };
-  private panelPending = new PromisePending();
   config: ExtensionConfig;
 
   constructor(c: ExtensionConfig) {
     this.name = c.name;
     this.config = c;
-    // TODO 暂时默认使用document.createElement创建
-    this.panelContainer = document.createElement('div');
-    this.suspenseToolBarContainer = document.createElement('div');
+    // this.suspenseToolBarContainer = document.createElement('div');
     this.activityBarIcon = c.activityBarIcon?.();
-    this.topToolBarIcon = c.topToolBarIcon?.({ extension: this });
+    // this.topToolBarIcon = c.topToolBarIcon?.({ extension: this });
   }
 
   /**
@@ -44,47 +41,31 @@ export class Extension {
     return this.name;
   }
 
-  getPanelContainer() {
-    return this.panelContainer;
-  }
-
-  getSuspenseToolBarContainer() {
-    return this.suspenseToolBarContainer;
-  }
+  // getSuspenseToolBarContainer() {
+  //   return this.suspenseToolBarContainer;
+  // }
 
   getActivityBarIcon() {
     return this.activityBarIcon;
   }
-  getTopToolBarIcon() {
-    return this.topToolBarIcon;
-  }
+  // getTopToolBarIcon() {
+  //   return this.topToolBarIcon;
+  // }
 
-  /**
-   * 面板挂载，只会调用一次
-   * @returns
-   */
-  handlePanelMounted() {
-    if (this.panelMounted || !this.panelContainer) {
-      return;
-    }
-    this.config.lifeCycleHooks?.panelMounted?.(this.panelContainer);
-    this.panelMounted = true;
-  }
-
-  /**
-   * 浮动层挂载，只会调用一次
-   * @returns
-   */
-  handleSuspenseToolBarMounted() {
-    if (this.suspenseToolBarMounted || !this.suspenseToolBarContainer) {
-      return;
-    }
-    this.config.lifeCycleHooks?.suspenseToolBarMounted?.({
-      dom: this.suspenseToolBarContainer,
-      extension: this,
-    });
-    this.suspenseToolBarMounted = true;
-  }
+  // /**
+  //  * 浮动层挂载，只会调用一次
+  //  * @returns
+  //  */
+  // handleSuspenseToolBarMounted() {
+  //   if (this.suspenseToolBarMounted || !this.suspenseToolBarContainer) {
+  //     return;
+  //   }
+  //   this.config.lifeCycleHooks?.suspenseToolBarMounted?.({
+  //     dom: this.suspenseToolBarContainer,
+  //     extension: this,
+  //   });
+  //   this.suspenseToolBarMounted = true;
+  // }
 
   /**
    * 设置api
@@ -104,11 +85,9 @@ export class Extension {
    * 修改顶部工具栏的激活状态
    */
   changeTopToolBarActive() {
-    this.topToolBarActive = !this.topToolBarActive;
-    this.dispatchEvent(
-      EVENT_NAME.TOP_TOOL_BAR_ACTIVE_CHANGE,
-      this.topToolBarActive
-    );
+    const active = this.topToolBar.getStatus().active;
+    this.topToolBar.changeActive(!active);
+    this.dispatchEvent(EVENT_NAME.TOP_TOOL_BAR_ACTIVE_CHANGE, !active);
   }
 
   /**
@@ -143,32 +122,6 @@ export class Extension {
   ) {
     this._events[eventName]?.forEach((listener) => {
       (listener as (...p: AnyType[]) => void)(...data);
-    });
-  }
-
-  /**
-   * 改变panel激活状态
-   * @param v
-   */
-  handlePanelActive(v: boolean) {
-    this.panelActive = v;
-    // 激活扩展后要执行挂起的promise
-    if (this.panelActive) {
-      this.panelPending.run();
-    }
-  }
-
-  /**
-   * 等待panel激活
-   * @returns
-   */
-  onPanelActive() {
-    return new Promise<void>((resolve) => {
-      if (this.panelActive) {
-        resolve();
-      } else {
-        this.panelPending.add(resolve);
-      }
     });
   }
 }

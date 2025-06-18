@@ -55,7 +55,7 @@ const Index: FC<LeftToolBarRenderProps> = ({ customRef }) => {
   const onClickIcon = useCallback<(k?: Extension['name']) => void>((k) => {
     setCurName((pre) => {
       if (pre) {
-        editorRef.current?.getExtensionByName(pre)?.handlePanelActive(false);
+        editorRef.current?.getExtensionByName(pre)?.panel.changeActive(false);
       }
       return k;
     });
@@ -71,17 +71,22 @@ const Index: FC<LeftToolBarRenderProps> = ({ customRef }) => {
       return;
     }
     const ex = editorRef.current?.getExtensionByName(curName);
-    const dom = ex?.getPanelContainer();
-    if (!ex || !dom) {
+    const panel = ex?.panel;
+    if (!ex || !panel) {
       return;
     }
+    const dom = panel?.getDom();
     // 清空panel的dom
     while (panelRef.current?.firstChild) {
       panelRef.current.removeChild(panelRef.current.firstChild);
     }
     panelRef.current.appendChild(dom);
-    ex.handlePanelMounted();
-    ex.handlePanelActive(true);
+    const { mounted } = panel.getStatus();
+    if (!mounted) {
+      ex.config.lifeCycleHooks.panelMounted?.({ dom, extension: ex });
+    } else {
+      panel.changeActive(true);
+    }
   }, [curName]);
 
   if (customRef?.current) {

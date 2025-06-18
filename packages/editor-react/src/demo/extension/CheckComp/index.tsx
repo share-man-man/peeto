@@ -27,6 +27,11 @@ const Index = ({
 }) => {
   const extensionRef = useRef(extension);
   extensionRef.current = extension;
+
+  useEffect(() => {
+    extensionRef.current.simulator.onMounted();
+  }, []);
+
   const componentPickerRef = useRef(
     new ComponentPicker({
       onCheckComp: () => {
@@ -104,7 +109,7 @@ const Index = ({
       // TODO 使用requestAnimationFrame，防止页面掉帧
       // 获取模拟器扩展，获取root节点
       const simulatorEx = editorRef.current.getExtensionByName(simulatorName);
-      simulatorEx?.onPanelActive().then(() => {
+      simulatorEx?.simulator.onActive().then(() => {
         const p = simulatorEx.getApi(API_GET_STATE)?.();
         if (p.config) {
           updatePickerMapRef.current(p);

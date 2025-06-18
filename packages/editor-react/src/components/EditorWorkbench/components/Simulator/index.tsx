@@ -26,14 +26,25 @@ const Index = () => {
     });
 
     const ex = simulatorExtension.current;
-    const dom = containerRef.current;
-    if (!ex || !dom) {
+    const simulator = ex?.simulator;
+    if (!ex || !simulator) {
       return;
     }
-    ex.config.lifeCycleHooks.simulatorMounted?.({
-      dom: containerRef.current,
-      extension: ex,
-    });
+    const dom = simulator.getDom();
+    // 清空panel的dom
+    while (containerRef.current?.firstChild) {
+      containerRef.current.removeChild(containerRef.current.firstChild);
+    }
+    containerRef.current?.appendChild(dom);
+    const { mounted } = simulator.getStatus();
+    if (!mounted) {
+      ex.config.lifeCycleHooks.simulatorMounted?.({
+        dom,
+        extension: ex,
+      });
+    } else {
+      simulator.changeActive(true);
+    }
     setHasInit(true);
   }, [hasInit, reloadFlag]);
 

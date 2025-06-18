@@ -37,6 +37,12 @@ const Index = ({ extension }: { extension: Extension }) => {
   extension.setApi(API_CONFIG_CHANGE, onChangeConfig);
   extension.setApi(API_GET_STATE, getState);
 
+  const extensionRef = useRef(extension);
+  extensionRef.current = extension;
+  useEffect(() => {
+    extensionRef.current.simulator.onMounted();
+  }, []);
+
   const appActionRef = useRef<AppActionRef>();
   useEffect(() => {
     if (!config) {

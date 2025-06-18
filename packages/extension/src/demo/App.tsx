@@ -1,10 +1,10 @@
 import { useRef } from 'react';
 import { Button, Space } from 'antd';
-import PromisePending from '../utils/promise-pending';
+import { PromiseChainPending } from '../utils/promise-pending';
 
 class MyClass {
   panelActive = false;
-  panelPending = new PromisePending();
+  panelPending = new PromiseChainPending();
   /**
    * 改变panel激活状态
    * @param v

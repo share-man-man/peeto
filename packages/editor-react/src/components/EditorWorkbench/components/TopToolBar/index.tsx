@@ -22,13 +22,17 @@ const Index = () => {
       return;
     }
     const li: typeof list = [];
-    editorRef?.current?.extensionMap?.values().forEach((c) => {
-      const topToolBarIcon = c.getTopToolBarIcon();
-      if (topToolBarIcon) {
-        li.push({
-          extension: c,
-          topToolBarIcon,
-        });
+    editorRef?.current?.extensionMap?.values().forEach((e) => {
+      const topToolBar = e.topToolBar;
+      const { mounted } = topToolBar.getStatus();
+      if (!mounted) {
+        const topToolBarIcon = e.config.topToolBarIcon?.({ extension: e });
+        if (topToolBarIcon) {
+          li.push({
+            extension: e,
+            topToolBarIcon,
+          });
+        }
       }
     });
     setList(li);
@@ -41,7 +45,9 @@ const Index = () => {
           return (
             <div
               className="peeto-workbench-content-top-tool-bar-icons-item"
-              style={{ fill: extension.topToolBarActive ? 'red' : '' }}
+              style={{
+                fill: extension.topToolBar.getStatus().active ? 'red' : '',
+              }}
               ref={(r: HTMLDivElement) => {
                 if (r) {
                   r.innerHTML = '';

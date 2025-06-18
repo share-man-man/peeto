@@ -8,6 +8,7 @@ import { API_CONFIG_CHANGE, name as simulatorName } from '../Simulator';
 
 import { enumOp as enumOpReact } from '../../../../../../demo-schema/react';
 import { enumOp as enumOpVue } from '../../../../../../demo-schema/vue';
+import { Extension } from '@peeto/extension';
 
 /**
  * 插件类型：vue3、react-18
@@ -75,7 +76,13 @@ const schemaConfig: {
   })),
 };
 
-const Index = ({ editor }: { editor: Editor }) => {
+const Index = ({
+  editor,
+  extension,
+}: {
+  editor: Editor;
+  extension: Extension;
+}) => {
   const [libType, setLibType] = useState<EXTENSION_LIB_TYPE>(
     EXTENSION_LIB_TYPE.VUE3
   );
@@ -88,20 +95,32 @@ const Index = ({ editor }: { editor: Editor }) => {
   }, [libType, schemaKey]);
   const editorRef = useRef(editor);
   editorRef.current = editor;
+  const extensionRef = useRef(extension);
+  extensionRef.current = extension;
+
+  useEffect(() => {
+    extensionRef.current.panel.onMounted();
+  }, []);
 
   useEffect(() => {
     if (!libType || !curConfig?.schema || !curConfig?.packageList) {
       return;
     }
-    const simulatorExtension =
-      editorRef.current?.getExtensionByName(simulatorName);
-    simulatorExtension?.onPanelActive().then(() => {
-      simulatorExtension?.getApi(API_CONFIG_CHANGE)?.({
+    const simulatorEx = editorRef.current?.getExtensionByName(simulatorName);
+    const setConfig = () => {
+      simulatorEx?.getApi(API_CONFIG_CHANGE)?.({
         packageList: curConfig?.packageList,
         schemaStr: curConfig?.schema,
         type: libType,
       });
-    });
+    };
+    if (simulatorEx?.simulator.getStatus().active) {
+      setConfig();
+    } else {
+      simulatorEx?.simulator.onActive().then(() => {
+        setConfig();
+      });
+    }
   }, [curConfig?.packageList, curConfig?.schema, libType]);
 
   return (
