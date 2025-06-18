@@ -89,8 +89,8 @@ function Index() {
       name: 'MyTestVue',
       version: '1',
       lifeCycleHooks: {
-        panelMounted: ({ dom }) => {
-          const app = createApp(MyTest, {});
+        panelMounted: ({ dom, extension }) => {
+          const app = createApp(MyTest, { extension, editor });
           app.mount(dom);
         },
       },

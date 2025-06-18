@@ -48,6 +48,7 @@ const Index = ({ extension }: { extension: Extension }) => {
     if (!config) {
       return;
     }
+    // 只是改变config.schemaStr时，才会生效
     appActionRef.current?.setConfig(config);
   }, [config]);
 
@@ -57,8 +58,9 @@ const Index = ({ extension }: { extension: Extension }) => {
 
   return (
     <MountAppByType
-      type={config.type}
+      type={config?.type}
       onRootChange={(r) => {
+        // 存储root，便于其他扩展解析组件树
         appRootRef.current = r;
       }}
       {...{
@@ -68,6 +70,8 @@ const Index = ({ extension }: { extension: Extension }) => {
             peetoPrivateKey,
             actionRef: (ctx) => {
               appActionRef.current = ctx;
+              // 改变config.type时，上面的useEffect会先于渲染调用，导致无法正确渲染。需要等到type改变且渲染完成后，手动告诉app参数改变了
+              appActionRef.current?.setConfig(config);
             },
           } as ReactAppProps,
         },
@@ -77,6 +81,8 @@ const Index = ({ extension }: { extension: Extension }) => {
             peetoPrivateKey,
             actionRef: (ctx) => {
               appActionRef.current = ctx;
+              // 改变config.type时，上面的useEffect会先于渲染调用，导致无法正确渲染。需要等到type改变且渲染完成后，手动告诉app参数改变了
+              appActionRef.current?.setConfig(config);
             },
           } as VueAppProps,
         },
