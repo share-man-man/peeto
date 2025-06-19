@@ -38,6 +38,9 @@ const Index = ({
         // TODO 告诉设置器，配置对象
         // 告诉配置器插件，当前选中的组件
       },
+      onStopSelect: () => {
+        extensionRef.current.changeTopToolBarActive(false);
+      },
     })
   );
   const editorRef = useRef(editor);
@@ -141,7 +144,6 @@ const Index = ({
         EVENT_NAME.TOP_TOOL_BAR_ACTIVE_CHANGE,
         run
       );
-      picker.stopSelecting();
     };
   }, []);
 

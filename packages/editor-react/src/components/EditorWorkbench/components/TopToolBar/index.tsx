@@ -1,6 +1,6 @@
 import { useContext, useEffect, useRef, useState } from 'react';
 import { WorkBenchContext } from '../..';
-import { Extension } from '@peeto/extension';
+import { EVENT_NAME, Extension } from '@peeto/extension';
 
 /**
  * 顶部工具栏
@@ -33,6 +33,9 @@ const Index = () => {
             topToolBarIcon,
           });
         }
+        e.addEventListener(EVENT_NAME.TOP_TOOL_BAR_ACTIVE_CHANGE, () => {
+          setList((prev) => [...prev]);
+        });
       }
     });
     setList(li);
@@ -56,8 +59,8 @@ const Index = () => {
               }}
               key={extension.getName()}
               onClick={() => {
-                extension.changeTopToolBarActive();
-                setList((prev) => [...prev]);
+                const active = extension.topToolBar.getStatus().active;
+                extension.changeTopToolBarActive(!active);
               }}
             />
           );

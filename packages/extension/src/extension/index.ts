@@ -84,10 +84,9 @@ export class Extension {
   /**
    * 修改顶部工具栏的激活状态
    */
-  changeTopToolBarActive() {
-    const active = this.topToolBar.getStatus().active;
-    this.topToolBar.changeActive(!active);
-    this.dispatchEvent(EVENT_NAME.TOP_TOOL_BAR_ACTIVE_CHANGE, !active);
+  changeTopToolBarActive(f: boolean) {
+    this.topToolBar.changeActive(f);
+    this.dispatchEvent(EVENT_NAME.TOP_TOOL_BAR_ACTIVE_CHANGE, f);
   }
 
   /**

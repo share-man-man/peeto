@@ -9,6 +9,7 @@ import { CompDomMap } from '../type';
 
 export interface CompPickerContext {
   onCheckComp?: (compList: string[]) => void;
+  onStopSelect: () => void;
 }
 
 export default class ComponentPicker {
@@ -28,7 +29,11 @@ export default class ComponentPicker {
   private jobQueue = new JobQueue();
   private updateTimer?: NodeJS.Timeout;
   private checkCompList: string[] = [];
-  private ctx?: CompPickerContext = {};
+  private ctx?: CompPickerContext = {
+    onStopSelect: () => {
+      //
+    },
+  };
 
   constructor(ctx: CompPickerContext) {
     this.ctx = ctx;
@@ -236,6 +241,8 @@ export default class ComponentPicker {
       this.ctx?.onCheckComp?.(this.checkCompList);
     }
     this.stopSelecting();
+
+    this.ctx?.onStopSelect?.();
   }
 
   /**
