@@ -10,6 +10,7 @@ import { EXTENSION_LIB_TYPE } from '../ChangeProp';
 import { getCompDomMap as getReactMap } from './utils/react';
 import { getCompDomMap as getVueMap } from './utils/vue';
 import { CompDomMap } from './type';
+import { API_COMP_CHECK, name as editCompName } from '../EditComp';
 
 export const name = 'EXTENSION_COMP_CHECK';
 
@@ -34,9 +35,11 @@ const Index = ({
 
   const componentPickerRef = useRef(
     new ComponentPicker({
-      onCheckComp: () => {
-        // TODO 告诉设置器，配置对象
-        // 告诉配置器插件，当前选中的组件
+      onCheckComp: (compList) => {
+        const editCompEx = editor.getExtensionByName(editCompName);
+        editCompEx?.suspenseToolBar?.onActive().then(() => {
+          editCompEx.getApi(API_COMP_CHECK)?.(compList);
+        });
       },
       onStopSelect: () => {
         extensionRef.current.changeTopToolBarActive(false);

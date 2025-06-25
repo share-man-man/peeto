@@ -5,6 +5,7 @@ import { Descriptions, Radio } from 'antd';
 import Editor from '@peeto/editor';
 
 import { API_CONFIG_CHANGE, name as simulatorName } from '../Simulator';
+import { name as editCompName } from '../EditComp';
 
 import { enumOp as enumOpReact } from '../../../../../../demo-schema/react';
 import { enumOp as enumOpVue } from '../../../../../../demo-schema/vue';
@@ -106,21 +107,19 @@ const Index = ({
     if (!libType || !curConfig?.schema || !curConfig?.packageList) {
       return;
     }
-    const simulatorEx = editorRef.current?.getExtensionByName(simulatorName);
-    const setConfig = () => {
-      simulatorEx?.getApi(API_CONFIG_CHANGE)?.({
-        packageList: curConfig?.packageList,
-        schemaStr: curConfig?.schema,
-        type: libType,
-      });
+    const config = {
+      packageList: curConfig?.packageList,
+      schemaStr: curConfig?.schema,
+      type: libType,
     };
-    if (simulatorEx?.simulator.getStatus().active) {
-      setConfig();
-    } else {
-      simulatorEx?.simulator.onActive().then(() => {
-        setConfig();
-      });
-    }
+    const simulatorEx = editorRef.current?.getExtensionByName(simulatorName);
+    const compEditEx = editorRef.current?.getExtensionByName(editCompName);
+    compEditEx?.suspenseToolBar.onActive().then(() => {
+      compEditEx.getApi(API_CONFIG_CHANGE)?.(config);
+    });
+    simulatorEx?.simulator.onActive().then(() => {
+      simulatorEx?.getApi(API_CONFIG_CHANGE)?.(config);
+    });
   }, [curConfig?.packageList, curConfig?.schema, libType]);
 
   return (

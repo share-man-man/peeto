@@ -14,6 +14,7 @@ import Simulator, { name as simulatorName } from './extension/Simulator';
 import CompCheck, { name as compCheckName } from './extension/CheckComp';
 import MyTest from './extension/TestExtensionVue/MyTest.vue';
 import { EditorWorkbenchActionRefType } from '../components/EditorWorkbench/type';
+import EditComp, { name as editCompName } from './extension/EditComp';
 
 // const sleep = (ms: number) => {
 //   return new Promise((resolve) => {
@@ -85,6 +86,18 @@ function Index() {
         return containerDom;
       },
     });
+
+    const editCompEx = new Extension({
+      name: editCompName,
+      version: '1',
+      lifeCycleHooks: {
+        suspenseToolBarMounted: ({ dom, extension }) => {
+          const appRef = createRoot(dom);
+          appRef.render(createElement(EditComp, { editor, extension }));
+        },
+      },
+    });
+
     const TestVue = new Extension({
       name: 'MyTestVue',
       version: '1',
@@ -108,9 +121,9 @@ function Index() {
     // await sleep(1000);
     editor.injectExtension(compCheckEx); // 注册扩展：选择器
     // await sleep(1000);
-    // 注册扩展：测试的vue组件
     editor.injectExtension(simulatorEx); // 注册扩展：模拟器
-    editor.injectExtension(TestVue);
+    editor.injectExtension(editCompEx);
+    editor.injectExtension(TestVue); // 注册扩展：测试的vue组件
     // await sleep(1000);
     workbenchRef.current.leftToolBarRef.current.onActive(changePropName);
     workbenchRef.current.reload();

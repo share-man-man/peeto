@@ -17,7 +17,7 @@
 | 自定义创建节点(例如：vue 的 h 函数；react 的 jsx-runtime 和 createElement) | ✅       | ❌                                                                                           |
 | 支持其它 mvvm 库（solid、svelt）                                           | ✅       | ❌                                                                                           |
 | 安全解析 schema 节点，而非根据对象是否有特殊属性做判断                     | ✅       | ❌                                                                                           |
-| 异步加载包                                                                 | ✅       | ❌                                                                                           |
+| 异步加载 ui 包                                                             | ✅       | ❌                                                                                           |
 | umd 导入包                                                                 | ✅       | ✅                                                                                           |
 | esm 导入包                                                                 | ✅       | ⚠️（需要配置 external，本质还是 umd）                                                        |
 | 包体积                                                                     | ✅       | ⚠️（强依赖 fusion、moment、react-dom、prop-types、react 等包）                               |
@@ -26,3 +26,4 @@
 | 实时编辑（修改配置后，立即无感更新 ui）                                    | ❌       | ✅                                                                                           |
 | 支持 react 插件                                                            | ✅       | ✅                                                                                           |
 | 支持 vue 插件                                                              | ✅       | ❌                                                                                           |
+| 支持其他 ui 库插件                                                         | ✅       | ❌                                                                                           |
