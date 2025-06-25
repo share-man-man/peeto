@@ -1,9 +1,4 @@
-// import { NodeType } from '../root';
-import type { /* JSExpressionType, */ AnyType, JSONValue } from '../type';
-
-// export interface StateJSExpressionType extends JSExpressionType {
-//   packages: string[];
-// }
+import type { AnyType, JSONValue } from '../type';
 
 /**
  * 状态数组

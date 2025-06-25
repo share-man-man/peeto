@@ -190,7 +190,8 @@ export const isPathEqual = (p1: SchemaCompTreePath, p2: SchemaCompTreePath) => {
 };
 
 /**
- * 解析对象，加载实际用到的依赖包，配合懒加载，尽量剔除无用的资源
+ * 解析对象，加载实际用到的依赖包，并且解析子模块
+ * 配合懒加载，尽量剔除无用的资源
  * @param obj
  * @param packageList
  * @returns
@@ -212,6 +213,7 @@ export const loadLibList = async (
         libModules.forEach((l) => {
           if (l.name === name) {
             l.subs.forEach((s) => {
+              // 处理子模块别名
               map.set(s.alias || s.name, res[s.name]);
             });
           }

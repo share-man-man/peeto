@@ -17,10 +17,11 @@ import { StateNodeType } from '../state';
  */
 export interface SchemaRootObj {
   /**
-   * 引入的包
+   * 标识引入的包和模块。
+   * 用例
+   * import { muudleA as A } from 'pkg-a'
    */
   libModules?: SchemaLibItem[];
-  // props参数
   /**
    * 状态集合
    */
@@ -28,13 +29,17 @@ export interface SchemaRootObj {
   /**
    * 事件集合
    */
+  // TODO 暂时还未出现适用场景
   events?: SchemaEventItem[];
   /**
    * ref集合
    */
   refs?: SchemaRefItem[];
   /**
-   * 自定义钩子函数
+   * 自定义hooks。
+   * 用例
+   * const [ form ] = Form.useForm()
+   * const { run as request } = useRequest(api,{manaul:true})
    */
   customHooks?: SchemaHookItem[];
   /**
@@ -47,6 +52,9 @@ export interface SchemaRootObj {
   schemaNodePaths?: SchemaCompTreePath[];
   /**
    * 状态副作用
+   * 用例
+   * react: useEffect(()=>{ alert(title) },[title])
+   * vue3: watch(()=>title, (v)=>{ alert(v) })
    */
   effects?: SchemaEffectItem[];
 }
