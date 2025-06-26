@@ -1,10 +1,9 @@
-import { NodeType } from '.';
 import { isBasicNode, isSchemaCompTree } from '../component';
 import { SchemaCompTreePath } from '../component/type';
+import { SchemaEffectDependenceType } from '../effect';
 import { getSetStateFuncName, isAnonymousFunctionNode } from '../func';
 import { GenerateArgumentsType } from '../func/type';
 import { isHookNode } from '../hook';
-import { LibListItem, ModulesMapType } from '../lib/type';
 import { isRefNode } from '../ref';
 import { isStateNode } from '../state';
 import { AnyType } from '../type';
@@ -186,45 +185,7 @@ export const parseObj = <VNodeType, OP extends AnyType | null = ParseOptions>(
  * @returns
  */
 export const isPathEqual = (p1: SchemaCompTreePath, p2: SchemaCompTreePath) => {
-  return p1.join('.') === p2.join('.');
-};
-
-/**
- * 解析对象，加载实际用到的依赖包，并且解析子模块
- * 配合懒加载，尽量剔除无用的资源
- * @param obj
- * @param packageList
- * @returns
- */
-export const loadLibList = async (
-  obj: SchemaRootObj,
-  libList: LibListItem[]
-): Promise<ModulesMapType> => {
-  // 1、分析依赖包
-  const map: ModulesMapType = new Map();
-  const { libModules = [] } = obj;
-  const nameList = libModules.map((l) => l.name);
-  // 2、异步加载依赖包
-  const loadList = nameList.map((name) => {
-    return (
-      libList.find((p) => p.name === name)?.load?.() || Promise.resolve()
-    ).then((res) => {
-      if (res) {
-        libModules.forEach((l) => {
-          if (l.name === name) {
-            l.subs.forEach((s) => {
-              // 处理子模块别名
-              map.set(s.alias || s.name, res[s.name]);
-            });
-          }
-        });
-      }
-    });
-  });
-
-  await Promise.all(loadList);
-
-  return map;
+  return p1.length === p2.length && p1.every((p, index) => p === p2[index]);
 };
 
 /**
@@ -249,16 +210,16 @@ export const generateArguments: GenerateArgumentsType = ({
     const { type } = d;
     let neverRes: never;
     switch (type) {
-      case NodeType.STATE:
+      case SchemaEffectDependenceType.STATE:
         fieldMap.set(d.name, getState({ stateName: d.name }));
         break;
-      case NodeType.MODULE:
+      case SchemaEffectDependenceType.MODULE:
         fieldMap.set(d.name, modulesMap.get(d.name));
         break;
-      case NodeType.REF:
+      case SchemaEffectDependenceType.REF:
         fieldMap.set(d.name, getRef({ refName: d.name }));
         break;
-      case NodeType.HOOK:
+      case SchemaEffectDependenceType.HOOK:
         fieldMap.set(d.name, getHook({ name: d.name }));
         break;
       default:

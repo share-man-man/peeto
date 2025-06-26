@@ -1,6 +1,5 @@
-import { SchemaRootObj } from '../../packages/core';
+import { SchemaEffectDependenceType, SchemaRootObj } from '../../packages/core';
 import { ConditionTypeEnum, FuncTypeEnum } from '../../packages/core/src/func';
-import { NodeType } from '../../packages/core/src/root';
 import {
   createFunc,
   createComp,
@@ -124,7 +123,9 @@ export const state = createSchemaConfig({
     ],
     effects: [
       {
-        dependences: [{ type: NodeType.STATE, name: 'title' }],
+        dependences: [
+          { type: SchemaEffectDependenceType.STATE, name: 'title' },
+        ],
         effectStates: ['titleLength'],
         body: `
         setTitleLength(title.length)
@@ -170,7 +171,9 @@ export const state = createSchemaConfig({
               createComp('Typography.Text', {
                 children: createFunc({
                   IIFE: true,
-                  dependences: [{ type: NodeType.STATE, name: 'title' }],
+                  dependences: [
+                    { type: SchemaEffectDependenceType.STATE, name: 'title' },
+                  ],
                   func: {
                     body: '(title || "").length',
                   },
@@ -241,7 +244,9 @@ export const listLoop = createSchemaConfig({
               listLoop: {
                 data: createFunc({
                   IIFE: true,
-                  dependences: [{ type: NodeType.STATE, name: 'record' }],
+                  dependences: [
+                    { type: SchemaEffectDependenceType.STATE, name: 'record' },
+                  ],
                   func: {
                     body: 'record.labels',
                   },
@@ -291,7 +296,9 @@ export const conditionBool = createSchemaConfig({
         checked: createState({ name: 'visible' }),
         onChange: createFunc({
           params: ['checked'],
-          dependences: [{ type: NodeType.STATE, name: 'visible' }],
+          dependences: [
+            { type: SchemaEffectDependenceType.STATE, name: 'visible' },
+          ],
           effectStates: ['visible'],
           func: {
             body: 'setVisible(!visible)',

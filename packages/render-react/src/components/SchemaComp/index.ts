@@ -7,7 +7,7 @@ import {
   RefGetSetType,
   StateMap,
   ContextType,
-  NodeType,
+  SchemaEffectDependenceType,
   FieldTypeEnum,
   HookGetSetType,
 } from '@peeto/core';
@@ -129,7 +129,7 @@ const Index: FC<SchemaCompProps> = ({ schemaStr, ctx = {}, ...props }) => {
         new Function(...argNameList, body).call({}, ...argList);
       },
       dependences
-        .filter((d) => d.type === NodeType.STATE)
+        .filter((d) => d.type === SchemaEffectDependenceType.STATE)
         .map((d) => stateMapRef.current.getValue(d.name))
     );
   });

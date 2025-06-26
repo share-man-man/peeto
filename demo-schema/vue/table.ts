@@ -1,5 +1,4 @@
-import { AnyType } from '../../packages/core';
-import { NodeType } from '../../packages/core/src/root';
+import { AnyType, SchemaEffectDependenceType } from '../../packages/core';
 import { ConditionTypeEnum, FuncTypeEnum } from '../../packages/core/src/func';
 import {
   createFunc,
@@ -62,15 +61,15 @@ export const table = createSchemaConfig({
           },500)`,
         dependences: [
           {
-            type: NodeType.MODULE,
+            type: SchemaEffectDependenceType.MODULE,
             name: 'request',
           },
           {
-            type: NodeType.STATE,
+            type: SchemaEffectDependenceType.STATE,
             name: 'current',
           },
           {
-            type: NodeType.STATE,
+            type: SchemaEffectDependenceType.STATE,
             name: 'pageSize',
           },
         ],
@@ -272,7 +271,10 @@ export const table = createSchemaConfig({
                             size: 'small',
                             onClick: createFunc({
                               dependences: [
-                                { type: NodeType.REF, name: 'actionRef' },
+                                {
+                                  type: SchemaEffectDependenceType.REF,
+                                  name: 'actionRef',
+                                },
                               ],
                               func: { body: 'console.log(actionRef)' },
                             }),

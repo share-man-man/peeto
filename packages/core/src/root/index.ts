@@ -10,11 +10,6 @@ export enum NodeType {
   HOOK = 'hook',
   ANONYMOUSFUNCTION = 'anonymous-function',
   COMPONENT = 'component',
-  /**
-   * 模块
-   */
-  MODULE = 'module',
-  // EVENT = 'event',
 }
 
 /**

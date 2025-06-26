@@ -1,7 +1,7 @@
+import { SchemaEffectDependenceType } from './index';
 import { HookNodeType } from '../hook';
 import { SchemaLibItemSubsItem } from '../lib/type';
 import { RefNodeType } from '../ref';
-import { NodeType } from '../root';
 import { StateNodeType } from '../state';
 import { SchemaStateItem } from '../state/type';
 
@@ -14,19 +14,19 @@ export interface SchemaEffectItem {
    */
   dependences?: (
     | {
-        type: NodeType.STATE;
+        type: SchemaEffectDependenceType.STATE;
         name: StateNodeType['name'];
       }
     | {
-        type: NodeType.MODULE;
+        type: SchemaEffectDependenceType.MODULE;
         name: SchemaLibItemSubsItem['name'];
       }
     | {
-        type: NodeType.REF;
+        type: SchemaEffectDependenceType.REF;
         name: RefNodeType['name'];
       }
     | {
-        type: NodeType.HOOK;
+        type: SchemaEffectDependenceType.HOOK;
         name: HookNodeType['name'];
       }
   )[];

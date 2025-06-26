@@ -1,6 +1,5 @@
-import { AnyType } from '../../packages/core';
+import { AnyType, SchemaEffectDependenceType } from '../../packages/core';
 import { ConditionTypeEnum, FuncTypeEnum } from '../../packages/core/src/func';
-import { NodeType } from '../../packages/core/src/root';
 import {
   createFunc,
   createComp,
@@ -235,7 +234,7 @@ export const table = createSchemaConfig({
         request: createFunc({
           dependences: [
             {
-              type: NodeType.MODULE,
+              type: SchemaEffectDependenceType.MODULE,
               name: 'request',
               // libName: 'umi-request',
               // alias: 'request',
@@ -312,7 +311,7 @@ export const table = createSchemaConfig({
                 onClick: createFunc({
                   dependences: [
                     {
-                      type: NodeType.REF,
+                      type: SchemaEffectDependenceType.REF,
                       name: 'actionRef',
                     },
                   ],

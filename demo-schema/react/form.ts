@@ -1,5 +1,4 @@
-import { FieldTypeEnum } from '../../packages/core';
-import { NodeType } from '../../packages/core/src/root';
+import { FieldTypeEnum, SchemaEffectDependenceType } from '../../packages/core';
 import {
   createFunc,
   createComp,
@@ -41,7 +40,7 @@ export const form = createSchemaConfig({
           body: 'Form.useForm()',
           dependences: [
             {
-              type: NodeType.MODULE,
+              type: SchemaEffectDependenceType.MODULE,
               name: 'Form',
             },
           ],
@@ -104,7 +103,7 @@ export const form = createSchemaConfig({
                 effectStates: ['loading'],
                 dependences: [
                   {
-                    type: NodeType.HOOK,
+                    type: SchemaEffectDependenceType.HOOK,
                     name: 'form',
                   },
                 ],
@@ -119,7 +118,7 @@ export const form = createSchemaConfig({
                 },
                 dependences: [
                   {
-                    type: NodeType.HOOK,
+                    type: SchemaEffectDependenceType.HOOK,
                     name: 'form',
                   },
                 ],

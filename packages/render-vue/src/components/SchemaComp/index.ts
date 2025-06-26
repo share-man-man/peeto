@@ -10,11 +10,11 @@ import {
   // StateMap,
   StateGetSetType,
   generateArguments,
-  NodeType,
   RefGetSetType,
   HookGetSetType,
   AnyType,
   StateMap,
+  SchemaEffectDependenceType,
   // NodeType,
   // FieldTypeEnum,
   // HookGetSetType,
@@ -154,7 +154,7 @@ const Index = defineComponent({
           },
           () =>
             dependences
-              .filter((d) => d.type === NodeType.STATE)
+              .filter((d) => d.type === SchemaEffectDependenceType.STATE)
               .map((d) => stateMapRef.current.getValue(d.name)?.value)
         );
       }
