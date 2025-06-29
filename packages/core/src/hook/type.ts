@@ -1,6 +1,5 @@
 import { FieldTypeEnum, HookNodeType } from '.';
 import { SchemaEffectItem } from '../effect/type';
-// import { NodeType } from '../root';
 import { AnyType } from '../type';
 
 export interface SchemaHookItem {

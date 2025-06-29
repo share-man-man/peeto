@@ -1,4 +1,4 @@
-import { NodeType } from '../root';
+import { NodeType } from '../schema';
 import { AnyType, JSONValue } from '../type';
 import { BasicNodeType } from './type';
 // import { SchemaCompTreeItem } from './type';

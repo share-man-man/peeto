@@ -1,7 +1,6 @@
-import { NodeType } from '../root';
+import { NodeType } from '../schema';
 import { AnyType } from '../type';
 import { SchemaStateItem } from './type';
-// import { StateNodeType } from './type';
 
 /**
  * 状态节点

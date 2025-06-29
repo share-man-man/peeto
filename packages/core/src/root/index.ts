@@ -4,14 +4,6 @@ import { AnyType, JSONValue } from '../type';
 import { GenerateNodePropType } from './type';
 import { generateArguments, parseObj } from './utils';
 
-export enum NodeType {
-  STATE = 'state',
-  REF = 'ref',
-  HOOK = 'hook',
-  ANONYMOUSFUNCTION = 'anonymous-function',
-  COMPONENT = 'component',
-}
-
 /**
  * 生成节点
  * @returns

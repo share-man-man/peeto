@@ -12,7 +12,7 @@ export type PickRequired<T, K extends keyof T> = Omit<T, K> &
   Required<Pick<T, K>>;
 
 /**
- * 将某些字段置为required
+ * 将某些字段置为Partial
  */
 export type PickPartial<T, K extends keyof T> = Omit<T, K> &
   Partial<Pick<T, K>>;
@@ -48,13 +48,13 @@ export type JSONObject = {
 export type JSONArray = Array<JSONValue>;
 
 /**
- * 将泛型参数的首字母转换为大写
+ * 将首字母转换为大写
  */
 export type UppercaseFirstLetter<T extends string> =
   T extends `${infer First}${infer Rest}` ? `${Uppercase<First>}${Rest}` : T;
 
 /**
- * 将泛型参数的首字母转换为大写
+ * 将首字母转换为小写
  */
 export type LowercaseFirstLetter<T extends string> =
   T extends `${infer First}${infer Rest}` ? `${Lowercase<First>}${Rest}` : T;
@@ -67,4 +67,4 @@ export type GetSetType<T> = T extends Set<infer U> ? U : never;
 /**
  * 获取数组类型中的元素类型
  */
-export type GetArrayType<T> = T extends Array<infer U> ? U : never;
+export type GetArrayItemType<T> = T extends Array<infer U> ? U : never;

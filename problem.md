@@ -1,10 +1,12 @@
 # 问题记录
 
-## parse
+## core
 
 ### 同步导入所有组件，导致单文件打包结果过大
 
-- 使用 Promise，异步导入组件。使 vite、webpack 可以动态导入。vite 的 import 的后面，需要明确加载的包名，否则找不到包名，会报错
+- 通过 Promise 异步加载 lib 包
+- 通过 vite、webpack 等打包工具实现动态导入
+- vite 的 import 的后面，需要明确加载的包名。否则启动、打包会报错
 
   - 错误代码
 
@@ -19,9 +21,10 @@
     const package = import('antd');
     ```
 
-### 解析 json-schema 时，如何准确判断对象是否为 schema 节点
+### 解析 schema 时，如何准确判断对象是否为 NodeType 节点
 
-- 通过 schemaNodePaths 指定路径，再根据节点类型做相应的处理
+1. 属性路径在 schemaNodePaths 中
+2. 再根据属性的类型做相应的处理
 
 ### 嵌套渲染函数，如何获取外层作用域的变量
 
@@ -42,7 +45,7 @@ render(_,record){
 
 - 解析 schema 时，将变量放到 ctx 对象，new Funciton 时透传 ctx
 
-## react-render
+## render-react
 
 ### 解析 schema 后，返回的 dom，不能用 setState，否则 input 的输入框，不能输入中文，需要用 useMemo
 
@@ -65,11 +68,17 @@ render(_,record){
   return dom;
   ```
 
-### 不能使用 \*.jsx、\*.tsx 文件，会导致打的包包含 jsx-runtime 的代码，导致体积大了 20 多 kb
+### 不能使用 \*.jsx、\*.tsx 文件
 
-## react-editor
+- 原因
+  - react17 及以上版本如果使用 jsx，会自动导入包：jsx-runtime。导致体积大了 20 多 kb
+  - [官方解释](https://legacy.reactjs.org/blog/2020/09/22/introducing-the-new-jsx-transform.html)
 
-1. 有一些组件，会改变子组件的 key，比如 antd.Button，会把 children 的 key 改为'.$'+key
+## editor-react
+
+### 自定义创建 ReactNode
+
+1. 有一些组件，会改变子组件的 key，比如 antd.Button，会把 children 的 key 改为 '.$'+key
 
    - 在 onCreateNode 时，加入自定义的 key
 
@@ -95,11 +104,13 @@ render(_,record){
 
 5. 插件之间通信
 
-   - 通过传入的参数 subscribeEvent(订阅)、dispatchEvent(分发事件)来实现通信
+   - 通过 addEventListener、removeEventListener 监听事件
+   - 通过 getApi、setApi 方法，获取、设置扩展的 api
+   - 通过 onMounted 方法，在扩展某一个工具挂载后进行通信（一般配合 getApi、setApi）
 
 ### 编辑器校验（schema 的校验函数）
 
-- states、events、refs 里 name 都不能重复，且都必须是 camelCase 风格
+- libModules.subs、states、events、refs、customHooks 里 name（alias） 都不能重复，且都必须是 camelCase 风格
 - 匿名函数的参数不能和父级匿名函数参数、states 等重复
 - 匿名函数的 params 和 dependence 不能相同
 - 鉴别循环依赖
@@ -108,9 +119,9 @@ render(_,record){
 - JSFunction 里，函数渲染的 params 在生成作用域时，需要校验 params 是否和上级、states、events、refs 等重名
 - schema 里 id 不能重复
 
-## 新的 schema 待解决问题
+## render
 
-### setState 设置虚拟节点
+### setState 设置值为一个组件
 
 - 示例
 
@@ -167,7 +178,7 @@ render(_,record){
 - 示例
 
   ```jsx
-  const render = () => {
+  const renderFunc = () => {
     return <Tag color="error">ErrorTag</Tag>;
   };
   ```
@@ -193,10 +204,10 @@ render(_,record){
 - 解决方案
 
   - 通过`renderFunc.conditionType`用相应的策略渲染
-  - 目前支持的：数组、boolean、三元（可用 boolean 代替）
+  - 目前支持的：数组、boolean、三元表达式（可用 boolean 实现）
   - 递归解析 renderFunc.compTree
 
-### react 自定义 hooks 问题
+### 自定义 hooks 问题
 
 - 示例
 
@@ -206,4 +217,29 @@ render(_,record){
   ```
 
 - 解决方案
-  - 暂无
+
+  - customHooks 实现
+  - 支持数组、对象解构
+  - 支持依赖导入
+
+    - 示例 json
+
+      ```json
+      [
+        {
+          effect: {
+            body: 'Form.useForm()',
+            dependences: [
+              {
+                type: SchemaEffectDependenceType.MODULE,
+                name: 'Form',
+              },
+            ],
+          },
+          field: {
+            type: FieldTypeEnum.ARR,
+            [FieldTypeEnum.ARR]: ['form'],
+          },
+        },
+      ]
+      ```

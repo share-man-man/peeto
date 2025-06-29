@@ -1,4 +1,4 @@
-import { NodeType } from '../root';
+import { NodeType } from '../schema';
 
 export enum SchemaEffectDependenceType {
   STATE = NodeType.STATE,

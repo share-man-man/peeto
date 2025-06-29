@@ -1,10 +1,30 @@
 import { SchemaCompTreeItem } from '../component';
 import { SchemaEffectItem } from '../effect/type';
-import { NodeType } from '../root';
+import { NodeType } from '../schema';
 import { ContextType } from '../root/type';
 import { SchemaStateItem } from '../state/type';
 import { AnyType, JSONValue } from '../type';
 import { GenerateFuncBaseOptionType } from './type';
+
+/**
+ * 函数类型
+ */
+export enum FuncTypeEnum {
+  FUNC = 'func',
+  RENDERFUNC = 'renderFunc',
+}
+
+/**
+ * 条件渲染类型
+ * default：直接渲染
+ * listLoop： list.map(item=><div>{item.name}</div>)
+ * boolean：flag && <div>111</div>
+ */
+export enum ConditionTypeEnum {
+  DEFAULT = 'default',
+  LISTLOOP = 'listLoop',
+  BOOLEAN = 'boolean',
+}
 
 export class AnonymousFunctionNode {
   type = NodeType.ANONYMOUSFUNCTION;
@@ -38,7 +58,7 @@ export class AnonymousFunctionNode {
   /**
    * 普通函数配置
    */
-  func?: {
+  [FuncTypeEnum.FUNC]?: {
     /**
      * 函数方法体
      */
@@ -47,59 +67,61 @@ export class AnonymousFunctionNode {
   /**
    * 渲染函数配置
    */
-  renderFunc?: {
-    /* *
-     * 条件渲染类型
-     */
-    conditionType?: ConditionTypeEnum;
-    /**
-     * 渲染函数返回的组件树
-     */
-    compTree?: SchemaCompTreeItem | SchemaCompTreeItem[];
-    /**
-     * 列表配置
-     */
-    listLoop?: {
-      /**
-       * 数组数据
-       */
-      data: JSONValue;
-      /**
-       * list.map的回掉函数参数，默认：item、index
-       */
-      mapParams: string[];
-    };
-    /**
-     * 布尔配置
-     */
-    boolean?: {
-      data: JSONValue;
-    };
-  };
+  [FuncTypeEnum.RENDERFUNC]?:
+    | {
+        /**
+         * 默认渲染
+         */
+        conditionType: ConditionTypeEnum.DEFAULT;
+        /**
+         * 渲染函数返回的组件树
+         */
+        compTree: SchemaCompTreeItem | SchemaCompTreeItem[];
+      }
+    | {
+        /* *
+         * 数组渲染
+         */
+        conditionType: ConditionTypeEnum.LISTLOOP;
+        /**
+         * 列表配置
+         */
+        [ConditionTypeEnum.LISTLOOP]: {
+          /**
+           * 数组数据
+           */
+          data: JSONValue;
+          /**
+           * list.map的回掉函数参数，默认：item、index
+           */
+          mapParams: string[];
+        };
+        /**
+         * 渲染函数返回的组件树
+         */
+        compTree: SchemaCompTreeItem | SchemaCompTreeItem[];
+      }
+    | {
+        /* *
+         * 条件渲染类型
+         */
+        conditionType: ConditionTypeEnum.BOOLEAN;
+
+        /**
+         * 布尔配置
+         */
+        [ConditionTypeEnum.BOOLEAN]: {
+          data: JSONValue;
+        };
+        /**
+         * 渲染函数返回的组件树
+         */
+        compTree: SchemaCompTreeItem | SchemaCompTreeItem[];
+      };
 
   constructor(p: Omit<AnonymousFunctionNode, 'type'>) {
     Object.assign(this, p);
   }
-}
-
-/**
- * 函数类型
- */
-export enum FuncTypeEnum {
-  FUNC = 'func',
-  RENDERFUNC = 'renderFunc',
-}
-
-/**
- * 条件渲染类型
- * default：直接渲染
- * listLoop： list.map(item=><div>{item.name}</div>)
- * boolean：flag && <div>111</div>
- */
-export enum ConditionTypeEnum {
-  DEFAULT = 'default',
-  LISTLOOP = 'listLoop',
-  BOOLEAN = 'boolean',
 }
 
 /**
@@ -192,6 +214,13 @@ export const generateRenderFuncBoolean = <VNodeType, OP>(
   op: OP
 ) => {
   const { curSchema, deepRecursionParse, path, ctx } = p;
+
+  if (curSchema.renderFunc?.conditionType !== ConditionTypeEnum.BOOLEAN) {
+    throw new Error(
+      `渲染函数必须配置conditionType为${ConditionTypeEnum.BOOLEAN}`
+    );
+  }
+
   const { boolean } = curSchema.renderFunc || {};
 
   const { data = '' } = boolean || {};
@@ -225,6 +254,11 @@ export const generateRenderFuncListLoop = <VNodeType, OP>(
   }: GenerateFuncBaseOptionType<VNodeType, OP>,
   op: OP
 ) => {
+  if (curSchema.renderFunc?.conditionType !== ConditionTypeEnum.LISTLOOP) {
+    throw new Error(
+      `渲染函数必须配置conditionType为${ConditionTypeEnum.LISTLOOP}`
+    );
+  }
   const { listLoop, compTree } = curSchema.renderFunc || {};
   const { data, mapParams = [] } = listLoop || {};
   // 解析数组数据，有可能是state、或其他表达式
@@ -251,7 +285,7 @@ export const generateRenderFuncListLoop = <VNodeType, OP>(
     );
     const r = deepRecursionParse(
       {
-        cur: compTree as JSONValue,
+        cur: compTree as unknown as JSONValue,
         path: [...path, 'renderFunc', 'compTree'],
         ctx: newCtx,
       },

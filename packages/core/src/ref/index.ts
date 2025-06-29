@@ -1,4 +1,4 @@
-import { NodeType } from '../root';
+import { NodeType } from '../schema';
 import { AnyType } from '../type';
 // import { RefNodeType } from './type';
 

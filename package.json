@@ -10,7 +10,7 @@
     "build": "lerna run build",
     "clean": "lerna clean -y && rm -rf node_modules && rm -rf packages/*/dist",
     "create-changelog": "lerna version --conventional-commits --no-push --yes",
-    "lc": "lint-staged && git cz"
+    "lc": "tsc && lint-staged && git cz"
   },
   "devDependencies": {
     "@ant-design/icons": "^5.3.1",

@@ -13,7 +13,7 @@ export type {
 export type * from './type';
 export { SchemaCompTreeItem, isSchemaCompTree } from './component';
 export type { GenerateFuncBaseOptionType } from './func/type';
-export { NodeType } from './root';
+export { NodeType } from './schema';
 export { parseObj, getSchemaObjFromStr, generateArguments } from './root/utils';
 export { generateNode } from './root';
 export {
