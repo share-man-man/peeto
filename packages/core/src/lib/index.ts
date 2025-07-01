@@ -45,7 +45,7 @@ export const loadLibList = async (
 };
 
 /**
- * 通过子模块名获取包
+ * 通过组件名查询包名、子模块信息
  * @param param0
  * @returns
  */

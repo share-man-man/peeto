@@ -82,6 +82,7 @@ export const table = createSchemaConfig({
               params: ['_', 'record'],
               funcType: FuncTypeEnum.RENDERFUNC,
               renderFunc: {
+                conditionType: ConditionTypeEnum.DEFAULT,
                 compTree: [
                   createComp('Space', {
                     children: [
@@ -111,6 +112,7 @@ export const table = createSchemaConfig({
               funcType: FuncTypeEnum.RENDERFUNC,
               params: ['_', 'record'],
               renderFunc: {
+                conditionType: ConditionTypeEnum.DEFAULT,
                 compTree: [
                   createComp('Space', {
                     children: [
@@ -189,6 +191,7 @@ export const table = createSchemaConfig({
               params: ['text', 'record', '_', 'action'],
               funcType: FuncTypeEnum.RENDERFUNC,
               renderFunc: {
+                conditionType: ConditionTypeEnum.DEFAULT,
                 compTree: [
                   createComp('Button', {
                     key: 'editable',

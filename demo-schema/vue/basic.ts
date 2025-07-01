@@ -80,9 +80,12 @@ export const basic = createSchemaConfig({
             header: createFunc({
               funcType: FuncTypeEnum.RENDERFUNC,
               renderFunc: {
+                conditionType: ConditionTypeEnum.DEFAULT,
                 compTree: createComp(
                   'ElText',
-                  {},
+                  {
+                    type: 'success',
+                  },
                   {
                     slots: {
                       default: createSlot({ compTree: ['Card'] }),
@@ -94,6 +97,7 @@ export const basic = createSchemaConfig({
             default: createFunc({
               funcType: FuncTypeEnum.RENDERFUNC,
               renderFunc: {
+                conditionType: ConditionTypeEnum.DEFAULT,
                 compTree: createComp(
                   'ElText',
                   {},
@@ -173,6 +177,7 @@ export const state = createSchemaConfig({
             default: createFunc({
               funcType: FuncTypeEnum.RENDERFUNC,
               renderFunc: {
+                conditionType: ConditionTypeEnum.DEFAULT,
                 compTree: [
                   createComp(
                     'ElSpace',

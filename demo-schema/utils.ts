@@ -3,6 +3,7 @@ import { v4 as id } from 'uuid';
 import {
   AnonymousFunctionNode,
   AnyType,
+  ConditionTypeEnum,
   FuncTypeEnum,
   HookNodeType,
   SchemaRootObj,
@@ -20,11 +21,13 @@ export const createComp = (
   props: Record<string, AnyType> = {},
   {
     slots,
+    customId,
   }: {
     slots?: Record<string, AnyType> | AnyType;
+    customId?: () => string;
   } = {}
 ) => {
-  const selfId = id();
+  const selfId = customId ? customId() : id();
   let newSlots = slots as Record<string, AnyType>;
   // slots为函数时，默认为default插槽
   if (
@@ -73,6 +76,7 @@ export const createSlot = ({
   return new AnonymousFunctionNode({
     funcType: FuncTypeEnum.RENDERFUNC,
     [FuncTypeEnum.RENDERFUNC]: {
+      conditionType: ConditionTypeEnum.DEFAULT,
       compTree: compTree as AnyType,
     },
     params,
