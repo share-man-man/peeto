@@ -13,6 +13,7 @@ import { Editor } from '@peeto/editor';
 import Simulator from './components/Simulator';
 import { EditorWorkbenchProps } from './type';
 import SuspenseToolBar from './components/SuspenseToolBar';
+import RightToolPanel, { RightToolBarRef } from './components/RightToolPanel';
 
 export const WorkBenchContext = createContext<{
   editorRef?: MutableRefObject<Editor | undefined>;
@@ -66,6 +67,12 @@ export const EditorWokrBench = ({ actionRef }: EditorWorkbenchProps) => {
     },
   });
 
+  const rightToolBarRef = useRef<RightToolBarRef>({
+    onActive: () => {
+      //
+    },
+  });
+
   useImperativeHandle(
     actionRef,
     () => {
@@ -73,6 +80,7 @@ export const EditorWokrBench = ({ actionRef }: EditorWorkbenchProps) => {
         onMounted,
         editor,
         leftToolBarRef,
+        rightToolBarRef,
         reload: reloadRef.current,
       };
     },
@@ -99,6 +107,7 @@ export const EditorWokrBench = ({ actionRef }: EditorWorkbenchProps) => {
             </div>
           </div>
         </div>
+        <RightToolPanel customRef={rightToolBarRef} />
       </div>
     </WorkBenchContext.Provider>
   );

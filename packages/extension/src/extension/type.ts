@@ -90,6 +90,15 @@ export interface ExtensionConfig {
       dom: HTMLDivElement;
       extension: Extension;
     }) => void;
+    /**
+     *
+     * @param p 右侧工具栏挂载
+     * @returns
+     */
+    rightToolPanelMounted?: (p: {
+      dom: HTMLDivElement;
+      extension: Extension;
+    }) => void;
   };
   /**
    * 描述

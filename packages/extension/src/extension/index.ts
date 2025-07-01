@@ -12,13 +12,11 @@ export enum EVENT_NAME {
 export class Extension {
   private name: ExtensionConfig['name'];
   private activityBarIcon?: HTMLElement;
-  // private topToolBarIcon?: HTMLElement;
-  // topToolBarActive: boolean = false;
   panel = new ToolBar();
   simulator = new ToolBar();
   suspenseToolBar = new ToolBar();
   topToolBar = new ToolBar();
-  // private suspenseToolBarContainer?: HTMLDivElement;
+  rightToolPanel = new ToolBar();
   private apiMap = new Map<string, AnyType>();
   private _events = {
     [EVENT_NAME.TOP_TOOL_BAR_ACTIVE_CHANGE]: new Set<(f: boolean) => void>(),
