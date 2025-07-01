@@ -1,0 +1,3 @@
+export const API_CONFIG_CHANGE = 'API_CONFIG_CHANGE';
+export const API_GET_STATE = 'API_GET_STATE';
+export const API_COMP_CHECK = 'API_COMP_CHECK';

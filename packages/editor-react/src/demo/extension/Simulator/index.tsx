@@ -8,10 +8,9 @@ import VueApp from './components/VueApp/App.vue';
 import { VueAppProps } from './components/VueApp/type';
 import { AppActionRef, SimulatorConfigType } from './type';
 import { EXTENSION_LIB_TYPE } from '../ChangeProp';
+import { API_CONFIG_CHANGE, API_GET_STATE } from '../common';
 
 export const name = 'SimulatorExtension';
-export const API_CONFIG_CHANGE = 'API_CONFIG_CHANGE';
-export const API_GET_STATE = 'API_GET_STATE';
 
 /**
  * 生成唯一key

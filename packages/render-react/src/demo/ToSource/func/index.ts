@@ -31,6 +31,11 @@ export const generateRenderFuncBoolean = (
   p: GenerateFuncBaseOptionType<ReactNode, CustomOpType>
 ) => {
   const { curSchema, deepRecursionParse, path, ctx } = p;
+  if (curSchema.renderFunc?.conditionType !== ConditionTypeEnum.BOOLEAN) {
+    throw new Error(
+      `渲染函数必须配置conditionType为${ConditionTypeEnum.BOOLEAN}`
+    );
+  }
   const { boolean } = curSchema.renderFunc || {};
 
   const { data = '' } = boolean || {};
@@ -59,6 +64,11 @@ export const generateRenderFuncListLoop = ({
   ctx,
   path,
 }: GenerateFuncBaseOptionType<ReactNode, CustomOpType>) => {
+  if (curSchema.renderFunc?.conditionType !== ConditionTypeEnum.LISTLOOP) {
+    throw new Error(
+      `渲染函数必须配置conditionType为${ConditionTypeEnum.LISTLOOP}`
+    );
+  }
   const { listLoop, compTree } = curSchema.renderFunc || {};
   const { data, mapParams = [] } = listLoop || {};
   const listData = deepRecursionParse(
@@ -71,7 +81,7 @@ export const generateRenderFuncListLoop = ({
   );
   const r = deepRecursionParse(
     {
-      cur: compTree as JSONValue,
+      cur: compTree as unknown as JSONValue,
       path: [...path, 'renderFunc', 'compTree'],
       ctx,
     },

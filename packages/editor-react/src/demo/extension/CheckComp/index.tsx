@@ -1,16 +1,19 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { RefObject, useCallback, useEffect, useRef } from 'react';
 import ComponentPicker from './utils/component-pick';
 import { Extension, EVENT_NAME } from '@peeto/extension';
 import Editor from '@peeto/editor';
 
-import { API_GET_STATE, name as simulatorName } from '../Simulator';
+import { name as simulatorName } from '../Simulator';
 import { AnyType } from '@peeto/core';
 import { SimulatorConfigType } from '../Simulator/type';
 import { EXTENSION_LIB_TYPE } from '../ChangeProp';
 import { getCompDomMap as getReactMap } from './utils/react';
 import { getCompDomMap as getVueMap } from './utils/vue';
 import { CompDomMap } from './type';
-import { API_COMP_CHECK, name as editCompName } from '../EditComp';
+import { name as editCompName } from '../EditComp';
+import { API_COMP_CHECK, API_GET_STATE } from '../common';
+
+import { EditorWorkbenchActionRefType } from '../../../../src/components/EditorWorkbench/type';
 
 export const name = 'EXTENSION_COMP_CHECK';
 
@@ -22,9 +25,11 @@ export const name = 'EXTENSION_COMP_CHECK';
 const Index = ({
   editor,
   extension,
+  workbenchRef,
 }: {
   editor: Editor;
   extension: Extension;
+  workbenchRef: RefObject<EditorWorkbenchActionRefType>;
 }) => {
   const extensionRef = useRef(extension);
   extensionRef.current = extension;
@@ -37,9 +42,10 @@ const Index = ({
     new ComponentPicker({
       onCheckComp: (compList) => {
         const editCompEx = editor.getExtensionByName(editCompName);
-        editCompEx?.suspenseToolBar?.onActive().then(() => {
+        editCompEx?.rightToolPanel?.onActive().then(() => {
           editCompEx.getApi(API_COMP_CHECK)?.(compList);
         });
+        workbenchRef.current?.rightToolBarRef.current.onActive(editCompName);
       },
       onStopSelect: () => {
         extensionRef.current.changeTopToolBarActive(false);
@@ -111,6 +117,7 @@ const Index = ({
   updatePickerMapRef.current = updatePickerMap;
   // 循环获取映射，原因：有些组件会异步改变状态或dom
   useEffect(() => {
+    // TODO 立即执行时，simulatorName的config还为空，需要等到其他扩展调用API_CONFIG_CHANGE，才能获取
     const timer = setInterval(() => {
       // TODO 使用requestAnimationFrame，防止页面掉帧
       // 获取模拟器扩展，获取root节点

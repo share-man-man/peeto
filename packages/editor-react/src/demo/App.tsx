@@ -72,7 +72,9 @@ function Index() {
       lifeCycleHooks: {
         suspenseToolBarMounted: ({ dom, extension }) => {
           const appRef = createRoot(dom);
-          appRef.render(createElement(CompCheck, { editor, extension }));
+          appRef.render(
+            createElement(CompCheck, { editor, extension, workbenchRef })
+          );
         },
       },
       topToolBarIcon: () => {
@@ -91,7 +93,7 @@ function Index() {
       name: editCompName,
       version: '1',
       lifeCycleHooks: {
-        suspenseToolBarMounted: ({ dom, extension }) => {
+        rightToolPanelMounted: ({ dom, extension }) => {
           const appRef = createRoot(dom);
           appRef.render(createElement(EditComp, { editor, extension }));
         },
@@ -135,6 +137,15 @@ function Index() {
 
   return (
     <div>
+      {/* <Button
+        onClick={() => {
+          const editCompEx =
+            workbenchRef.current?.editor?.getExtensionByName(editCompName);
+          console.log(editCompEx?.rightToolPanel?.getStatus());
+        }}
+      >
+        测试
+      </Button> */}
       <EditorWokrBench actionRef={workbenchRef} />
     </div>
   );

@@ -4,12 +4,13 @@ import { Descriptions, Radio } from 'antd';
 
 import Editor from '@peeto/editor';
 
-import { API_CONFIG_CHANGE, name as simulatorName } from '../Simulator';
+import { name as simulatorName } from '../Simulator';
 import { name as editCompName } from '../EditComp';
 
 import { enumOp as enumOpReact } from '../../../../../../demo-schema/react';
 import { enumOp as enumOpVue } from '../../../../../../demo-schema/vue';
 import { Extension } from '@peeto/extension';
+import { API_CONFIG_CHANGE } from '../common';
 
 /**
  * 插件类型：vue3、react-18
@@ -114,7 +115,7 @@ const Index = ({
     };
     const simulatorEx = editorRef.current?.getExtensionByName(simulatorName);
     const compEditEx = editorRef.current?.getExtensionByName(editCompName);
-    compEditEx?.suspenseToolBar.onActive().then(() => {
+    compEditEx?.rightToolPanel.onActive().then(() => {
       compEditEx.getApi(API_CONFIG_CHANGE)?.(config);
     });
     simulatorEx?.simulator.onActive().then(() => {

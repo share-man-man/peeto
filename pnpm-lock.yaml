@@ -142,9 +142,15 @@ importers:
       '@ant-design/icons':
         specifier: ^5.3.1
         version: 5.3.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@types/lodash-es':
+        specifier: ^4.17.12
+        version: 4.17.12
       antd:
         specifier: ^5.14.1
         version: 5.14.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      lodash-es:
+        specifier: ^4.17.21
+        version: 4.17.21
       react-dom:
         specifier: ^18.2.0
         version: 18.2.0(react@18.2.0)

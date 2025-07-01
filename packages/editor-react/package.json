@@ -24,7 +24,9 @@
   },
   "devDependencies": {
     "@ant-design/icons": "^5.3.1",
+    "@types/lodash-es": "^4.17.12",
     "antd": "^5.14.1",
+    "lodash-es": "^4.17.21",
     "react-dom": "^18.2.0",
     "vue": "^3.3.4"
   }
