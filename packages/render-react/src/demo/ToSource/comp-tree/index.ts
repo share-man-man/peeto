@@ -41,6 +41,7 @@ export type CustomOpType = { parentNode: 'comp' | 'prop' | 'object' };
 export const getCompTreeStr = (obj: SchemaRootObj, op: CustomOpType) => {
   const resStr = parseObj<ReactNode, CustomOpType>(
     {
+      parseSchemaCompFields: ['props'],
       node: obj.compTree as unknown as JSONObject,
       nodePath: obj.schemaNodePaths || [],
       parseBasicNode: ({ curSchema: v }, { parentNode }) => {

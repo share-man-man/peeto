@@ -17,7 +17,7 @@ import { StateNodeType } from '../state';
  */
 export interface SchemaRootObj {
   /**
-   * 标识引入的包和模块。
+   * 标识引入的包和模块（子模块可能有别名）
    * 用例
    * import { muudleA as A } from 'pkg-a'
    */
@@ -155,24 +155,29 @@ export interface ParseObjOptionType<VNodeType = AnyType, OP = ParseOptions> {
     p: ParseNodeBaseProp<JSONObject, VNodeType, OP>,
     op: OP
   ) => AnyType;
-  parseStateNode?: (
+  parseStateNode: (
     p: ParseNodeBaseProp<StateNodeType, VNodeType, OP>,
     op: OP
   ) => AnyType;
-  parseRefNode?: (
+  parseRefNode: (
     p: ParseNodeBaseProp<RefNodeType, VNodeType, OP>,
     op: OP
   ) => AnyType;
-  parseHookNode?: (
+  parseHookNode: (
     p: ParseNodeBaseProp<HookNodeType, VNodeType, OP>,
     op: OP
   ) => AnyType;
-  parseAnonymousFunctionNode?: (
+  parseAnonymousFunctionNode: (
     p: ParseNodeBaseProp<AnonymousFunctionNode, VNodeType, OP>,
     op: OP
   ) => AnyType;
-  parseSchemaCompFields?: string[];
-  parseSchemaComp?: (
+  /**
+   * 解析组件的字段
+   * 1. react只解析props
+   * 2. vue解析props和slots
+   */
+  parseSchemaCompFields: string[];
+  parseSchemaComp: (
     p: ParseNodeBaseProp<SchemaCompTreeItem, VNodeType, OP> & {
       fields: Record<string, AnyType>;
     },

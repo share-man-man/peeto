@@ -26,7 +26,10 @@ export type SchemaCompProps = {
 export interface ReactRenderProps
   extends PickPartial<
     Omit<SchemaCompProps, 'modulesMap'>,
-    'onCreateCompNode' | 'noMatchCompRender' | 'errorBoundaryRender'
+    | 'onCreateCompNode'
+    | 'noMatchCompRender'
+    | 'errorBoundaryRender'
+    | 'parseSchemaCompFields'
   > {
   /**
    * lib包列表
