@@ -12,7 +12,7 @@ export type PropFormCompPropType = {
   schemaRootObj: SchemaRootObj;
   curSchema: SchemaCompTreeItem;
   path: SchemaCompTreePath;
-  onChange: (p: string) => void;
+  onSchemaChange: (p: string) => void;
 } & ReturnType<typeof getLibModuleByName>;
 
 export const findNodeInSchemaPathsById = ({
@@ -43,7 +43,9 @@ export const findNodeInSchemaPathsById = ({
 export const setValueByPath = (
   path: SchemaCompTreePath,
   value: AnyType,
-  schemaRootObj: SchemaRootObj
+  schemaCompTree: SchemaCompTreeItem[]
 ) => {
-  set(schemaRootObj, path, value);
+  // TODO 判断参数路径是否在schemaObj.schemaNodePaths中，再判断节点类型。再判断是否为普通节点类型
+  // 在schemaObj.schemaNodePaths路径中的节点修改，还要修改schemaObj.schemaNodePaths的值
+  set(schemaCompTree, path, value);
 };

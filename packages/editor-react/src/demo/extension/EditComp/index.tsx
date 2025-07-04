@@ -14,6 +14,8 @@ import { notification } from 'antd';
 import { findNodeInSchemaPathsById, PropFormCompPropType } from './util';
 import ElText from './ElementPlus/ElText';
 
+import Card from './Antd/Card';
+
 export const name = 'EXTENSION_EDIT_COMP';
 
 const componentPropsDesc: Record<
@@ -32,7 +34,9 @@ const componentPropsDesc: Record<
   // TODO 配置组件参数描述
   antd: {
     Button: {},
-    Card: {},
+    Card: {
+      PropFormComp: Card,
+    },
     Typography: {},
     Row: {},
     Input: {},
@@ -71,7 +75,7 @@ const PropForm: FC<{
 }> = ({ id, simulatorConfigType, onChange }) => {
   const onChangeRef = useRef(onChange);
   onChangeRef.current = onChange;
-  const renderPropsRef = useRef<PropFormCompPropType>();
+  const [renderProps, setRenderProps] = useState<PropFormCompPropType>();
   const RenderFuncRef = useRef<FC<PropFormCompPropType>>();
   const [renderFlag, setRenderFlag] = useState<boolean>(false);
 
@@ -105,21 +109,21 @@ const PropForm: FC<{
       }
 
       // 加载组件参数配置表单
-      const { PropFormComp: PropFormRender } =
+      const { PropFormComp } =
         componentPropsDesc?.[libName]?.[moduleItem.name] || {};
-      if (!PropFormRender) {
+      if (!PropFormComp) {
         throw new Error(`${schema.componentName}没有配置参数编辑器`);
       }
-      renderPropsRef.current = {
+      setRenderProps({
         libName,
         moduleItem,
         curSchema: schema,
         schemaRootObj: schemaObj,
         path,
-        onChange: onChangeRef.current,
-      };
+        onSchemaChange: onChangeRef.current,
+      });
       setRenderFlag(true);
-      RenderFuncRef.current = PropFormRender;
+      RenderFuncRef.current = PropFormComp;
     } catch (e) {
       notification.warning({
         message: '加载组件配置告警',
@@ -139,11 +143,11 @@ const PropForm: FC<{
   }
 
   const RenderFunc = RenderFuncRef.current;
-  if (!RenderFunc || !renderPropsRef.current) {
+  if (!RenderFunc || !renderProps) {
     return <div />;
   }
 
-  return <RenderFunc {...renderPropsRef.current} />;
+  return <RenderFunc {...renderProps} />;
 };
 
 const Index = ({

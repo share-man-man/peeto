@@ -86,7 +86,7 @@ const Index = ({
   extension: Extension;
 }) => {
   const [libType, setLibType] = useState<EXTENSION_LIB_TYPE>(
-    EXTENSION_LIB_TYPE.VUE3
+    EXTENSION_LIB_TYPE.REACT18
   );
   const [schemaKey, setSchemaKey] = useState<string>(
     schemaConfig[libType]?.[0]?.key

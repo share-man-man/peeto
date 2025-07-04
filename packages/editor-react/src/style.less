@@ -90,7 +90,13 @@
   &-right-tool-panel {
     box-sizing: border-box;
     .neumorphism();
-    width: 200px;
+    width: 300px;
     height: 100%;
+    position: relative;
+    &-content {
+      position: absolute;
+      inset: 0;
+      overflow: auto;
+    }
   }
 }
